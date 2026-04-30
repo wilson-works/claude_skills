@@ -5,15 +5,24 @@ description: "Automated deep-work loop that spawns 1-2 Opus agents per wave, eac
 
 # Marathon Orders Skill
 
+## Configure for your project
+
+Before using this skill, swap these placeholders for values that fit your environment:
+
+- `<your-project-backlog-path>` -- absolute path to the directory holding `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, `completed.md`
+- `<state-dir>` -- absolute path to the directory where the marathon state file should live (e.g. `<project-root>/.claude`)
+- `<project-root>` -- absolute path to the repository root the skill operates against
+- `<PRODUCT_DESCRIPTION>` -- a short paragraph describing your product (positioning, stack, hard rules) that gets injected into the Opus agent prompt
+
 ## Purpose
 
-Runs GrindQuest work orders as a sustained, unattended deep-work loop. Unlike `/work-orders` (which uses Sonnet and runs one session), this skill:
+Runs work orders as a sustained, unattended deep-work loop. Unlike `/work-orders` (which uses Sonnet and runs one session), this skill:
 
-- Uses **Opus** for each agent — deeper reasoning, better code quality, less spaghetti
-- Runs **one work order per agent** — no multitasking, full focus
-- Loops via **CronCreate** — fires every 20 minutes to check agents and launch next wave
-- Gates every merge behind a **diff + build + confidence review** — bad code cannot land
-- Keeps the **main session lean** — it only orchestrates and reviews, never executes
+- Uses **Opus** for each agent -- deeper reasoning, better code quality, less spaghetti
+- Runs **one work order per agent** -- no multitasking, full focus
+- Loops via **CronCreate** -- fires every 20 minutes to check agents and launch next wave
+- Gates every merge behind a **diff + build + confidence review** -- bad code cannot land
+- Keeps the **main session lean** -- it only orchestrates and reviews, never executes
 
 Use `/work-orders` for quick batches of 4-15 shallow items. Use `/marathon-orders` when you need depth: security fixes, complex features, multi-file architectural changes, or anything that has failed a Sonnet agent before.
 
@@ -36,7 +45,7 @@ Use `/work-orders` for quick batches of 4-15 shallow items. Use `/marathon-order
 ## Backlog Location
 
 ```
-C:\Users\patri\.claude\projects\d--CBFC-grindquest\backlog\
+<your-project-backlog-path>
 ```
 
 Files: `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, `completed.md`
@@ -44,10 +53,10 @@ Files: `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, `completed.md`
 ## State File
 
 ```
-d:\CBFC\grindquest\.claude\marathon-state.json
+<state-dir>/marathon-state.json
 ```
 
-Written exclusively via `Bash(node -e ...)` — never via the Write tool. This keeps it inside the already-approved Bash permission scope, so no approval is needed during unattended cron ticks.
+Written exclusively via `Bash(node -e ...)` -- never via the Write tool. This keeps it inside the already-approved Bash permission scope, so no approval is needed during unattended cron ticks.
 
 Schema:
 ```json
@@ -71,11 +80,11 @@ Schema:
       "startedAt": "ISO",
       "waveNumber": 1,
       "brief": {
-        "hotspotFiles": ["functions/firestore.rules", "functions/src/members/onMemberUpdate.ts"],
-        "priorArt": "BUG-012 used field mask pattern in firestore.rules",
-        "callers": ["apps/web/src/hooks/useTeamMember.ts"],
-        "approach": "Add field-level allow constraint to members rule; enforce server-side in onMemberUpdate",
-        "avoid": "Do not solve this client-side — writable at Firestore layer"
+        "hotspotFiles": ["path/to/rules", "path/to/handler.ts"],
+        "priorArt": "BUG-012 used field mask pattern in rules",
+        "callers": ["path/to/caller.ts"],
+        "approach": "Add field-level allow constraint to the rule; enforce server-side in the handler",
+        "avoid": "Do not solve this client-side -- writable at the data layer"
       }
     }
   ],
@@ -98,22 +107,22 @@ Parse flags before doing anything else:
 
 - `--stop` flag: read state file. If it exists, write `paused: true` via node, call `CronDelete(state.cronJobId)`, print current wave status. If no state file, print "No marathon in progress." Stop.
 - `--status` flag: read state file. Pretty-print: session ID, current wave, items in queue, in-flight agents with elapsed time, completed count, failed count. Stop.
-- `--continue` flag: skip to Phase 3 directly — use when the cron misfired and you want to manually resume.
+- `--continue` flag: skip to Phase 3 directly -- use when the cron misfired and you want to manually resume.
 - `dry-run` argument: run Phase 1 through queue-building, print the prioritized queue, stop before asking for confirmation.
 - **No state file exists**: fresh start, continue to Phase 1.
 - **State file exists and `paused: false`**: this is a cron re-entry, skip to Phase 3.
 
-### Phase 1: Fresh Start (user is present — the one human gate)
+### Phase 1: Fresh Start (user is present -- the one human gate)
 
 This phase runs once, while the user is still at the keyboard.
 
-**Step 1 — Prune completed.md**
+**Step 1 -- Prune completed.md**
 
 Remove entries from `completed.md` older than 30 days. Use:
 ```bash
 node -e "
 const fs = require('fs');
-const path = 'C:/Users/patri/.claude/projects/d--CBFC-grindquest/backlog/completed.md';
+const path = '<your-project-backlog-path>/completed.md';
 const content = fs.readFileSync(path, 'utf8');
 const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 // Split on '### [' to get item blocks, filter by Completed date field
@@ -130,19 +139,19 @@ console.log('PRUNED:' + pruned);
 ```
 Report how many were pruned.
 
-**Step 2 — Read and parse backlog**
+**Step 2 -- Read and parse backlog**
 
 Read the relevant backlog files (all four, or filtered by category arg). For each `### [ID]` block, extract:
 - ID, title, priority (from `**Priority**: ...` field), category, full details, full context, and date added
 
-**Step 3 — Sort the queue**
+**Step 3 -- Sort the queue**
 
 Sort by:
 1. Priority: critical > high > medium > low
 2. Age: oldest (lowest ID number) first within same priority
 3. Category: bugs > design > features > tech-debt
 
-**Step 4 — Present the queue**
+**Step 4 -- Present the queue**
 
 ```
 MARATHON RUN PLAN
@@ -151,35 +160,35 @@ Model: Opus | Wave size: 1 | Category: all
 
 Queue (N items, highest priority first):
 
- 1. [BUG-016] critical -- Members can self-write role on Firestore doc
- 2. [BUG-017] high    -- WP economy cap fails open on error
- 3. [FTR-023] high    -- Season pass tier unlock notifications
+ 1. [BUG-016] critical -- short title
+ 2. [BUG-017] high    -- short title
+ 3. [FTR-023] high    -- short title
  ...
 
 For dry-run: stop here.
 ```
 
-**Step 5 — Pre-flight settings update (REQUIRED)**
+**Step 5 -- Pre-flight settings update (REQUIRED)**
 
 Before asking for confirmation, update `C:\Users\patri\.claude\settings.json` to add these 5 entries to the `permissions.allow` array if they are not already present:
 
 ```json
-"Edit(C:/Users/patri/.claude/projects/d--CBFC-grindquest/backlog/**)",
-"Write(C:/Users/patri/.claude/projects/d--CBFC-grindquest/backlog/**)",
-"Edit(d:/CBFC/grindquest/.claude/marathon-state.json)",
-"Write(d:/CBFC/grindquest/.claude/marathon-state.json)",
+"Edit(<your-project-backlog-path>/**)",
+"Write(<your-project-backlog-path>/**)",
+"Edit(<state-dir>/marathon-state.json)",
+"Write(<state-dir>/marathon-state.json)",
 "Edit(~/.claude/skills/marathon-orders/**)"
 ```
 
 Tell the user: "Updating settings.json to pre-approve backlog writes for unattended operation. This is the one approval you need to give before the marathon runs."
 
-**Step 6 — Confirm and configure**
+**Step 6 -- Confirm and configure**
 
 Ask: "Ready to launch marathon with [N] items at wave size [waveSize]? (Opus agents, ~20-min cron loop) [y/n]"
 
 If n: stop. If y: continue.
 
-**Step 7 — Write initial state file**
+**Step 7 -- Write initial state file**
 
 ```bash
 node -e "
@@ -198,16 +207,16 @@ const state = {
   completed: [],
   failed: []
 };
-fs.mkdirSync('d:/CBFC/grindquest/.claude', { recursive: true });
-fs.writeFileSync('d:/CBFC/grindquest/.claude/marathon-state.json', JSON.stringify(state, null, 2));
+fs.mkdirSync('<state-dir>', { recursive: true });
+fs.writeFileSync('<state-dir>/marathon-state.json', JSON.stringify(state, null, 2));
 console.log('STATE_WRITTEN');
 "
 ```
 
-**Step 8 — Register the cron loop**
+**Step 8 -- Register the cron loop**
 
 Use CronCreate:
-- `cron`: `7/20 * * * *` (fires at :07, :27, :47 of every hour — avoids fleet collision at :00/:30)
+- `cron`: `7/20 * * * *` (fires at :07, :27, :47 of every hour -- avoids fleet collision at :00/:30)
 - `durable`: `true` (survives Claude session restart; written to `.claude/scheduled_tasks.json`)
 - `recurring`: `true`
 - `prompt`:
@@ -216,7 +225,7 @@ Use CronCreate:
 This is an automated marathon-orders loop tick.
 
 1. Read the marathon state file:
-   d:\CBFC\grindquest\.claude\marathon-state.json
+   <state-dir>/marathon-state.json
 
 2. Read the full marathon-orders skill instructions:
    C:\Users\patri\.claude\skills\marathon-orders\SKILL.md
@@ -225,20 +234,20 @@ This is an automated marathon-orders loop tick.
 
 The skill will check for paused state, handle timeouts, collect completed agent results, run the review gate, merge approved work, and launch the next wave. It will delete the cron job when the marathon is complete or paused.
 
-Do not ask the user for confirmation except for review gates with confidence 1-2 or when CLAUDE.md violations are detected in the diff.
+Do not ask the user for confirmation except for review gates with confidence 1-2 or when project rule violations are detected in the diff.
 ```
 
 Immediately write the returned `cronJobId` into the state file:
 ```bash
 node -e "
 const fs = require('fs');
-const state = JSON.parse(fs.readFileSync('d:/CBFC/grindquest/.claude/marathon-state.json', 'utf8'));
+const state = JSON.parse(fs.readFileSync('<state-dir>/marathon-state.json', 'utf8'));
 state.cronJobId = 'CRON_JOB_ID_HERE';
-fs.writeFileSync('d:/CBFC/grindquest/.claude/marathon-state.json', JSON.stringify(state, null, 2));
+fs.writeFileSync('<state-dir>/marathon-state.json', JSON.stringify(state, null, 2));
 "
 ```
 
-**Step 9 — Launch Wave 1 immediately**
+**Step 9 -- Launch Wave 1 immediately**
 
 Do not wait for the first cron tick. Go to Phase 2 now.
 
@@ -259,67 +268,67 @@ Read the state file. Pop `waveSize` items from the front of `queue`. For each it
 
 ### Phase 2.5: Reconnaissance (orchestrator makes directional decisions)
 
-This is the most important upgrade over `/work-orders`. The orchestrator — not the Opus agent — does the initial codebase analysis. The agent starts with a directional brief, not a cold start.
+This is the most important upgrade over `/work-orders`. The orchestrator -- not the Opus agent -- does the initial codebase analysis. The agent starts with a directional brief, not a cold start.
 
 Run this for each item individually, in full, before spawning its agent.
 
-**Step A — Extract search terms**
+**Step A -- Extract search terms**
 
 From the work order's `title`, `details`, and `context`, extract:
-- Named identifiers: component names, hook names, function names, Firestore collection or field names, Cloud Function names, type names (e.g., `useSessionTimer`, `seasonPasses`, `WPEconomy`, `BillingContext`)
+- Named identifiers: component names, hook names, function names, data collection or field names, server function names, type names
 - File hints: any filenames mentioned in the details
-- Pattern keywords: the nature of the problem (e.g., "rate limit", "Firestore rule", "field mask", "onSnapshot", "allow update")
+- Pattern keywords: the nature of the problem (e.g., "rate limit", "data rule", "field mask", "subscription", "allow update")
 
-**Step B — Grep for hotspot files**
+**Step B -- Grep for hotspot files**
 
 Run targeted Grep searches for the extracted identifiers across the codebase. Use `output_mode: "files_with_matches"` to get file paths first, then read the top 3-5 results. Look for:
 - Where the named thing is defined (the source)
 - Where it is imported or called (the consumers)
-- The relevant Firestore rules file if the issue is a security bug (`firestore.rules`)
-- The relevant Cloud Function if it involves server-side logic (`functions/src/`)
+- The relevant data security rules file if the issue is a security bug
+- The relevant server function if it involves server-side logic
 
-Identify the **3-5 hotspot files** — the files most central to implementing this work order.
+Identify the **3-5 hotspot files** -- the files most central to implementing this work order.
 
-**Step C — Check prior art**
+**Step C -- Check prior art**
 
 Read the last 20 entries in `completed.md`. Find any items with:
-- The same category (bugs → bugs, etc.)
-- Overlapping keywords (same component, same Firestore collection, same pattern)
+- The same category (bugs to bugs, etc.)
+- Overlapping keywords (same component, same data collection, same pattern)
 - A resolution that is structurally similar to what this work order needs
 
-If prior art is found, note the resolution approach — this is a working pattern the Opus agent can follow.
+If prior art is found, note the resolution approach -- this is a working pattern the Opus agent can follow.
 
-**Step D — Trace callers (for bugs and security items)**
+**Step D -- Trace callers (for bugs and security items)**
 
-For each hotspot file, run a Grep to find what imports or calls the affected symbol. This maps the blast radius — what could break if the fix is wrong. Record the top 3 callers.
+For each hotspot file, run a Grep to find what imports or calls the affected symbol. This maps the blast radius -- what could break if the fix is wrong. Record the top 3 callers.
 
-**Step E — Form the directional brief**
+**Step E -- Form the directional brief**
 
 Based on Steps A-D, the orchestrator makes a directional call. Write a brief covering:
 
-1. **Start here** — the single most important file to read first
-2. **The pattern** — the approach that prior art or code conventions suggest (e.g., "similar bugs in this area were fixed by adding a field mask to the Firestore rule, not by restructuring the function")
-3. **Blast radius** — files that call into the hotspot and could be broken by a wrong fix
-4. **Our approach** — a 2-3 sentence directional recommendation. This is the orchestrator's judgment. Be specific: not "fix the rule" but "add an `allow update: if resource.data.role == request.resource.data.role` constraint to the members rule, and add a corresponding check in the `onMemberUpdate` Cloud Function"
-5. **Avoid** — one specific wrong approach if it is obvious from the code (e.g., "do not try to solve this client-side — the field is writable at the Firestore layer")
+1. **Start here** -- the single most important file to read first
+2. **The pattern** -- the approach that prior art or code conventions suggest (e.g., "similar bugs in this area were fixed by adding a field mask to the data rule, not by restructuring the function")
+3. **Blast radius** -- files that call into the hotspot and could be broken by a wrong fix
+4. **Our approach** -- a 2-3 sentence directional recommendation. Be specific: not "fix the rule" but a concrete, actionable recommendation that names the rule, function, or constraint to add
+5. **Avoid** -- one specific wrong approach if it is obvious from the code (e.g., "do not try to solve this client-side -- the field is writable at the data layer")
 
 Store the brief in the state file under `inFlight[item].brief` via node.
 
-**Step F — Update inFlight with brief**
+**Step F -- Update inFlight with brief**
 
 ```bash
 node -e "
 const fs = require('fs');
-const state = JSON.parse(fs.readFileSync('d:/CBFC/grindquest/.claude/marathon-state.json', 'utf8'));
+const state = JSON.parse(fs.readFileSync('<state-dir>/marathon-state.json', 'utf8'));
 const item = state.inFlight.find(i => i.id === 'ID');
 item.brief = {
   hotspotFiles: ['path/to/file1', 'path/to/file2'],
-  priorArt: 'BUG-012 used field mask pattern in firestore.rules line 47',
-  callers: ['apps/web/src/hooks/useTeamMember.ts', 'functions/src/members/onMemberUpdate.ts'],
+  priorArt: 'BUG-012 used field mask pattern in rules line 47',
+  callers: ['path/to/caller1.ts', 'path/to/caller2.ts'],
   approach: 'APPROACH TEXT',
   avoid: 'AVOID TEXT'
 };
-fs.writeFileSync('d:/CBFC/grindquest/.claude/marathon-state.json', JSON.stringify(state, null, 2));
+fs.writeFileSync('<state-dir>/marathon-state.json', JSON.stringify(state, null, 2));
 "
 ```
 
@@ -333,7 +342,7 @@ Agent(
   isolation: "worktree",
   run_in_background: true,
   description: "[ID] [title]",
-  prompt: <Opus Agent Prompt Template — see below, filled in for this item including RECONNAISSANCE section>
+  prompt: <Opus Agent Prompt Template -- see below, filled in for this item including RECONNAISSANCE section>
 )
 ```
 
@@ -354,7 +363,7 @@ Next check-in: ~20 min via cron
 
 ---
 
-### Phase 3: Wave Loop Tick (cron re-entry — no user present)
+### Phase 3: Wave Loop Tick (cron re-entry -- no user present)
 
 This runs every 20 minutes. Read the state file first. Then:
 
@@ -371,14 +380,14 @@ For each entry in `state.inFlight`:
   - Remove from `inFlight`
   - Increment `entry.attempts` on the original queue item
   - If `attempts < 2`: push item back to front of `queue` with incremented attempts
-  - If `attempts >= 2`: push to `failed` with `reason: "timed out twice"`. Annotate the backlog file (see Phase 4 — failed path)
+  - If `attempts >= 2`: push to `failed` with `reason: "timed out twice"`. Annotate the backlog file (see Phase 4 -- failed path)
   - Write state via node
 
 **3c. Completion check**
 
 For each entry in `state.inFlight`, the Agent tool result is available once the background agent has completed. Check if the agent's result is available. If yes:
 - Parse the `MARATHON_RESULT_START...MARATHON_RESULT_END` block from the agent output
-- If block is missing or malformed: treat as failed, note `reason: "malformed result — no MARATHON_RESULT block"`
+- If block is missing or malformed: treat as failed, note `reason: "malformed result -- no MARATHON_RESULT block"`
 - Otherwise: proceed to Phase 4 (review gate)
 
 If all in-flight agents are still running and none timed out: stop here. Cron will check again in 20 min.
@@ -397,18 +406,18 @@ If `queue.length === 0` and `inFlight.length === 0`: go to Phase 5.
 
 Run this for each agent result that successfully parsed.
 
-**Step 1 — Parse result fields**
+**Step 1 -- Parse result fields**
 ```
 id, title, status, confidence (1-5), build (passed|failed), files_modified[], resolution, concerns
 ```
 
-**Step 2 — Handle failed status**
+**Step 2 -- Handle failed status**
 
 If `status === "failed"`: skip merge. Move to `failed` with `reason: state.resolution`. Annotate backlog file:
 ```bash
 node -e "
 const fs = require('fs');
-const filePath = 'C:/Users/patri/.claude/projects/d--CBFC-grindquest/backlog/CATEGORY.md';
+const filePath = '<your-project-backlog-path>/CATEGORY.md';
 let content = fs.readFileSync(filePath, 'utf8');
 // Find the item block and append a Last attempt field
 content = content.replace(
@@ -420,26 +429,23 @@ fs.writeFileSync(filePath, content);
 ```
 Update state via node. Continue to next result.
 
-**Step 3 — Build check**
+**Step 3 -- Build check**
 
 If `build === "failed"`: treat as failed (same as above). Note `reason: "agent reported build failure"`.
 
-**Step 4 — Read the diff**
+**Step 4 -- Read the diff**
 
 ```bash
-git -C d:/CBFC/grindquest diff master...marathon/[ID] 2>&1 | head -200
+git -C <project-root> diff master...marathon/[ID] 2>&1 | head -200
 ```
 
-**Step 5 — CLAUDE.md violation scan**
+**Step 5 -- Project rule violation scan**
 
-Scan diff output for:
-- `: any` or `as any` — TypeScript type violations
-- Tax/legal/accounting/construction/healthcare as hardcoded terms in string literals
-- ` -- ` in string literals (em dash rule)
+Scan diff output for any rules listed in your project's CLAUDE.md or equivalent (e.g., banned type assertions, banned terminology, formatting rules).
 
 Flag any matches.
 
-**Step 6 — Confidence + flag decision**
+**Step 6 -- Confidence + flag decision**
 
 ```
 REVIEW GATE: [ID] [title]
@@ -455,30 +461,30 @@ Diff (first 200 lines):
 ```
 
 Decision logic:
-- `confidence >= 3` AND build passed AND no flags → **auto-approve**, squash merge, continue
-- `confidence >= 3` AND minor flags (style only) → **auto-approve with note** in completed.md
-- `confidence <= 2` OR CLAUDE.md violation flags → **pause and notify user**, wait for "merge" or "skip" input before continuing
+- `confidence >= 3` AND build passed AND no flags -> **auto-approve**, squash merge, continue
+- `confidence >= 3` AND minor flags (style only) -> **auto-approve with note** in completed.md
+- `confidence <= 2` OR project rule violation flags -> **pause and notify user**, wait for "merge" or "skip" input before continuing
 
-**Step 7 — Squash merge (auto-approved path)**
+**Step 7 -- Squash merge (auto-approved path)**
 
 ```bash
-git -C d:/CBFC/grindquest checkout master
-git -C d:/CBFC/grindquest merge --squash marathon/[ID]
-git -C d:/CBFC/grindquest commit -m "[ID] [Title]
+git -C <project-root> checkout master
+git -C <project-root> merge --squash marathon/[ID]
+git -C <project-root> commit -m "[ID] [Title]
 
 Completed by marathon-orders (Opus, wave [N])
 Confidence: [N]/5
 [If concerns]: Follow-up: [concerns]"
-git -C d:/CBFC/grindquest branch -d marathon/[ID]
+git -C <project-root> branch -d marathon/[ID]
 ```
 
-**Step 8 — Update backlog files**
+**Step 8 -- Update backlog files**
 
 Remove the item from its source backlog file:
 ```bash
 node -e "
 const fs = require('fs');
-const filePath = 'C:/Users/patri/.claude/projects/d--CBFC-grindquest/backlog/CATEGORY.md';
+const filePath = '<your-project-backlog-path>/CATEGORY.md';
 let content = fs.readFileSync(filePath, 'utf8');
 // Remove the entire ### [ID] block (from the heading to just before the next ### or end of file)
 content = content.replace(/### \[ID\][^\n]*\n[\s\S]*?(?=\n### |\n*$)/, '');
@@ -490,7 +496,7 @@ Prepend to `completed.md`:
 ```bash
 node -e "
 const fs = require('fs');
-const path = 'C:/Users/patri/.claude/projects/d--CBFC-grindquest/backlog/completed.md';
+const path = '<your-project-backlog-path>/completed.md';
 const existing = fs.readFileSync(path, 'utf8');
 const entry = \`### [ID] TITLE
 - **Completed**: DATE
@@ -509,15 +515,15 @@ if (insertAt === -1) {
 "
 ```
 
-**Step 9 — Update state**
+**Step 9 -- Update state**
 
 Move item from `inFlight` to `completed` via node. Write state.
 
-**Step 10 — Close feedback loop (if applicable)**
+**Step 10 -- Close feedback loop (if applicable)**
 
-If the completed work order's context field contains `Promoted from dev proposal`, extract the proposal ID and update its status to `implemented` via the HQ Support page using Chrome DevTools MCP:
+If the completed work order's context field contains `Promoted from dev proposal`, extract the proposal ID and update its status to `implemented` via the internal Support page using Chrome DevTools MCP:
 
-1. Navigate to the HQ Support page:
+1. Navigate to the internal Support page:
    ```
    mcp__chrome-devtools__navigate_page({ url: 'http://localhost:5174/support' })
    ```
@@ -537,7 +543,7 @@ If the completed work order's context field contains `Promoted from dev proposal
    mcp__chrome-devtools__handle_dialog({ accept: true, promptText: 'RESOLUTION_SUMMARY' })
    ```
 
-This closes the feedback loop: the user's original feedback now has a traceable path from submission through council debate, human approval, and implementation. The HQ Support page handles the Firestore write through its authenticated session -- no firebase-admin credentials needed.
+This closes the feedback loop: the user's original feedback now has a traceable path from submission through council debate, human approval, and implementation. The internal Support page handles the write through its authenticated session -- no service-account credentials needed.
 
 If the context field does not mention a dev proposal, skip this step silently.
 
@@ -558,12 +564,12 @@ Completed: [now]
 Waves: [waveNumber]
 
 Completed ([N] items):
-  [BUG-016] Members can self-write role -- Firestore rules updated, field mask enforced. Confidence: 4/5
-  [BUG-020] Invite link blank screen -- sessionStorage persist through OAuth. Confidence: 5/5
+  [BUG-016] short title -- resolution summary. Confidence: 4/5
+  [BUG-020] short title -- resolution summary. Confidence: 5/5
   ...
 
 Failed ([N] items, remain in backlog):
-  [BUG-022] Invite enumeration -- timed out twice (complex rate-limiting setup)
+  [BUG-022] short title -- timed out twice (complex setup)
   ...
 
 All branches merged to master and cleaned up.
@@ -573,20 +579,19 @@ All branches merged to master and cleaned up.
 
 ## Opus Agent Prompt Template
 
-Fill in all `[PLACEHOLDERS]` before spawning. This prompt is self-contained — the agent knows nothing about the main conversation.
+Fill in all `[PLACEHOLDERS]` before spawning. This prompt is self-contained -- the agent knows nothing about the main conversation.
 
 ```
-You are an Opus agent running a deep-work marathon session for GrindQuest, a gamified team productivity SaaS. You have been assigned exactly ONE work order. Your only job is to implement it completely and correctly.
+You are an Opus agent running a deep-work marathon session. You have been assigned exactly ONE work order. Your only job is to implement it completely and correctly.
 
 This is a focused depth session. You will not rush. You will read before you write. You will verify before you report.
 
 == PROJECT CONTEXT ==
 
-Working directory: d:\CBFC\grindquest
-CLAUDE.md: d:\CBFC\grindquest\CLAUDE.md -- read this FIRST before doing anything else.
+Working directory: <project-root>
+Project rules: <project-root>/CLAUDE.md -- read this FIRST before doing anything else.
 
-Stack: React 19 + Vite + Tailwind CSS 4 + TypeScript 5.8
-Monorepo: apps/web (React SaaS), packages/core (game logic), packages/db (Firestore), packages/shared (types), functions/ (Firebase Cloud Functions)
+Product: <PRODUCT_DESCRIPTION>
 
 == YOUR WORK ORDER ==
 
@@ -596,44 +601,44 @@ Title: [title]
 Priority: [critical | high | medium | low]
 
 Details:
-[details — verbatim from backlog item]
+[details -- verbatim from backlog item]
 
 Context:
-[context — verbatim from backlog item]
+[context -- verbatim from backlog item]
 
 [If attempts > 0]: Previous attempt note: [lastAttempt text from backlog item]
 [If related items exist]: Related: [related IDs]
 
 == RECONNAISSANCE ==
 
-The orchestrator analyzed the codebase before assigning this to you. Use this as your starting point — do not ignore it, but do not blindly follow it either. If you read the code and find the brief is wrong, trust the code.
+The orchestrator analyzed the codebase before assigning this to you. Use this as your starting point -- do not ignore it, but do not blindly follow it either. If you read the code and find the brief is wrong, trust the code.
 
 Start here (most relevant files):
-[hotspot files — one per line, relative paths]
+[hotspot files -- one per line, relative paths]
 
 Prior art (similar completed work you can pattern-match):
-[priorArt — or "None found"]
+[priorArt -- or "None found"]
 
-Blast radius (files that call into the hotspot — could break if fix is wrong):
-[callers — one per line]
+Blast radius (files that call into the hotspot -- could break if fix is wrong):
+[callers -- one per line]
 
 Suggested approach:
-[approach — orchestrator's directional recommendation]
+[approach -- orchestrator's directional recommendation]
 
 Do not do this:
-[avoid — specific wrong approach to skip]
+[avoid -- specific wrong approach to skip]
 
 == MANDATORY PROCESS -- DO NOT SKIP ANY STEP ==
 
 Step 1: Read CLAUDE.md in full before touching any code.
 
 Step 2: Read the hotspot files from RECONNAISSANCE before reading anything else.
-- Start with the files listed above — they are the orchestrator's best guess at ground zero.
+- Start with the files listed above -- they are the orchestrator's best guess at ground zero.
 - Then read their callers to understand the blast radius.
 - Expand outward from there only if needed.
 - If you read the hotspot files and find the suggested approach is wrong, note why in your `concerns` field and implement the correct fix instead.
-- For security bugs: read the affected Firestore rules file in full and the relevant Cloud Function in full.
-- For design changes: read DESIGN.md and DESIGN-GAME.md before touching components.
+- For security bugs: read the affected data security rules file in full and the relevant server function in full.
+- For design changes: read the project's design system docs before touching components.
 - Spend at least the first 20% of your effort reading. Do not start writing until you have a complete picture.
 
 Step 3: Plan your change explicitly (in your scratchpad, not a file).
@@ -641,16 +646,15 @@ Step 3: Plan your change explicitly (in your scratchpad, not a file).
 - If your plan touches more than 6 files, stop and re-scope. This is one focused work order.
 
 Step 4: Implement.
-Follow all CLAUDE.md rules strictly:
-- No emojis in any output, no em dashes (--) in user-facing strings
+Follow all CLAUDE.md rules strictly. Common rules to respect:
 - TypeScript-first -- no `any` types, no `as any`
-- No hardcoded vertical terminology (no "tax", "accounting", "legal" in string literals)
-- No client-side-only security enforcement -- Firestore rules or Cloud Functions must enforce server-side
+- No client-side-only security enforcement -- data rules or server functions must enforce server-side
 - No new files unless the work order explicitly requires them
 - No refactoring surrounding code beyond what the work order requires
+- Honor any style/terminology/formatting rules listed in the project's CLAUDE.md
 
 Step 5: Verify the build.
-Run: cd d:/CBFC/grindquest && npx turbo build --filter=@grindquest/web 2>&1 | tail -30
+Run the project's build command (e.g., `cd <project-root> && <build command> 2>&1 | tail -30`).
 If the build fails, fix all errors before proceeding. Do not report done if the build is broken.
 
 Step 6: Write your result summary.
@@ -701,11 +705,11 @@ The main session runs this for every completed agent before merging. Quick refer
 | Build field | `passed` | Move to failed |
 | Git diff readable | `git diff master...marathon/[ID]` returns output | Flag, pause |
 | Files match | diff files match `files_modified` list | Note in completed |
-| CLAUDE.md violations | No `: any`, no em dashes in strings, no hardcoded verticals | Flag, pause for 1-2, note for 3-5 |
+| Project rule violations | None of the rules listed in CLAUDE.md are broken | Flag, pause for 1-2, note for 3-5 |
 | Confidence 4-5, no flags | All clear | Auto-approve, squash merge |
 | Confidence 3, minor flags | Style only | Auto-approve with note |
 | Confidence 1-2 | Low confidence | Pause, wait for user input |
-| CLAUDE.md violation | Rule broken | Pause, wait for user input |
+| Project rule violation | Rule broken | Pause, wait for user input |
 
 ---
 
@@ -719,10 +723,10 @@ recurring: true            Runs until manually deleted or 7-day auto-expiry
 
 The 7-day auto-expiry is a hard CronCreate limit. Marathon sessions are designed for 4-8 hours, not week-long runs. If you need to run again the next day, start a fresh `/marathon-orders` session.
 
-The cron prompt is fully self-contained — it reads the SKILL.md and state file from disk on every tick. No reliance on conversation history.
+The cron prompt is fully self-contained -- it reads the SKILL.md and state file from disk on every tick. No reliance on conversation history.
 
 **Cron job lifecycle:**
-- Created in Phase 1 → ID stored in state file
+- Created in Phase 1 -> ID stored in state file
 - Deleted in Phase 5 (marathon complete) or Phase 0 `--stop` command
 - If a cron tick fires and state file is missing: stop silently (session was externally cleaned up)
 
@@ -730,7 +734,7 @@ The cron prompt is fully self-contained — it reads the SKILL.md and state file
 
 ## Timeout Handling
 
-- Threshold: 90 minutes per agent (hardcoded — Opus agents rarely need more than 60 min for a single work order)
+- Threshold: 90 minutes per agent (hardcoded -- Opus agents rarely need more than 60 min for a single work order)
 - Max attempts: 2. After 2 timeouts, item is permanently moved to `failed` and annotated in the backlog with `**Last attempt**`
 - Retried items go to the front of the queue (not the back) so they are not perpetually deferred
 - Timeout reason logged in `failed` entry: `"timed out after 90 minutes (attempt N/2)"`
@@ -742,13 +746,13 @@ The cron prompt is fully self-contained — it reads the SKILL.md and state file
 New entries are **prepended** (newest first) after the file header. Match this format exactly:
 
 ```markdown
-### [BUG-016] Members can self-write role, totalXP, and level on own Firestore document
+### [BUG-016] Short title summarizing the change
 - **Completed**: 2026-04-09
 - **Completed by**: marathon-orders session (Opus)
 - **Wave**: 1
 - **Confidence**: 4/5
-- **Resolution**: Added field-level Firestore rules to restrict member self-writes to non-privileged fields only. Cloud Function now enforces role, totalXP, and level updates server-side.
-- **Follow-up**: Verify rule coverage against all member-writable fields after next schema change.
+- **Resolution**: 1-3 sentences explaining the change.
+- **Follow-up**: Optional follow-up notes if the agent flagged concerns.
 ```
 
 The `Follow-up` line is omitted if the agent reported `concerns: none`.
@@ -760,8 +764,8 @@ The `Follow-up` line is omitted if the agent reported `concerns: none`.
 - **Opus is expensive.** Default wave size is 1 intentionally. Only use `--wave 2` when the next two items are clearly independent (different files, different systems).
 - **The review gate always runs.** Even for confidence 5 items, the diff is read and the build is checked. This is the anti-spaghetti guard.
 - **Cron auto-expires after 7 days.** This is a CronCreate hard limit. Marathon is not designed for week-long unattended runs.
-- **The state file is the single source of truth.** If it is deleted or corrupted mid-marathon, the marathon cannot be resumed. Background agents will continue running and their worktree branches will still exist — you can manually merge them after checking their diffs.
-- **Worktree branches named `marathon/[ID]`** are cleaned up by the skill after successful merge. Do not delete them manually — the skill handles it.
+- **The state file is the single source of truth.** If it is deleted or corrupted mid-marathon, the marathon cannot be resumed. Background agents will continue running and their worktree branches will still exist -- you can manually merge them after checking their diffs.
+- **Worktree branches named `marathon/[ID]`** are cleaned up by the skill after successful merge. Do not delete them manually -- the skill handles it.
 - **Do not use `/marathon-orders` and `/work-orders` simultaneously.** Both use worktree isolation but their branches have different naming conventions. Running both at once risks git checkout conflicts.
 - **This skill does not deploy.** It merges to master but never pushes. Run `/deploy` separately after reviewing the merged commits.
-- **File writes during cron ticks use Bash (node -e) exclusively** — not the Write or Edit tools. This is because `Bash(node -e ':*` is pre-approved in `settings.json`, while Write/Edit permissions for backlog files are added during the Phase 1 pre-flight step.
+- **File writes during cron ticks use Bash (node -e) exclusively** -- not the Write or Edit tools. This is because `Bash(node -e ':*` is pre-approved in `settings.json`, while Write/Edit permissions for backlog files are added during the Phase 1 pre-flight step.

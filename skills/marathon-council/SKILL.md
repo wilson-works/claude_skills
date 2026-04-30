@@ -5,6 +5,15 @@ description: "Long-running walkaway session that rotates through focus areas, re
 
 # Marathon Council Skill
 
+## Configure for your project
+
+Before using this skill, swap these placeholders for values that fit your environment:
+
+- `<your-project-backlog-path>` -- absolute path to the directory holding `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, `completed.md`
+- `<state-dir>` -- absolute path to the directory where the marathon state file should live (e.g. `<project-root>/.claude`)
+- `<project-root>` -- absolute path to the repository root the skill operates against
+- `<PRODUCT_DESCRIPTION>` -- a short paragraph describing your product (positioning, stack, data model, pricing tiers, hard rules) that gets injected into every council prompt
+
 ## Purpose
 
 Runs a sustained, unattended council research loop over 4-8 hours. Each wave:
@@ -37,27 +46,27 @@ Use `/council-orders` for a single one-shot council session. Use `/marathon-coun
 Default rotation queue (one per wave, cycled in order):
 
 ```
-0. user-feedback-triage    -- Debate real user feedback, promote valid items to dev proposals
-1. enterprise-readiness    -- Fortune 500 demo-killer gaps (default council-orders framing)
-2. security-hardening      -- SOC 2, pen-test, auth, Firestore rules, PII
-3. mobile-responsive       -- Mobile breakpoints, touch targets, responsive layouts
-4. onboarding-retention    -- First-run experience, activation, empty states, email flows
-5. vertical-readiness      -- Per-vertical gaps (cycles through: accounting, sales, general, construction, legal, classroom)
-6. design-polish           -- Visual consistency, token compliance, loading/error states, game feel
-7. platform-scale          -- Hot docs, cold starts, indexes, cost, idempotency, monitoring
-8. admin-experience        -- Admin controls, reporting, team management, audit, provisioning
-9. billing-monetization    -- Plan enforcement, upgrade flows, feature gating, payment edge cases
+0. user-feedback-triage      -- Debate real user feedback, promote valid items to dev proposals
+1. enterprise-readiness      -- Fortune 500 demo-killer gaps (default council-orders framing)
+2. security-hardening        -- SOC 2, pen-test, auth, data rules, PII
+3. mobile-responsive         -- Mobile breakpoints, touch targets, responsive layouts
+4. onboarding-retention      -- First-run experience, activation, empty states, email flows
+5. feature-area-readiness    -- Per-feature-area gaps (cycles through your product's main feature areas)
+6. design-polish             -- Visual consistency, token compliance, loading/error states, polish
+7. platform-scale            -- Hot docs, cold starts, indexes, cost, idempotency, monitoring
+8. admin-experience          -- Admin controls, reporting, team management, audit, provisioning
+9. billing-monetization      -- Plan enforcement, upgrade flows, feature gating, payment edge cases
 10. accessibility-compliance -- WCAG, ADA, keyboard nav, screen readers, DPA, opt-out rights
 ```
 
 If the user provides a custom list (e.g., `/marathon-council security-hardening,mobile-responsive,design-polish`), only those focus areas run, in the order specified.
 
-For `vertical-readiness`, the wave cycles through one vertical per council. On the first pass it uses the priority order from memory: accounting > sales > general > construction > legal > classroom. On subsequent passes it continues the rotation.
+For `feature-area-readiness`, the wave cycles through one feature area per council. The skill uses a priority order configured for the product. On subsequent passes it continues the rotation.
 
 ## State File
 
 ```
-d:\CBFC\grindquest\.claude\marathon-council-state.json
+<state-dir>/marathon-council-state.json
 ```
 
 Written exclusively via `Bash(node -e ...)` to stay within pre-approved permissions.
@@ -73,7 +82,7 @@ Schema:
   "currentWave": 0,
   "rotationQueue": ["enterprise-readiness", "security-hardening", ...],
   "rotationIndex": 0,
-  "verticalIndex": 0,
+  "featureAreaIndex": 0,
   "waves": [
     {
       "waveNumber": 1,
@@ -96,7 +105,7 @@ Schema:
 ## Backlog Location
 
 ```
-C:\Users\patri\.claude\projects\d--CBFC-grindquest\backlog\
+<your-project-backlog-path>
 ```
 
 Files: `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, `completed.md`
@@ -145,10 +154,10 @@ For dry-run: stop here.
 Update `C:\Users\patri\.claude\settings.json` to add these entries to `permissions.allow` if not already present:
 
 ```json
-"Edit(C:/Users/patri/.claude/projects/d--CBFC-grindquest/backlog/**)",
-"Write(C:/Users/patri/.claude/projects/d--CBFC-grindquest/backlog/**)",
-"Edit(d:/CBFC/grindquest/.claude/marathon-council-state.json)",
-"Write(d:/CBFC/grindquest/.claude/marathon-council-state.json)"
+"Edit(<your-project-backlog-path>/**)",
+"Write(<your-project-backlog-path>/**)",
+"Edit(<state-dir>/marathon-council-state.json)",
+"Write(<state-dir>/marathon-council-state.json)"
 ```
 
 Tell the user: "Updating settings.json to pre-approve backlog writes for unattended operation."
@@ -173,13 +182,13 @@ const state = {
   currentWave: 0,
   rotationQueue: ROTATION_QUEUE_JSON,
   rotationIndex: 0,
-  verticalIndex: 0,
+  featureAreaIndex: 0,
   waves: [],
   totalItemsFiled: 0,
   totalDuplicatesSkipped: 0
 };
-fs.mkdirSync('d:/CBFC/grindquest/.claude', { recursive: true });
-fs.writeFileSync('d:/CBFC/grindquest/.claude/marathon-council-state.json', JSON.stringify(state, null, 2));
+fs.mkdirSync('<state-dir>', { recursive: true });
+fs.writeFileSync('<state-dir>/marathon-council-state.json', JSON.stringify(state, null, 2));
 console.log('STATE_WRITTEN');
 "
 ```
@@ -196,7 +205,7 @@ Use CronCreate:
 This is an automated marathon-council loop tick.
 
 1. Read the marathon council state file:
-   d:\CBFC\grindquest\.claude\marathon-council-state.json
+   <state-dir>/marathon-council-state.json
 
 2. Read the full marathon-council skill instructions:
    C:\Users\patri\.claude\skills\marathon-council\SKILL.md
@@ -227,24 +236,16 @@ Map the focus area to a council framing string:
 | user-feedback-triage | SPECIAL: see User Feedback Triage section below |
 | enterprise-readiness | "Fortune 500 demo readiness. If a VP of HR, CTO, or Sales Ops director saw a 20-minute demo on Monday, what would kill the deal?" |
 | security-hardening | "Enterprise security review. A staff security engineer is doing a pre-purchase audit. What fails SOC 2, pen-test, or compliance review?" |
-| mobile-responsive | "Mobile-first audit. A team lead opens GrindQuest on their phone during a commute. What breaks, looks wrong, or is unusable on a 375px viewport?" |
-| onboarding-retention | "First-run experience. A new user just accepted a team invite. What's confusing, empty, broken, or missing in their first 10 minutes? What makes them not come back tomorrow?" |
-| vertical-readiness | "Vertical buyer demo: [VERTICAL_NAME]. A [VERTICAL_ROLE] is evaluating GrindQuest for their team. What terminology, workflow, or feature gap makes them say 'this isn't built for us'?" |
-| design-polish | "Design quality audit. A Principal Designer is reviewing every screen. What reads as 'side project' vs. 'funded product'? Focus on token compliance, consistency, loading/error/empty states, and game feel." |
+| mobile-responsive | "Mobile-first audit. A user opens the product on their phone during a commute. What breaks, looks wrong, or is unusable on a 375px viewport?" |
+| onboarding-retention | "First-run experience. A new user just signed up. What's confusing, empty, broken, or missing in their first 10 minutes? What makes them not come back tomorrow?" |
+| feature-area-readiness | "Feature-area buyer demo: [FEATURE_AREA_NAME]. A buyer for that feature area is evaluating the product. What terminology, workflow, or feature gap makes them say 'this isn't built for us'?" |
+| design-polish | "Design quality audit. A Principal Designer is reviewing every screen. What reads as 'side project' vs. 'funded product'? Focus on token compliance, consistency, loading/error/empty states, and polish." |
 | platform-scale | "Scale readiness. 500 teams, 10K users, peak hours. What breaks first? Hot documents, cold starts, missing indexes, cost runaway, data integrity gaps?" |
 | admin-experience | "Admin war room. A team owner with 50 members needs to manage their team. What's missing, broken, or buried in admin controls, reporting, provisioning, and audit?" |
 | billing-monetization | "Monetization audit. A user on Free wants to upgrade. What's broken in plan enforcement, upgrade flows, feature gating, or payment edge cases? What leaks premium features to free users?" |
 | accessibility-compliance | "Accessibility and compliance. An HR director with legal oversight is evaluating. What fails WCAG 2.1 AA, keyboard navigation, screen reader support, DPA requirements, or employee opt-out rights?" |
 
-For `vertical-readiness`, cycle through verticals using `state.verticalIndex`:
-```
-0: accounting (role: "Managing Partner at a 50-person CPA firm")
-1: sales (role: "VP of Sales at a 200-person SaaS company")
-2: general (role: "Operations Manager at a mid-size company")
-3: construction (role: "Project Manager at a general contractor")
-4: legal (role: "Practice Manager at a 30-attorney law firm")
-5: classroom (role: "Department Chair at a university")
-```
+For `feature-area-readiness`, cycle through your product's feature areas using `state.featureAreaIndex`. Each area should have a buyer role attached so the framing reads naturally (e.g. "Operations Manager at a mid-size company").
 
 **Step 2 -- Codebase research pass**
 
@@ -253,15 +254,15 @@ This is the key differentiator from plain `/council-orders`. Before convening th
 Run targeted research based on the focus area:
 
 **For enterprise-readiness:**
-- Grep for `admin`, `audit`, `role`, `provision`, `SSO`, `SCIM`, `export` across `apps/web/src/` and `functions/src/`
+- Grep for `admin`, `audit`, `role`, `provision`, `SSO`, `SCIM`, `export` across client and server source
 - Check if admin panel exists and what controls it exposes
 - Check audit log implementation completeness
 
 **For security-hardening:**
-- Read `firestore.rules` in full
+- Read your data security rules (e.g. `firestore.rules`, IAM policies) in full
 - Grep for `allow`, `request.auth`, `resource.data` in rules
-- Grep for `any` type assertions in `functions/src/`
-- Check Cloud Function authorization patterns
+- Grep for `any` type assertions in server code
+- Check server-side authorization patterns
 - Look for client-side-only security checks
 
 **For mobile-responsive:**
@@ -270,34 +271,34 @@ Run targeted research based on the focus area:
 - Look for fixed widths that break on mobile
 
 **For onboarding-retention:**
-- Read walkthrough components
+- Read walkthrough and onboarding components
 - Check empty state handling across main views
 - Look for first-run detection logic
 
-**For vertical-readiness:**
-- Read `packages/core/src/verticals.ts`
-- Check the target vertical's config completeness
-- Grep for hardcoded terminology from other verticals
+**For feature-area-readiness:**
+- Read your feature-area config module
+- Check the target area's config completeness
+- Grep for hardcoded terminology from other areas
 
 **For design-polish:**
-- Read `DESIGN.md` and `DESIGN-GAME.md`
+- Read your design system docs
 - Grep for off-token color values (hex codes not in design system)
 - Check loading/error state coverage in main components
 
 **For platform-scale:**
-- Check Firestore index definitions
-- Look for document fan-out patterns in Cloud Functions
+- Check database index definitions
+- Look for document fan-out patterns in server code
 - Grep for missing error handling in async operations
 
 **For admin-experience:**
 - Read admin components
 - Check what admin actions are available vs. missing
-- Look for admin-only Cloud Functions
+- Look for admin-only server functions
 
 **For billing-monetization:**
-- Read plan enforcement logic in `packages/shared/`
+- Read plan enforcement logic in your shared package
 - Check if feature gating is server-side or client-side only
-- Look for billing-related Cloud Functions
+- Look for billing-related server functions
 
 **For accessibility-compliance:**
 - Grep for `aria-`, `role=`, `tabIndex` usage
@@ -329,7 +330,7 @@ Use the Agent tool to spawn all 5 advisors simultaneously. Each advisor receives
 **Advisor prompt template:**
 
 ```
-You are [ADVISOR TITLE] on a product council for GrindQuest (CreDub).
+You are [ADVISOR TITLE] on a product council.
 
 Your lens: [LENS DESCRIPTION]
 
@@ -384,10 +385,10 @@ Follow the same filing rules as `/council-orders`:
 ```bash
 node -e "
 const fs = require('fs');
-const state = JSON.parse(fs.readFileSync('d:/CBFC/grindquest/.claude/marathon-council-state.json', 'utf8'));
+const state = JSON.parse(fs.readFileSync('<state-dir>/marathon-council-state.json', 'utf8'));
 state.currentWave = WAVE_NUM;
 state.rotationIndex = (state.rotationIndex + 1) % state.rotationQueue.length;
-// For vertical-readiness, also advance verticalIndex
+// For feature-area-readiness, also advance featureAreaIndex
 state.waves.push({
   waveNumber: WAVE_NUM,
   focus: 'FOCUS',
@@ -402,7 +403,7 @@ state.waves.push({
 });
 state.totalItemsFiled += ITEMS_COUNT;
 state.totalDuplicatesSkipped += DUPES_COUNT;
-fs.writeFileSync('d:/CBFC/grindquest/.claude/marathon-council-state.json', JSON.stringify(state, null, 2));
+fs.writeFileSync('<state-dir>/marathon-council-state.json', JSON.stringify(state, null, 2));
 "
 ```
 
@@ -492,20 +493,10 @@ Same lenses as `/council-orders` -- kept identical so output is comparable acros
 Same as `/council-orders` -- included in every advisor prompt:
 
 ```
-PRODUCT: GrindQuest (branded CreDub) -- pre-seed gamified team productivity SaaS.
-"Fortnite battle pass meets workplace engagement" -- XP, ranks, seasons, campaigns,
-missions, cosmetics, WP currency economy, team leaderboards.
-Anti-surveillance positioning: hours tracked for XP only, not monitoring.
-Target verticals: accounting, sales, legal, construction, classroom, general.
-Tech: React 19 + Vite + Firebase Auth + Firestore + Cloud Functions + Turborepo monorepo.
-Firestore collections: teams/{teamId}/members, sessions, workItems, goals, rewards,
-xpAwards, messages, shoutouts, checkins, campaigns, picks, seasonPasses, invites, auditLog.
-Pricing: Free (5 users), Starter ($8/user/mo), Pro ($15/user/mo), Enterprise (custom).
-XP system: 50 XP/hr base, level^2.15 * 81 formula, max level 30, 6 ranks Rookie to Legend.
-Hard rules: NEVER add earnings/dollar tracking (hours-based XP only). NEVER hardcode
-vertical terminology (use vertical config system). No confetti -- star burst explosions only.
-No emojis. No em dashes.
+PRODUCT: <PRODUCT_DESCRIPTION>
 ```
+
+Replace `<PRODUCT_DESCRIPTION>` with a short paragraph describing your product: positioning, tech stack, data model highlights, pricing tiers, and any hard rules advisors must respect (style rules, terminology constraints, scope limits).
 
 ---
 
@@ -561,15 +552,15 @@ This creates a flywheel: research reveals gaps, councils prioritize them, Opus a
 
 ## User Feedback Triage (Focus Area 0)
 
-This focus area is fundamentally different from the other 10. Instead of researching the codebase for gaps, it processes real user feedback from the `devProposals` Firestore collection and debates whether each item deserves a dev proposal.
+This focus area is fundamentally different from the other 10. Instead of researching the codebase for gaps, it processes real user feedback from a `devProposals` collection (or equivalent) and debates whether each item deserves a dev proposal.
 
 ### How It Works
 
 **Research phase (replaces codebase grep):**
 
-The agent reads user feedback from the HQ Support page via Chrome DevTools MCP. The HQ app must be running on localhost and Chrome must be open with `--remote-debugging-port=9222`.
+The agent reads user feedback from an internal Support page via Chrome DevTools MCP. The internal app must be running on localhost and Chrome must be open with `--remote-debugging-port=9222`.
 
-1. Navigate to the HQ Support page and filter to triaged items:
+1. Navigate to the internal Support page and filter to triaged items:
    ```
    mcp__chrome-devtools__navigate_page({ url: 'http://localhost:5174/support' })
    mcp__chrome-devtools__click({ selector: '[data-filter="triaged"]' })
@@ -605,13 +596,13 @@ The 5 advisors each receive the batch of triaged feedback items (up to 15 per wa
 **Advisor prompt template for user-feedback-triage:**
 
 ```
-You are [ADVISOR TITLE] on a product council for GrindQuest (CreDub).
+You are [ADVISOR TITLE] on a product council.
 
 [PRODUCT CONTEXT BLOCK]
 
 USER FEEDBACK TRIAGE SESSION
 
-Below are real feedback items submitted by beta users via the in-app W? widget or team feedback form. For each item, you must:
+Below are real feedback items submitted by beta users via the in-app feedback widget or team feedback form. For each item, you must:
 
 1. VOTE: VALID or SKIP (with one-line reason)
 2. If VALID, produce a work order proposal with: title, category, priority, details, rationale
@@ -638,14 +629,14 @@ RATIONALE: [one sentence on why this matters]
 
 For each feedback item, count VALID votes across all 5 advisors:
 
-- **3+ votes (consensus)**: Call `gm_submitDevProposal` callable with the best proposal (pick the most detailed VALID response). This sets the item's status to `proposed` in Firestore, making it appear in the Dev Requests tab of CrewInbox for human review.
-- **< 3 votes (no consensus)**: Call `gm_fileDevProposal` with `targetStatus: 'rejected'` and `rejectReason: 'Council consensus below threshold (N/5 votes)'`. This auto-dismisses low-signal items before they reach the human.
+- **3+ votes (consensus)**: Submit the dev proposal via your internal callable or app UI with the best proposal (pick the most detailed VALID response). This sets the item's status to `proposed`, making it appear in the Dev Requests tab for human review.
+- **< 3 votes (no consensus)**: Auto-dismiss with reason `Council consensus below threshold (N/5 votes)`. This filters low-signal items before they reach the human.
 
-The `gm_submitDevProposal` callable requires platformAdmin auth. When running from the functions directory, use the service account implicitly available via `firebase-admin`. Alternatively, use the Firebase REST API with the service account key.
+The submission callable typically requires platform-admin auth; route through your internal app's authenticated session rather than embedding service-account credentials.
 
 **Writing proposals via Chrome DevTools MCP:**
 
-For each item the council approved (3+ votes), the agent interacts with the HQ Support page to submit the proposal:
+For each item the council approved (3+ votes), the agent interacts with the internal Support page to submit the proposal:
 
 1. Click "Write Proposal" on the target card:
    ```
@@ -672,7 +663,7 @@ For items the council rejected (< 3 votes), click "Dismiss":
 mcp__chrome-devtools__click({ selector: '[data-action="auto-dismiss"][data-proposal-id="PROPOSAL_ID"]' })
 ```
 
-No firebase-admin credentials needed. The HQ app handles Firestore writes through its authenticated session.
+No service-account credentials needed. The internal app handles writes through its authenticated session.
 
 ### Priority Trigger
 
@@ -689,7 +680,7 @@ This ensures user feedback is processed promptly even mid-rotation.
 
 On every cron tick (Phase 3), before the normal rotation, also check for approved proposals:
 
-1. Navigate to the HQ Support page and check for approved/corrected items:
+1. Navigate to the internal Support page and check for approved/corrected items:
    ```
    mcp__chrome-devtools__navigate_page({ url: 'http://localhost:5174/support' })
    mcp__chrome-devtools__evaluate_script({ expression: `
@@ -719,7 +710,7 @@ On every cron tick (Phase 3), before the normal rotation, also check for approve
       - **Details**: [details]
       - **Context**: Promoted from dev proposal [proposal ID]. Original user message: "[sourceMessage excerpt]"
       ```
-   d. Mark as filed on the HQ Support page via the "Mark Filed" button:
+   d. Mark as filed on the internal Support page via the "Mark Filed" button:
       ```
       mcp__chrome-devtools__click({ selector: '[data-action="mark-filed"][data-proposal-id="PROPOSAL_ID"]' })
       ```
