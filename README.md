@@ -1,8 +1,8 @@
 # Claude Skills
 
-A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, dev workflow, and architecture work. Project-agnostic — drop them into any repo, swap a few placeholders, and go.
+A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, business strategy, dev workflow, and architecture work. Project-agnostic — drop them into any repo, swap a few placeholders, and go.
 
-## Skills (30)
+## Skills (33)
 
 ### Browser / QA (Chrome DevTools MCP)
 - **[audit-page](skills/audit-page/)** — Lighthouse audit (performance, a11y, best practices, SEO) on a running page. `/audit-page [url]`
@@ -38,6 +38,11 @@ A collection of reusable [Claude Code](https://claude.com/claude-code) skills fo
 - **[gate-check](skills/gate-check/)** — Formal milestone readiness validation (MVP, beta, GA, etc.) with multi-perspective review. PASS / CONCERNS / FAIL. `/gate-check [milestone]`
 - **[scope-check](skills/scope-check/)** — Compares original work order or plan scope against actual git diff to detect scope creep. PASS / CONCERNS / FAIL. `/scope-check`
 - **[retro](skills/retro/)** — Post-marathon or post-session retrospective from git log + backlog + plan files. Outputs 3-5 action items. `/retro`
+
+### Business / Strategy (BMC brain)
+- **[business-notes](skills/business-notes/)** — Capture strategy notes (marketing, pricing, partnerships, customer hypotheses) and auto-file them into a Business Model Canvas brain. Builds the business plan in parallel with the product. `/business-notes [command]`
+- **[business-pass](skills/business-pass/)** — Proactively grow the BMC brain. Two modes: `scan` (autonomous codebase/app sweep extracting BMC evidence) and `interview` (Q&A to fill gaps in any of the 9 BMC blocks). `/business-pass [scan|interview]`
+- **[business-roundtable](skills/business-roundtable/)** — Send a business note through a 5-advisor council (Marketing, Pricing, Customer Discovery, Competitor Watcher, Operations), finalize, then lock the verdict into the BMC brain. `/business-roundtable [NOTE-ID]`
 
 ### Architecture & Documentation
 - **[arch-diagram](skills/arch-diagram/)** — Generates dark-themed SVG architecture diagrams from a configurable arch-config file. `/arch-diagram [view]`
