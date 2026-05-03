@@ -2,7 +2,7 @@
 
 A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, business strategy, dev workflow, and architecture work. Project-agnostic — drop them into any repo, swap a few placeholders, and go.
 
-## Skills (33)
+## Skills (34)
 
 ### Browser / QA (Chrome DevTools MCP)
 - **[audit-page](skills/audit-page/)** — Lighthouse audit (performance, a11y, best practices, SEO) on a running page. `/audit-page [url]`
@@ -15,6 +15,7 @@ A collection of reusable [Claude Code](https://claude.com/claude-code) skills fo
 
 ### Multi-Agent / Council
 - **[llm-council](skills/llm-council/)** — Run a question through 5 AI advisors who independently analyze, peer-review, and synthesize a verdict. Based on Karpathy's LLM Council methodology. `/llm-council [question]`
+- **[premortem](skills/premortem/)** — Assume your plan already failed 6 months from now and work backward to find every reason why. Spawns one parallel agent per failure mode, then synthesizes a revised plan with blind spots exposed. Based on Klein's premortem methodology. `/premortem [plan]`
 - **[council-orders](skills/council-orders/)** — Convene a 5-member product council that files 25-30 prioritized work orders to your backlog in one session. `/council-orders [focus]`
 - **[council-rd](skills/council-rd/)** — Per-research-folder mini-councils that pick the top 2-3 work orders from each report and emit an HTML approval tool. `/council-rd [research-root]`
 - **[crew](skills/crew/)** — Multi-agent session coordination: callsigns, file ownership, conflict detection, inter-agent comms. `/crew [join|status|claim|...]`
