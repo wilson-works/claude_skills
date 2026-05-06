@@ -2,7 +2,7 @@
 
 A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, business strategy, dev workflow, and architecture work. Project-agnostic — drop them into any repo, swap a few placeholders, and go.
 
-## Skills (33)
+## Skills (34)
 
 ### Browser / QA (Chrome DevTools MCP)
 - **[audit-page](skills/audit-page/)** — Lighthouse audit (performance, a11y, best practices, SEO) on a running page. `/audit-page [url]`
@@ -23,6 +23,7 @@ A collection of reusable [Claude Code](https://claude.com/claude-code) skills fo
 - **[marathon-council](skills/marathon-council/)** — Rotates through focus areas, researches the codebase, convenes councils, files work orders. The intake half. `/marathon-council`
 - **[marathon-orders](skills/marathon-orders/)** — Spawns 1-2 sub-agents per wave, each completing one work order with a review-and-merge gate. The execution half. `/marathon-orders`
 - **[marathon-research](skills/marathon-research/)** — Processes a queue of research topics with WebSearch/WebFetch, produces cited markdown reports under 750 lines. `/marathon-research [topics]`
+- **[distill](skills/distill/)** — Post-processor for `marathon-research`. Turns 5,000-line research dumps into ≤200-line summary cards with surgical `@-references` back to source. Auto-fires at the end of every marathon, or invoke standalone. `/distill [slug]`
 - **[marathon-bughunter](skills/marathon-bughunter/)** — Drives a Chrome DevTools browser through your app to hunt for new bugs introduced by recent work. `/marathon-bughunter`
 - **[marathon-condenser](skills/marathon-condenser/)** — Condenses an oversized work order backlog: merges duplicates, closes already-completed items, rewrites vague entries, prunes stale ones. `/marathon-condenser`
 - **[bg-pipeline](skills/bg-pipeline/)** — Run a sequence of skills as background sub-agents to keep your main session's context clean. `/bg-pipeline [pipeline]`
