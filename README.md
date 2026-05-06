@@ -2,7 +2,7 @@
 
 A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, business strategy, dev workflow, and architecture work. Project-agnostic — drop them into any repo, swap a few placeholders, and go.
 
-## Skills (34)
+## Skills (35)
 
 ### Browser / QA (Chrome DevTools MCP)
 - **[audit-page](skills/audit-page/)** — Lighthouse audit (performance, a11y, best practices, SEO) on a running page. `/audit-page [url]`
@@ -17,6 +17,7 @@ A collection of reusable [Claude Code](https://claude.com/claude-code) skills fo
 - **[llm-council](skills/llm-council/)** — Run a question through 5 AI advisors who independently analyze, peer-review, and synthesize a verdict. Based on Karpathy's LLM Council methodology. `/llm-council [question]`
 - **[council-orders](skills/council-orders/)** — Convene a 5-member product council that files 25-30 prioritized work orders to your backlog in one session. `/council-orders [focus]`
 - **[council-rd](skills/council-rd/)** — Per-research-folder mini-councils that pick the top 2-3 work orders from each report and emit an HTML approval tool. `/council-rd [research-root]`
+- **[marathon-research-council](skills/marathon-research-council/)** — Cross-cut council across N completed marathons. Produces a build-ready summary with per-marathon decision cards, dependency graph, first-PR spec, and ADR placeholders. The bridge from raw R&D to the backlog. `/marathon-research-council [slugs|--since|--all-pending]`
 - **[crew](skills/crew/)** — Multi-agent session coordination: callsigns, file ownership, conflict detection, inter-agent comms. `/crew [join|status|claim|...]`
 
 ### Long-Running Marathons (walkaway sessions)
