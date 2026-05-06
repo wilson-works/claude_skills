@@ -2,7 +2,7 @@
 
 A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, business strategy, dev workflow, and architecture work. Project-agnostic — drop them into any repo, swap a few placeholders, and go.
 
-## Skills (35)
+## Skills (37)
 
 ### Browser / QA (Chrome DevTools MCP)
 - **[audit-page](skills/audit-page/)** — Lighthouse audit (performance, a11y, best practices, SEO) on a running page. `/audit-page [url]`
