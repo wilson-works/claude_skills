@@ -451,9 +451,14 @@ Go to Phase 2.
 
 1. `CronDelete(state.cronJobId)`.
 2. Update state to `status: "complete"`.
-3. Cleanup: delete lock file, delete `<temp-dir>/` orchestration scripts (keep R&D outputs intact).
+3. Cleanup: delete lock file, delete `<temp-dir>/` orchestration scripts (keep R&D outputs intact). **Preserve `validate-section.js`** — it is reused across runs and referenced by the validator-override memory.
 4. Read final INDEX.md, inline it in the report.
-5. Print final report:
+5. **Distill completed marathons into summaries** (HARD WIRE per skill composition):
+   - Invoke `Skill(skill: "distill")` with no args. Auto-detect mode picks up every just-completed marathon slug that has a `_(summary stub)_` placeholder in `<project-root>/research/_index.md`.
+   - Distill runs Sonnet agents in parallel (one per topic). Typical wall-clock: ~3 min for 5 topics.
+   - Distill writes `<project-root>/research/summaries/<topic-slug>.md` per marathon and updates `_index.md` to replace stubs.
+   - If `/distill` reports any topic exceeded the 200-line cap after re-prompt: include that as a warning in the final report; the marathon still counts as complete.
+6. Print final report:
 
 ```
 MARATHON RESEARCH COMPLETE
@@ -470,7 +475,13 @@ Files written: [N]
 Sources collected: [N]
 Total lines of research: [N]
 
+Summaries distilled: [N]
+  [topic-slug]      [lines] lines
+  ...
+
 R&D folder: <research-root>/
+Summaries:  <project-root>/research/summaries/
+Index:      <project-root>/research/_index.md (stubs replaced)
 
 == INDEX.md ==
 [full INDEX.md content inlined here]
