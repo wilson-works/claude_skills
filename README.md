@@ -2,7 +2,7 @@
 
 A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, marketing and growth, design intelligence, fundraising, business strategy, dev workflow, and architecture work. Project-agnostic -- drop them into any repo, swap a few placeholders, and go.
 
-## Skills (96)
+## Skills (98)
 
 ### Browser / QA (Chrome DevTools MCP)
 - **[audit-page](skills/audit-page/)** -- Lighthouse audit (performance, a11y, best practices, SEO) on a running page. `/audit-page [url]`
@@ -24,6 +24,8 @@ A collection of reusable [Claude Code](https://claude.com/claude-code) skills fo
 - **[marathon-council](skills/marathon-council/)** -- Rotates through focus areas, researches the codebase, convenes councils, files work orders. The intake half. `/marathon-council`
 - **[marathon-orders](skills/marathon-orders/)** -- Spawns 1-2 sub-agents per wave, each completing one work order with a review-and-merge gate. The execution half. `/marathon-orders`
 - **[marathon-org](skills/marathon-org/)** -- Org-routed walkaway marathon. Same loop as marathon-orders but every wave routes CTO -> exec assistant -> dept head -> junior with the comms bus and path claims active. `/marathon-org`
+- **[workday](skills/workday/)** -- Standardized 4-lane parallel overnight run: 4 territory-disjoint org-routed lanes (schema / backend / frontend / api) in separate git worktrees + an automated Lane E merge, a per-lane completion goal set by the chief engineer, staggered safety crons, keep-last-1 cleanup. The big-overnight-bite half. `/workday [theme]`
+- **[workday-watch](skills/workday-watch/)** -- Optional non-destructive C-suite surveillance session for an in-flight `/workday` run: periodically inspects each lane for drift / breakage / hallucination and posts steering corrections the lanes obey, catching problems in ~20 min instead of at the morning merge. `/workday-watch`
 - **[marathon-research](skills/marathon-research/)** -- Processes a queue of research topics with WebSearch/WebFetch, produces cited markdown reports under 750 lines. `/marathon-research [topics]`
 - **[marathon-research-council](skills/marathon-research-council/)** -- Cross-cut council across N completed marathons. Produces a build-ready summary with per-marathon decision cards, dependency graph, first-PR spec, and ADR placeholders. The bridge from raw R&D to the backlog. `/marathon-research-council [slugs|--since|--all-pending]`
 - **[distill](skills/distill/)** -- Post-processor for `marathon-research`. Turns 5,000-line research dumps into <=200-line summary cards with surgical `@-references` back to source. Auto-fires at the end of every marathon, or invoke standalone. `/distill [slug]`
