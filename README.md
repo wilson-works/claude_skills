@@ -18,7 +18,7 @@ A collection of reusable [Claude Code](https://claude.com/claude-code) skills fo
 - **[premortem](skills/premortem/)** -- Assume your plan already failed 6 months from now and work backward to find every reason why. Spawns one parallel agent per failure mode, then synthesizes a revised plan with blind spots exposed. Based on Klein's premortem methodology. `/premortem [plan]`
 - **[council-orders](skills/council-orders/)** -- Convene a 5-member product council that files 25-30 prioritized work orders to your backlog in one session. `/council-orders [focus]`
 - **[council-rd](skills/council-rd/)** -- Per-research-folder mini-councils that pick the top 2-3 work orders from each report and emit an HTML approval tool. `/council-rd [research-root]`
-- **[agent-org](skills/agent-org/)** -- 18-agent organizational hierarchy with hard-ACL Slack-style channels. C-suite (Opus) directs, exec assistant routes, department heads review, juniors ship. SQLite-backed comms bus + path-guard hook enforces dept ownership. `/agent-org`
+- **[agent-org](skills/agent-org/)** -- 18-agent organizational hierarchy with hard-ACL Slack-style channels. C-suite (Opus) directs, exec assistant routes, department heads review, juniors ship. SQLite-backed comms bus + path-guard hook enforces dept ownership. `/agent-org` — **diagrams: [docs/ORG.md](docs/ORG.md)** (chain of command, comms ACL, the loop) + a one-page [poster](docs/org-poster.html)
 
 ### Long-Running Marathons (walkaway sessions)
 - **[marathon-council](skills/marathon-council/)** -- Rotates through focus areas, researches the codebase, convenes councils, files work orders. The intake half. `/marathon-council`
