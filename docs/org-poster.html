@@ -72,6 +72,11 @@
   .legend{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-top:10px}
   .legend span{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--dim)}
   .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .svgwrap{margin:8px -6px;overflow-x:auto}
+  .svgwrap svg{display:block;width:100%;height:auto;min-width:720px}
+  .svgnote{text-align:center;color:var(--dim);font-size:12.5px;margin-top:12px;
+    border-top:1px dashed var(--line);padding-top:10px}
+  .svgnote b{color:var(--gold)}
   @media(max-width:760px){.bus,.lanes4{grid-template-columns:1fr 1fr}.tlabel{flex-basis:60px}}
 </style>
 </head>
@@ -94,50 +99,80 @@
     <a href="profiles.html">browse the whole team →</a></div>
 
   <section>
-    <h2>Chain of command — the flow down</h2>
-    <p class="lead">Authority flows down. Finished work flows up <i>through John</i> — the
-      review gate sits off the command line so a head can't wave through their own team's slop.</p>
-
-    <div class="tier">
-      <div class="tlabel">Owner</div>
-      <div class="row"><span class="chip ceo"><span class="n">CEO — you</span><span class="r">sets intent · final approval</span></span></div>
+    <h2>Chain of command — the org chart</h2>
+    <p class="lead">Classical top-down waterfall: every line is a real reporting relationship.
+      Click any box to open their profile card.</p>
+    <div class="svgwrap">
+      <svg viewBox="0 0 960 440" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" role="img" aria-label="18-agent CTO org chart">
+        <style>
+          .ln{stroke:#3d4655;stroke-width:1.5;fill:none}
+          .box rect{fill:#161b22;stroke:#30363d;stroke-width:1.5;rx:8;ry:8;transition:stroke .15s,fill .15s}
+          .box:hover rect{stroke:#2dd4bf;fill:#0e1b1a}
+          .box text{fill:#e6edf3;font:600 13px -apple-system,"Segoe UI",Roboto,sans-serif;text-anchor:middle}
+          .box .role{fill:#8b949e;font-size:11px;font-weight:400}
+          .ceo rect{fill:#11233f;stroke:#58a6ff;stroke-width:2}.ceo .name{fill:#fff}
+          .cs rect{stroke:#58a6ff}
+          .gate rect{fill:#241a04;stroke:#e3b341;stroke-width:2}.gate .name{fill:#ffdf5d}
+          .head rect{stroke:#2dd4bf}.head .name{fill:#2dd4bf}
+          .jr text{font-size:12px}.jr .role{font-size:10px}
+        </style>
+        <!-- CEO -> C-suite bus -->
+        <path class="ln" d="M480 62 V90"/>
+        <path class="ln" d="M320 90 H640"/>
+        <path class="ln" d="M320 90 V110 M480 90 V110 M640 90 V110"/>
+        <!-- Tim -> heads bus -->
+        <path class="ln" d="M480 152 V200"/>
+        <path class="ln" d="M160 200 H800"/>
+        <path class="ln" d="M160 200 V220 M320 200 V220 M480 200 V220 M640 200 V220 M800 200 V220"/>
+        <!-- heads -> 2 stacked juniors per column (line passes through both boxes) -->
+        <path class="ln" d="M160 262 V416 M320 262 V416 M480 262 V416 M640 262 V416 M800 262 V416"/>
+        <!-- CEO -->
+        <g class="box ceo"><rect x="415" y="20" width="130" height="42"/>
+          <text class="name" x="480" y="40">CEO</text><text class="role" x="480" y="55">(you)</text></g>
+        <!-- C-suite -->
+        <a xlink:href="profiles.html#cto-james"><g class="box cs"><rect x="255" y="110" width="130" height="42"/>
+          <text class="name" x="320" y="130">James</text><text class="role" x="320" y="145">CTO · direction</text></g></a>
+        <a xlink:href="profiles.html#exec-assistant-tim"><g class="box cs"><rect x="415" y="110" width="130" height="42"/>
+          <text class="name" x="480" y="130">Tim</text><text class="role" x="480" y="145">Exec Assistant · routes</text></g></a>
+        <a xlink:href="profiles.html#chief-engineer-john"><g class="box gate"><rect x="575" y="110" width="130" height="42"/>
+          <text class="name" x="640" y="130">John ⚖</text><text class="role" x="640" y="145">Chief Engineer · gate</text></g></a>
+        <!-- Heads -->
+        <a xlink:href="profiles.html#head-backend-cindy"><g class="box head"><rect x="95" y="220" width="130" height="42"/>
+          <text class="name" x="160" y="240">Cindy</text><text class="role" x="160" y="255">Backend</text></g></a>
+        <a xlink:href="profiles.html#head-frontend-gavin"><g class="box head"><rect x="255" y="220" width="130" height="42"/>
+          <text class="name" x="320" y="240">Gavin</text><text class="role" x="320" y="255">Frontend</text></g></a>
+        <a xlink:href="profiles.html#head-database-diana"><g class="box head"><rect x="415" y="220" width="130" height="42"/>
+          <text class="name" x="480" y="240">Diana</text><text class="role" x="480" y="255">Database</text></g></a>
+        <a xlink:href="profiles.html#head-qa-rachel"><g class="box head"><rect x="575" y="220" width="130" height="42"/>
+          <text class="name" x="640" y="240">Rachel</text><text class="role" x="640" y="255">QA</text></g></a>
+        <a xlink:href="profiles.html#head-api-josh"><g class="box head"><rect x="735" y="220" width="130" height="42"/>
+          <text class="name" x="800" y="240">Josh</text><text class="role" x="800" y="255">API</text></g></a>
+        <!-- Juniors row 1 -->
+        <a xlink:href="profiles.html#junior-backend-marcus"><g class="box jr"><rect x="95" y="330" width="130" height="36"/>
+          <text class="name" x="160" y="348">Marcus</text><text class="role" x="160" y="361">backend</text></g></a>
+        <a xlink:href="profiles.html#junior-frontend-ava"><g class="box jr"><rect x="255" y="330" width="130" height="36"/>
+          <text class="name" x="320" y="348">Ava</text><text class="role" x="320" y="361">frontend</text></g></a>
+        <a xlink:href="profiles.html#junior-database-leo"><g class="box jr"><rect x="415" y="330" width="130" height="36"/>
+          <text class="name" x="480" y="348">Leo</text><text class="role" x="480" y="361">database</text></g></a>
+        <a xlink:href="profiles.html#junior-qa-owen"><g class="box jr"><rect x="575" y="330" width="130" height="36"/>
+          <text class="name" x="640" y="348">Owen</text><text class="role" x="640" y="361">QA</text></g></a>
+        <a xlink:href="profiles.html#junior-api-felix"><g class="box jr"><rect x="735" y="330" width="130" height="36"/>
+          <text class="name" x="800" y="348">Felix</text><text class="role" x="800" y="361">API</text></g></a>
+        <!-- Juniors row 2 -->
+        <a xlink:href="profiles.html#junior-backend-priya"><g class="box jr"><rect x="95" y="380" width="130" height="36"/>
+          <text class="name" x="160" y="398">Priya</text><text class="role" x="160" y="411">backend</text></g></a>
+        <a xlink:href="profiles.html#junior-frontend-kai"><g class="box jr"><rect x="255" y="380" width="130" height="36"/>
+          <text class="name" x="320" y="398">Kai</text><text class="role" x="320" y="411">frontend</text></g></a>
+        <a xlink:href="profiles.html#junior-database-nora"><g class="box jr"><rect x="415" y="380" width="130" height="36"/>
+          <text class="name" x="480" y="398">Nora</text><text class="role" x="480" y="411">database</text></g></a>
+        <a xlink:href="profiles.html#junior-qa-maya"><g class="box jr"><rect x="575" y="380" width="130" height="36"/>
+          <text class="name" x="640" y="398">Maya</text><text class="role" x="640" y="411">QA</text></g></a>
+        <a xlink:href="profiles.html#junior-api-zara"><g class="box jr"><rect x="735" y="380" width="130" height="36"/>
+          <text class="name" x="800" y="398">Zara</text><text class="role" x="800" y="411">API</text></g></a>
+      </svg>
     </div>
-    <div class="conn"></div>
-    <div class="tier">
-      <div class="tlabel">C-suite</div>
-      <div class="row">
-        <a class="chip cs" href="profiles.html#cto-james"><span class="n">James</span><span class="r">CTO · strategy &amp; go/no-go</span></a>
-        <a class="chip gate" href="profiles.html#chief-engineer-john"><span class="n">John</span><span class="r">Chief Engineer · merge gate</span></a>
-        <a class="chip cs" href="profiles.html#exec-assistant-tim"><span class="n">Tim</span><span class="r">Exec Assistant · routing funnel</span></a>
-      </div>
-    </div>
-    <div class="conn"></div>
-    <div class="tier">
-      <div class="tlabel">Heads</div>
-      <div class="row">
-        <a class="chip head" href="profiles.html#head-backend-cindy"><span class="n">Cindy</span><span class="r">Backend</span></a>
-        <a class="chip head" href="profiles.html#head-frontend-gavin"><span class="n">Gavin</span><span class="r">Frontend</span></a>
-        <a class="chip head" href="profiles.html#head-database-diana"><span class="n">Diana</span><span class="r">Database</span></a>
-        <a class="chip head" href="profiles.html#head-qa-rachel"><span class="n">Rachel</span><span class="r">QA</span></a>
-        <a class="chip head" href="profiles.html#head-api-josh"><span class="n">Josh</span><span class="r">API</span></a>
-      </div>
-    </div>
-    <div class="conn"></div>
-    <div class="tier">
-      <div class="tlabel">Juniors</div>
-      <div class="row">
-        <a class="chip jr" href="profiles.html#junior-backend-marcus">Marcus<span class="r">backend</span></a>
-        <a class="chip jr" href="profiles.html#junior-backend-priya">Priya<span class="r">backend</span></a>
-        <a class="chip jr" href="profiles.html#junior-frontend-ava">Ava<span class="r">frontend</span></a>
-        <a class="chip jr" href="profiles.html#junior-frontend-kai">Kai<span class="r">frontend</span></a>
-        <a class="chip jr" href="profiles.html#junior-database-leo">Leo<span class="r">database</span></a>
-        <a class="chip jr" href="profiles.html#junior-database-nora">Nora<span class="r">database</span></a>
-        <a class="chip jr" href="profiles.html#junior-qa-owen">Owen<span class="r">QA</span></a>
-        <a class="chip jr" href="profiles.html#junior-qa-maya">Maya<span class="r">QA</span></a>
-        <a class="chip jr" href="profiles.html#junior-api-felix">Felix<span class="r">API</span></a>
-        <a class="chip jr" href="profiles.html#junior-api-zara">Zara<span class="r">API</span></a>
-      </div>
-    </div>
+    <p class="svgnote">⚖ <b>John is the review gate.</b> He sits in the C-suite but answers to no department —
+      every diff passes through him before merge, so a head can't approve their own team's slop.</p>
   </section>
 
   <section>
