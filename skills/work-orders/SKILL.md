@@ -49,7 +49,7 @@ Files: `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, `completed.md`
 ### Step 1: Read the Backlog
 
 Read all backlog list files (or the filtered category). Parse each item to extract:
-- ID, title, priority, details, context
+- ID, title, priority, details, context, acceptance
 - Date added (for age sorting)
 
 If the backlog is empty, report "No open work orders" and stop.
@@ -219,6 +219,7 @@ You are a Sonnet agent processing a work order.
 - **Priority**: [priority]
 - **Details**: [details]
 - **Context**: [context]
+- **Acceptance**: [acceptance — the verifiable done condition]
 
 ## Context Brief (from Sonnet pre-analysis — start here, do not ignore)
 [If context brief was returned, paste the full CONTEXT_BRIEF block here. If not available, write "No brief available — explore from CLAUDE.md."]

@@ -1,6 +1,6 @@
 ---
 name: cold-email
-description: Write B2B cold emails and follow-up sequences that get replies. Use when the user wants to write cold outreach emails, prospecting emails, cold email campaigns, sales development emails, or SDR emails. Also use when the user mentions "cold outreach," "prospecting email," "outbound email," "email to leads," "reach out to prospects," "sales email," "follow-up email sequence," "nobody's replying to my emails," or "how do I write a cold email." Covers subject lines, opening lines, body copy, CTAs, personalization, and multi-touch follow-up sequences. For warm/lifecycle email sequences, see email-sequence. For sales collateral beyond emails, see sales-enablement.
+description: Write B2B cold emails and follow-up sequences that get replies. Use when the user wants to write cold outreach emails, prospecting emails, cold email campaigns, sales development emails, or SDR emails. Also use when the user mentions "cold outreach," "prospecting email," "outbound email," "email to leads," "reach out to prospects," "sales email," "follow-up email sequence," "nobody's replying to my emails," or "how do I write a cold email." Covers subject lines, opening lines, body copy, CTAs, personalization, and multi-touch follow-up sequences. For warm/lifecycle email sequences, see email-sequence. For sales collateral beyond emails, see sales-enablement. Invoke with /cold-email.
 metadata:
   version: 1.1.0
 ---
@@ -132,6 +132,22 @@ Before presenting, gut-check:
 - Identical templates with only {{FirstName}} swapped
 - Asking for 30-minute calls in first touch
 - "Just checking in" follow-ups
+
+---
+
+## Compliance (non-negotiable)
+
+Cold email is regulated, and the rules depend on where the *recipient* is. Working summary, verified July 2026 — not legal advice:
+
+**US — CAN-SPAM (opt-out regime).** B2B cold email is permitted, with requirements: accurate headers and sender identity, a truthful subject line, a valid physical postal address in every email, and a clear opt-out mechanism that works for at least 30 days, honored within 10 business days. Penalties apply per email. Source: https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business
+
+**EU/UK — GDPR + ePrivacy/PECR (tread carefully).** UK PECR exempts corporate subscribers from the consent rule, but UK GDPR still applies to the individual's data: you need a documented legitimate-interest assessment, and outreach must be relevant to that person's role. The "soft opt-in" covers existing customers only — never cold contacts. EU member states implemented ePrivacy differently (some, like Germany, are far stricter), so check each target country. This is not legal advice — get counsel before EU/UK campaigns. Source: https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/business-to-business-marketing/
+
+**Canada — CASL (opt-in, materially stricter).** Prior consent — express or implied — is required before sending. For cold B2B, implied consent via a conspicuously published business email applies only when the message is relevant to the recipient's role. Every message needs sender identification and an unsubscribe mechanism. Penalties reach CAD $10M. Source: https://crtc.gc.ca/eng/com500/faq500.htm
+
+**Deliverability — Gmail/Yahoo bulk-sender rules (in force since Feb 2024).** Senders of 5,000+ messages/day to Gmail must authenticate with SPF, DKIM, and DMARC, support one-click unsubscribe (honored within two days), and keep spam complaint rates below 0.3%. Yahoo enforces equivalent requirements. Sources: https://support.google.com/a/answer/81126 and https://senders.yahooinc.com/best-practices/
+
+If you can't meet these requirements for a recipient's jurisdiction, don't send.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ckm:design
-description: "Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini AI), corporate identity program (50 deliverables, CIP mockups), HTML presentations (Chart.js), banner design (22 styles, social/ads/web/print), icon design (15 styles, SVG, Gemini 3.1 Pro), social photos (HTML→screenshot, multi-platform). Actions: design logo, create CIP, generate mockups, build slides, design banner, generate icon, create social photos, social media images, brand identity, design system. Platforms: Facebook, Twitter, LinkedIn, YouTube, Instagram, Pinterest, TikTok, Threads, Google Ads."
+description: "Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini AI), corporate identity program (50 deliverables, CIP mockups), HTML presentations (Chart.js), banner design (22 styles, social/ads/web/print), icon design (15 styles, SVG, Gemini 3.1 Pro), social photos (HTML→screenshot, multi-platform). Actions: design logo, create CIP, generate mockups, build slides, design banner, generate icon, create social photos, social media images, brand identity, design system. Platforms: Facebook, Twitter, LinkedIn, YouTube, Instagram, Pinterest, TikTok, Threads, Google Ads. Invoke with /design [design-type] [context]."
 argument-hint: "[design-type] [context]"
 license: MIT
 metadata:
@@ -11,6 +11,8 @@ metadata:
 # Design
 
 Unified design skill: brand, tokens, UI, logo, CIP, slides, banners, social photos, icons.
+
+> **Note:** The upstream helper scripts (`scripts/logo/search.py`, `scripts/logo/generate.py`, `scripts/logo/core.py`, `scripts/cip/search.py`, `scripts/cip/generate.py`, `scripts/cip/render-html.py`, `scripts/cip/core.py`, `scripts/icon/generate.py`) are not bundled in this pack — the workflows below describe the manual/agent-driven equivalent. Install the scripts from the upstream source if you want the automated path.
 
 ## When to Use
 
@@ -131,7 +133,7 @@ Load `references/slides-create.md` for the creation workflow.
 
 ## Banner Design (Built-in)
 
-22 art direction styles across social, ads, web, print. Uses `frontend-design`, `ai-artist`, `ai-multimodal`, `chrome-devtools` skills.
+22 art direction styles across social, ads, web, print. Uses `ui-ux-pro-max` for design intelligence, Gemini image generation for visuals, and headless Chrome for export.
 
 Load `references/banner-sizes-and-styles.md` for complete sizes and styles reference.
 
@@ -139,8 +141,8 @@ Load `references/banner-sizes-and-styles.md` for complete sizes and styles refer
 
 1. **Gather requirements** via `AskUserQuestion` — purpose, platform, content, brand, style, quantity
 2. **Research** — Activate `ui-ux-pro-max`, browse Pinterest for references
-3. **Design** — Create HTML/CSS banner with `frontend-design`, generate visuals with `ai-artist`/`ai-multimodal`
-4. **Export** — Screenshot to PNG at exact dimensions via `chrome-devtools`
+3. **Design** — Create the HTML/CSS banner, generate visuals with Gemini image models
+4. **Export** — Screenshot to PNG at exact dimensions via headless Chrome
 5. **Present** — Show all options side-by-side, iterate on feedback
 
 ### Banner: Quick Size Reference
@@ -173,7 +175,7 @@ Load `references/banner-sizes-and-styles.md` for complete sizes and styles refer
 - Safe zones: critical content in central 70-80%
 - One CTA per banner, bottom-right, min 44px height
 - Max 2 fonts, min 16px body, ≥32px headline
-- Text under 20% for ads (Meta penalizes)
+- Keep ad text minimal — Meta dropped its 20% text-limit rule in 2020, but less text still performs better
 - Print: 300 DPI, CMYK, 3-5mm bleed
 
 ## Icon Design (Built-in)
@@ -216,20 +218,20 @@ python3 ~/.claude/skills/design/scripts/icon/generate.py --prompt "user profile"
 
 ## Social Photos (Built-in)
 
-Multi-platform social image design: HTML/CSS → screenshot export. Uses `ui-ux-pro-max`, `brand`, `design-system`, `chrome-devtools` skills.
+Multi-platform social image design: HTML/CSS → screenshot export. Uses `ui-ux-pro-max`, `brand`, and `design-system` skills plus headless Chrome for export.
 
 Load `references/social-photos-design.md` for sizes, templates, best practices.
 
 ### Social Photos: Workflow
 
-1. **Orchestrate** — `project-management` skill for TODO tasks; parallel subagents for independent work
+1. **Orchestrate** — Track TODO tasks; parallel subagents for independent work
 2. **Analyze** — Parse prompt: subject, platforms, style, brand context, content elements
 3. **Ideate** — 3-5 concepts, present via `AskUserQuestion`
-4. **Design** — `/ckm:brand` → `/ckm:design-system` → randomly invoke `/ck:ui-ux-pro-max` OR `/ck:frontend-design`; HTML per idea × size
-5. **Export** — `chrome-devtools` or Playwright screenshot at exact px (2x deviceScaleFactor)
-6. **Verify** — Use Chrome MCP or `chrome-devtools` skill to visually inspect exported designs; fix layout/styling issues and re-export
+4. **Design** — `/brand` → `/design-system` → `/ui-ux-pro-max`; HTML per idea × size
+5. **Export** — Headless Chrome or Playwright screenshot at exact px (2x deviceScaleFactor)
+6. **Verify** — Use Chrome MCP to visually inspect exported designs; fix layout/styling issues and re-export
 7. **Report** — Summary to `plans/reports/` with design decisions
-8. **Organize** — Invoke `assets-organizing` skill to sort output files and reports
+8. **Organize** — Sort output files and reports into the project's asset folders
 
 ### Social Photos: Key Sizes
 
@@ -244,8 +246,8 @@ Load `references/social-photos-design.md` for sizes, templates, best practices.
 
 ### Complete Brand Package
 
-1. **Logo** → `scripts/logo/generate.py` → Generate logo variants
-2. **CIP** → `scripts/cip/generate.py --logo ...` → Create deliverable mockups
+1. **Logo** → `scripts/logo/generate.py` (if installed) → Generate logo variants
+2. **CIP** → `scripts/cip/generate.py --logo ...` (if installed) → Create deliverable mockups
 3. **Presentation** → Load `references/slides-create.md` → Build pitch deck
 
 ### New Design System
@@ -299,4 +301,4 @@ pip install google-genai pillow
 ## Integration
 
 **External sub-skills:** brand, design-system, ui-styling
-**Related Skills:** frontend-design, ui-ux-pro-max, ai-multimodal, chrome-devtools
+**Related Skills:** ui-ux-pro-max, banner-design, slides, image

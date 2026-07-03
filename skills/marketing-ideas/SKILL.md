@@ -1,6 +1,6 @@
 ---
 name: marketing-ideas
-description: "When the user needs marketing ideas, inspiration, or strategies for their SaaS or software product. Also use when the user asks for 'marketing ideas,' 'growth ideas,' 'how to market,' 'marketing strategies,' 'marketing tactics,' 'ways to promote,' 'ideas to grow,' 'what else can I try,' 'I don't know how to market this,' 'brainstorm marketing,' or 'what marketing should I do.' Use this as a starting point whenever someone is stuck or looking for inspiration on how to grow. For specific channel execution, see the relevant skill (paid-ads, social-content, email-sequence, etc.)."
+description: "When the user needs marketing ideas, inspiration, or strategies for their SaaS or software product. Also use when the user asks for 'marketing ideas,' 'growth ideas,' 'how to market,' 'marketing strategies,' 'marketing tactics,' 'ways to promote,' 'ideas to grow,' 'what else can I try,' 'I don't know how to market this,' 'brainstorm marketing,' or 'what marketing should I do.' Use this as a starting point whenever someone is stuck or looking for inspiration on how to grow. For specific channel execution, see the relevant skill (paid-ads, social-content, email-sequence, etc.). Invoke with /marketing-ideas."
 metadata:
   version: 1.1.0
 ---
@@ -41,7 +41,8 @@ When asked for marketing ideas:
 | Unconventional | 110-122 | Awards, Challenges, Guerrilla marketing |
 | Platforms | 123-130 | App marketplaces, Review sites, YouTube |
 | International | 131-132 | Expansion, Price localization |
-| Developer | 133-136 | DevRel, Certifications |
+| Investor | 133 | Investor marketing |
+| Developer | 134-136 | Certifications, Support as marketing, DevRel |
 | Audience-Specific | 137-139 | Referrals, Podcast tours, Customer language |
 
 **For the complete list with descriptions**: See [references/ideas-by-category.md](references/ideas-by-category.md)

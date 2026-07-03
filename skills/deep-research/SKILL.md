@@ -1,6 +1,6 @@
 ---
 name: deep-research
-description: Multi-source deep research using firecrawl and exa MCPs. Searches the web, synthesizes findings, and delivers cited reports with source attribution. Use when the user wants thorough research on any topic with evidence and citations.
+description: Multi-source deep research using firecrawl and exa MCPs. Searches the web, synthesizes findings, and delivers cited reports with source attribution. Use when the user wants thorough research on any topic with evidence and citations. Invoke with /deep-research.
 origin: ECC
 ---
 
@@ -22,7 +22,7 @@ At least one of:
 - **firecrawl** — `firecrawl_search`, `firecrawl_scrape`, `firecrawl_crawl`
 - **exa** — `web_search_exa`, `web_search_advanced_exa`, `crawling_exa`
 
-Both together give the best coverage. Configure in `~/.claude.json` or `~/.codex/config.toml`.
+Both together give the best coverage. Configure in `~/.claude.json` or the project's `.mcp.json` (e.g. via `claude mcp add`).
 
 ## Workflow
 
@@ -124,7 +124,7 @@ Sub-questions investigated: [list]
 
 ## Parallel Research with Subagents
 
-For broad topics, use Claude Code's Task tool to parallelize:
+For broad topics, use Claude Code's Agent tool to parallelize:
 
 ```
 Launch 3 research agents in parallel:

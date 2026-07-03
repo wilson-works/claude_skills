@@ -1,6 +1,6 @@
 ---
 name: paid-ads
-description: "When the user wants help with paid advertising campaigns on Google Ads, Meta (Facebook/Instagram), LinkedIn, Twitter/X, or other ad platforms. Also use when the user mentions 'PPC,' 'paid media,' 'ROAS,' 'CPA,' 'ad campaign,' 'retargeting,' 'audience targeting,' 'Google Ads,' 'Facebook ads,' 'LinkedIn ads,' 'ad budget,' 'cost per click,' 'ad spend,' or 'should I run ads.' Use this for campaign strategy, audience targeting, bidding, and optimization. For bulk ad creative generation and iteration, see ad-creative. For landing page optimization, see page-cro."
+description: "When the user wants help with paid advertising campaigns on Google Ads, Meta (Facebook/Instagram), LinkedIn, Twitter/X, or other ad platforms. Also use when the user mentions 'PPC,' 'paid media,' 'ROAS,' 'CPA,' 'ad campaign,' 'retargeting,' 'audience targeting,' 'Google Ads,' 'Facebook ads,' 'LinkedIn ads,' 'ad budget,' 'cost per click,' 'ad spend,' or 'should I run ads.' Use this for campaign strategy, audience targeting, bidding, and optimization. For bulk ad creative generation and iteration, see ad-creative. For landing page optimization, see page-cro. Invoke with /paid-ads."
 metadata:
   version: 1.2.0
 ---
@@ -135,7 +135,7 @@ LI_LeadGen_CMOs-SaaS_Whitepaper_Mar24
 - Before/after comparisons
 - Stats and numbers as focal point
 - Human faces (real, not stock)
-- Bold, readable text overlay (keep under 20%)
+- Bold, readable text overlay — Meta retired its "20% text" penalty in 2020, so text-heavy images are no longer rejected or throttled, but images with less text still tend to perform better (source, verified July 2026: https://www.searchenginejournal.com/facebook-removes-the-20-text-limit-on-ad-images/381844/)
 
 ### Video Ads Structure (15-30 sec)
 1. Hook (0-3 sec): Pattern interrupt, question, or bold statement

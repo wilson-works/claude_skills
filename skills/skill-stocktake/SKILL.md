@@ -1,6 +1,6 @@
 ---
 name: skill-stocktake
-description: "Use when auditing Claude skills and commands for quality. Supports Quick Scan (changed skills only) and Full Stocktake modes with sequential subagent batch evaluation."
+description: "Use when auditing Claude skills and commands for quality. Supports Quick Scan (changed skills only) and Full Stocktake modes with sequential subagent batch evaluation. Invoke with /skill-stocktake [full]."
 origin: ECC
 ---
 
@@ -44,25 +44,38 @@ If the project has no `.claude/skills/` directory, only global skills and comman
 Re-evaluate only skills that have changed since the last run (5–10 min).
 
 1. Read `~/.claude/skills/skill-stocktake/results.json`
-2. Run: `bash ~/.claude/skills/skill-stocktake/scripts/quick-diff.sh \
-         ~/.claude/skills/skill-stocktake/results.json`
-   (Project dir is auto-detected from `$PWD/.claude/skills`; pass it explicitly only if needed)
+2. List files changed since the last save (anything newer than `results.json` itself), as a JSON array of paths. Run this directly in Bash (project dir is auto-detected from `$PWD/.claude/skills`; edit `proj` only if needed):
+
+   ```bash
+   ref="$HOME/.claude/skills/skill-stocktake/results.json"
+   proj="$PWD/.claude/skills"
+   {
+     find "$HOME/.claude/skills" -type f ! -name 'results.json' ! -name '*.tmp' -newer "$ref" 2>/dev/null
+     if [ -d "$proj" ]; then find "$proj" -type f ! -name '*.tmp' -newer "$ref" 2>/dev/null; fi
+   } | sort -u | awk 'BEGIN { printf "[" } { printf "%s\"%s\"", sep, $0; sep = "," } END { print "]" }'
+   ```
 3. If output is `[]`: report "No changes since last run." and stop
 4. Re-evaluate only those changed files using the same Phase 2 criteria
 5. Carry forward unchanged skills from previous results
 6. Output only the diff
-7. Run: `bash ~/.claude/skills/skill-stocktake/scripts/save-results.sh \
-         ~/.claude/skills/skill-stocktake/results.json <<< "$EVAL_RESULTS"`
+7. Save the merged results JSON back to the cache — either with the Write tool, or in Bash with the results in `$EVAL_RESULTS`:
+
+   ```bash
+   out="$HOME/.claude/skills/skill-stocktake/results.json"
+   mkdir -p "${out%/*}" && printf '%s\n' "$EVAL_RESULTS" > "$out.tmp" && mv "$out.tmp" "$out"
+   ```
 
 ## Full Stocktake Flow
 
 ### Phase 1 — Inventory
 
 Run: `bash ~/.claude/skills/skill-stocktake/scripts/scan.sh`
+(ships in this skill at `scripts/scan.sh`; POSIX-bash portable, works in Git Bash)
 
-The script enumerates skill files, extracts frontmatter, and collects UTC mtimes.
-Project dir is auto-detected from `$PWD/.claude/skills`; pass it explicitly only if needed.
-Present the scan summary and inventory table from the script output:
+The script enumerates skill files, extracts frontmatter (name, description), and collects UTC mtimes.
+The project root is auto-detected from `$PWD`; pass a different root as the first argument only if needed.
+It prints a scan summary followed by one tab-separated row per skill (`path`, `mtime_utc`, `name`, `description`).
+Present the scan summary and build the inventory table from those rows (fill the usage columns from your knowledge of recent sessions; use `—` when unknown):
 
 ```
 Scanning:

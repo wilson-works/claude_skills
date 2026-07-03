@@ -1,10 +1,10 @@
 # Claude Skills
 
-A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, marketing and growth, design intelligence, fundraising, business strategy, dev workflow, and architecture work. Project-agnostic -- drop them into any repo, swap a few placeholders, and go.
+A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, marketing and growth, design intelligence, fundraising, business strategy, dev workflow, architecture work, and personal productivity / onboarding. Project-agnostic -- drop them into any repo, swap a few placeholders, and go.
 
 The pack is tuned for the current Claude lineup — **Opus 4.8 decides, Sonnet 5 ships, Haiku 4.5 sweeps**: review gates run Opus at high effort, implementation runs Sonnet, and one env var (`CLAUDE_CODE_SUBAGENT_MODEL=sonnet`) turns any org run into a budget all-Sonnet night. See **[docs/MODELS.md](docs/MODELS.md)**.
 
-## Skills (98)
+## Skills (106)
 
 ### Browser / QA (Chrome DevTools MCP)
 - **[audit-page](skills/audit-page/)** -- Lighthouse audit (performance, a11y, best practices, SEO) on a running page. `/audit-page [url]`
@@ -132,6 +132,18 @@ The pack is tuned for the current Claude lineup — **Opus 4.8 decides, Sonnet 5
 
 ### Research & Discovery
 - **[deep-research](skills/deep-research/)** -- Multi-source deep research using firecrawl and exa MCPs. Searches the web, synthesizes findings, delivers cited reports with source attribution. `/deep-research [topic]`
+- **[quick-research](skills/quick-research/)** -- Single-session cited research for short-but-complex on-the-job questions. Same hard rules as marathon-research (every claim carries a verifiable URL, unclear scope fails fast, no bluffing) at 5-20 minute scale with an inline answer. `/quick-research [question]`
+
+### Personal Productivity & Onboarding
+Skills for chat-first and new-to-Claude users -- and the personal-ops layer that makes every other skill stick.
+
+- **[notetaker](skills/notetaker/)** -- Persistent personal notes system -- like the backlog, but for knowledge instead of work orders. Captures notes into topic buckets that grow with you over time, so any future session can recall them. `/notetaker [command]`
+- **[prompt-coach](skills/prompt-coach/)** -- Critique and rewrite underperforming prompts with line-by-line explanations, drill one pattern at a time on your own domain, and maintain a personal golden-prompts library. `/prompt-coach [prompt]`
+- **[meeting-digest](skills/meeting-digest/)** -- Turn raw meeting notes or transcripts into a structured digest: TL;DR, decisions, action items, open questions. Routes actions to the backlog and context to notetaker. `/meeting-digest`
+- **[weekly-review](skills/weekly-review/)** -- Guided 15-20 minute weekly review: wins, loose ends, lessons, next week's Top 3, written to a one-page review file. `/weekly-review`
+- **[sop-writer](skills/sop-writer/)** -- Turn a process into a Standard Operating Procedure a cold reader could execute: numbered steps with expected results, failure/escalation table, quick-checklist version. `/sop-writer`
+- **[file-organizer](skills/file-organizer/)** -- Plan-first, never-destructive folder cleanup: scan, propose a fitted taxonomy + full move manifest, execute only on approval with an undo log. `/file-organizer [folder]`
+- **[spreadsheet-doctor](skills/spreadsheet-doctor/)** -- Examine, prescribe, treat: profile a messy CSV/XLSX, propose an explicit cleaning plan, execute to a new file with a before/after change report, then summarize. `/spreadsheet-doctor [file]`
 
 ### Video & Media
 - **[create-onboarding-video](skills/create-onboarding-video/)** -- Short, punchy iOS app onboarding videos in Remotion that showcase a feature in action by animating isolated UI pieces (cropped components, not full screens). Useful for App Store previews, landing page demos, mission walkthroughs. `/create-onboarding-video`
@@ -183,7 +195,8 @@ Many of the marketing skills look for a `.agents/product-marketing-context.md` f
 - **Browser skills** (`audit-page`, `review-ui`, `test-flow`, `perf-trace`, `qa-sweep`, `smoke-check`, `marathon-bughunter`, `preflight`) require the [Chrome DevTools MCP server](https://github.com/ChromeDevTools/chrome-devtools-mcp) to be connected.
 - **llm-council** requires API keys for the models it polls (see [skills/llm-council/INSTALL.md](skills/llm-council/INSTALL.md)).
 - **agent-org / marathon-org / work-orders-org** install a SQLite-backed comms bus + path-guard hook into your project (see [skills/agent-org/INSTALL.md](skills/agent-org/INSTALL.md)).
-- **marathon-research / deep-research** use WebSearch and WebFetch; both ship with Claude Code. `deep-research` additionally benefits from firecrawl and exa MCPs.
+- **marathon-research / deep-research / quick-research** use WebSearch and WebFetch; both ship with Claude Code. `deep-research` additionally benefits from firecrawl and exa MCPs.
+- **spreadsheet-doctor** uses Python for the cleaning phase (`py` on Windows, `python3` elsewhere); pandas preferred, stdlib fallback works.
 - **deploy** assumes a CI/CD pipeline that triggers on push (Railway, Vercel, Netlify, GitHub Actions, etc.).
 - **Backlog-aware skills** (`backlog`, `work-orders`, `work-orders-org`, `council-orders`, `council-rd`, `marathon-council`, `marathon-orders`, `marathon-org`, `marathon-condenser`, `user-feedback`, `scope-check`) require a backlog directory with `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, and `completed.md` files (each with a `<!-- Next ID: 001 -->` header).
 - **Walkaway marathons** (`marathon-*`) require CronCreate support in your Claude Code build for self-scheduling.
@@ -195,7 +208,7 @@ Many of the marketing skills look for a `.agents/product-marketing-context.md` f
 Skills in this repo come from several sources, all MIT-licensed or equivalent:
 
 - **Original** -- Browser/QA, Multi-Agent/Council, Marathons, Backlog, Design & Decisions, Business/Strategy, Architecture, Dev Workflow.
-- **[coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills)** -- the 41-skill Marketing & Growth section.
+- **[coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills)** -- the 41-skill Marketing & Growth section. The per-skill `references/` files and the shared `tools/` registry (REGISTRY.md, clis/, integrations/) were restored verbatim from upstream commit `30dbd7f` (2026-07-02); they retain the upstream MIT copyright (© 2025 Corey Haines).
 - **[nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)** -- the 7-skill Design Intelligence section.
 - **[affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code)** -- investor-materials, investor-outreach, deep-research, content-engine, brand-voice, skill-stocktake, eval-harness, mcp-server-patterns.
 - **[bidah/skill-set](https://github.com/bidah/skill-set)** -- create-onboarding-video.

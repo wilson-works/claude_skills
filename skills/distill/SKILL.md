@@ -1,6 +1,6 @@
 ---
 name: distill
-description: "Convert marathon-research outputs into ≤200-line summaries/ cards with surgical @-references back to the marathon and canonical source files. Invoke with /distill (auto-detect new marathons) or /distill <slug> (just one). Auto-fired by marathon-research Phase 4 (step 5) after a marathon completes."
+description: "Convert marathon-research outputs into ≤200-line summary cards with surgical @-references back to the marathon and canonical source files. Invoke with /distill (auto-detect new marathons) or /distill <slug> (just one). Auto-fired by marathon-research Phase 4 (step 5) after a marathon completes."
 ---
 
 # Distill — Marathon → Summary Card

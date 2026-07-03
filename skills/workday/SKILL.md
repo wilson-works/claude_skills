@@ -59,7 +59,7 @@ into the generated prompts so the lane sessions need no further configuration):
 | `<plans>` | optional plan sources for a bigger bite | `docs/specs/**`, `docs/adr/**` |
 | `<runs-dir>` | gitignored dir for run artifacts (trivial cleanup, invisible to context scans) | `<project-root>/.tmp/workday-<date>/` |
 | `<archive>` | where superseded runs are parked | `<project-root>/.claude/archive/workday/<date>/` |
-| `<comms-db>` | agent-org comms DB (shared across worktrees) | `<project-root>/.claude/comms/comms.db` |
+| `<comms-db>` | agent-org comms DB (shared across worktrees) | `<project-root>/.claude/comms.db` |
 | `<comms.py>` | comms CLI; prefix `AGENT_ORG_DB=<comms-db>` | `python <project-root>/.claude/comms/comms.py` |
 | `<stop-clock>` | wall-clock stop; `--stop-at HH:MM` overrides; else launch + 8h | `08:30` local |
 | `<guardrails>` | your project's locked architecture + constraints (from CLAUDE.md / ADRs) the lanes must respect when deciding in your absence | — |
@@ -211,8 +211,9 @@ the prior-art window cheap to read.
 ### Step 3 — Build 4 territory-disjoint lane queues
 
 Read `<backlog>` (all categories, or filtered to the theme/`<plans>` if a theme arg given)
-and parse every `### [ID]` block. Bucket each WO into exactly one lane by the path territory
-it must write (derive from `org.config.json`). Rules:
+and parse every `### [ID]` block. Bucket each WO into exactly one lane: honor an explicit
+`**Lane**` field on the WO when present (the `/backlog` routing field), else by the path
+territory it must write (derive from `org.config.json`). Rules:
 
 - A WO that needs both a migration and backend source → split: schema slice to Lane A,
   source slice to Lane B, with an explicit `[LANE-A]`/`[LANE-B]` cross-request noted in both

@@ -29,6 +29,7 @@ Edit these placeholders before running:
 /user-feedback promote [ID] [cat]   Move item to a specific backlog category (bugs/design/features/tech-debt)
 /user-feedback dismiss [ID]         Archive item as not actionable
 /user-feedback dismiss [ID] [note]  Archive with a reason
+/user-feedback merge [ID] [ID]      Consolidate duplicate reports (see Merge Behavior)
 /user-feedback stats                Count pending vs reviewed vs promoted
 /user-feedback prune                Remove archived items older than 30 days
 ```
@@ -137,6 +138,7 @@ Start an interactive triage session. For each pending item:
    - Priority defaults to `medium` (you can adjust later)
    - Context includes "Promoted from user feedback UFB-XXX"
    - Details include the original user feedback text
+   - Acceptance states the observable done condition (required by the `/backlog` item format) — derive it from the feedback, or ask if unclear
 4. Move the feedback item to `feedback-archived.md` with:
    - **Reviewed**: today's date
    - **Action**: promoted to [category] as [new ID]

@@ -357,7 +357,7 @@ A bug is worth filing if:
 6. **Auth regression** — hitting a page forced an unexpected re-login.
 7. **404 on expected route** — a route that worked yesterday now 404s.
 
-For each detected bug, record category, severity, evidence (screenshot paths, message text, network details), route, and the recent commit that most likely caused it.
+For each detected bug, record category, severity, evidence (screenshot paths, message text, network details), route, the acceptance condition (the observable check that proves the bug is gone, e.g. "route /x loads with zero console errors at 375px"), and the recent commit that most likely caused it.
 
 **Severity heuristic:**
 - critical: console flood, auth regression, blank page, build crash visible in console
@@ -392,6 +392,7 @@ const entry = `
 - **Priority**: ${PRIORITY}
 - **Source**: bughunter wave ${WAVE_NUM} route ${ROUTE}
 - **Details**: ${DETAILS}
+- **Acceptance**: ${ACCEPTANCE}
 - **Evidence**: screenshot <evidence-dir>/wave-${WAVE_NUM}/[file].png. Console: "${CONSOLE_MSG}". Network: ${NETWORK_SUMMARY}.
 - **Likely cause**: ${LIKELY_COMMIT} (${LIKELY_COMMIT_MSG})
 - **Context**: Filed during marathon-bughunter run ${SESSION_ID}.

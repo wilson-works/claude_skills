@@ -1,6 +1,6 @@
 ---
 name: schema-markup
-description: When the user wants to add, fix, or optimize schema markup and structured data on their site. Also use when the user mentions "schema markup," "structured data," "JSON-LD," "rich snippets," "schema.org," "FAQ schema," "product schema," "review schema," "breadcrumb schema," "Google rich results," "knowledge panel," "star ratings in search," or "add structured data." Use this whenever someone wants their pages to show enhanced results in Google. For broader SEO issues, see seo-audit. For AI search optimization, see ai-seo.
+description: When the user wants to add, fix, or optimize schema markup and structured data on their site. Also use when the user mentions "schema markup," "structured data," "JSON-LD," "rich snippets," "schema.org," "FAQ schema," "product schema," "review schema," "breadcrumb schema," "Google rich results," "knowledge panel," "star ratings in search," or "add structured data." Use this whenever someone wants their pages to show enhanced results in Google. For broader SEO issues, see seo-audit. For AI search optimization, see ai-seo. Invoke with /schema-markup.
 metadata:
   version: 1.1.0
 ---
@@ -57,11 +57,13 @@ Before implementing schema, understand:
 | Article | Blog posts, news | headline, image, datePublished, author |
 | Product | Product pages | name, image, offers |
 | SoftwareApplication | SaaS/app pages | name, offers |
-| FAQPage | FAQ content | mainEntity (Q&A array) |
-| HowTo | Tutorials | name, step |
+| FAQPage | FAQ content (no Google rich result — see note) | mainEntity (Q&A array) |
+| HowTo | Tutorials (no Google rich result — see note) | name, step |
 | BreadcrumbList | Any page with breadcrumbs | itemListElement |
 | LocalBusiness | Local business pages | name, address |
 | Event | Events, webinars | name, startDate, location |
+
+**Note (verified July 2026):** Google deprecated HowTo rich results and restricted FAQ rich results to authoritative government/health sites in Aug-Sep 2023, then stopped showing FAQ rich results entirely as of May 7, 2026 — the markup remains valid schema.org and can still help other consumers of structured data, but don't promise Google rich results from it. See https://developers.google.com/search/blog/2023/08/howto-faq-changes and https://developers.google.com/search/docs/appearance/structured-data/faqpage
 
 **For complete JSON-LD examples**: See [references/schema-examples.md](references/schema-examples.md)
 

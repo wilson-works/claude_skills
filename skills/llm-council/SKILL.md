@@ -1,6 +1,6 @@
 ---
 name: llm-council
-description: "Run any question, idea, or decision through a council of 5 AI advisors who independently analyze it, peer-review each other anonymously, and synthesize a final verdict. Based on Karpathy's LLM Council methodology. MANDATORY TRIGGERS: 'council this', 'run the council', 'war room this', 'pressure-test this', 'stress-test this', 'debate this'. STRONG TRIGGERS (use when combined with a real decision or tradeoff): 'should I X or Y', 'which option', 'what would you do', 'is this the right move', 'validate this', 'get multiple perspectives', 'I can't decide', 'I'm torn between'. Do NOT trigger on simple yes/no questions, factual lookups, or casual 'should I' without a meaningful tradeoff (e.g. 'should I use markdown' is not a council question). DO trigger when the user presents a genuine decision with stakes, multiple options, and context that suggests they want it pressure-tested from multiple angles."
+description: "Run any question, idea, or decision through a council of 5 AI advisors who independently analyze it, peer-review each other anonymously, and synthesize a final verdict. Based on Karpathy's LLM Council methodology. MANDATORY TRIGGERS: 'council this', 'run the council', 'war room this', 'pressure-test this', 'stress-test this', 'debate this'. STRONG TRIGGERS (use when combined with a real decision or tradeoff): 'should I X or Y', 'which option', 'what would you do', 'is this the right move', 'validate this', 'get multiple perspectives', 'I can't decide', 'I'm torn between'. Do NOT trigger on simple yes/no questions, factual lookups, or casual 'should I' without a meaningful tradeoff (e.g. 'should I use markdown' is not a council question). DO trigger when the user presents a genuine decision with stakes, multiple options, and context that suggests they want it pressure-tested from multiple angles. Invoke with /llm-council [question]."
 ---
 
 
@@ -13,7 +13,7 @@ You ask one AI a question, you get one answer. That answer might be great. It mi
 The council fixes this. It runs your question through 5 independent advisors, each thinking from a fundamentally different angle. Then they review each other's work. Then a chairman synthesizes everything into a final recommendation that tells you where the advisors agree, where they clash, and what you should actually do.
 
 
-This is adapted from Andrej Karpathy's LLM Council. He dispatches queries to multiple models, has them peer-review each other anonymously, then a chairman produces the final answer. We do the same thing inside Claude using sub-agents with different thinking lenses instead of different models.
+This is adapted from Andrej Karpathy's [LLM Council](https://github.com/karpathy/llm-council) (see his [announcement post on X](https://x.com/karpathy/status/1990577951671509438)). He dispatches queries to multiple models, has them peer-review each other anonymously, then a chairman produces the final answer. We do the same thing inside Claude using sub-agents with different thinking lenses instead of different models.
 
 
 ---
@@ -420,6 +420,19 @@ The user sees the HTML report. The transcript is there if they want to dig deepe
 
 
 *One thing to do first:* Run a $97 live workshop called "How to automate your first business task with AI" to 50 people. Don't mention Claude Code in the title.
+
+
+---
+
+
+## failure modes
+
+
+- **All five advisors land on the same take.** A council that agrees five times is one answer with extra steps. The defense is in the prompts: give each advisor a genuinely distinct persona and angle, and keep the "lean fully into your assigned perspective, don't be balanced" instruction intact. If responses still converge, the question probably has one right answer and didn't need a council.
+
+- **An advisor sub-agent dies mid-round.** Don't restart the round and don't block on it. Proceed with the responses you have (N-1 advisors, N-1 reviewers) and have the chairman note the missing seat in the synthesis so the user knows one angle went uncovered.
+
+- **Cost and runtime scale with advisor count.** Five advisors is roughly 5x the cost of asking once, and the peer-review round spawns five more sub-agents before the chairman even starts. That's the price of the method. It's worth paying when the decision has real stakes — which is exactly why the council shouldn't run on trivial questions.
 
 
 ---

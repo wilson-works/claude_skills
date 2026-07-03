@@ -29,6 +29,18 @@ correction land. If a lane was launched from an older prompt without the hook,
 `/workday-watch` can still detect and escalate, but its steering posts will not auto-apply —
 note that in the watch log and escalate sooner.
 
+## Configure for your project
+
+No placeholders of its own — `/workday-watch` inherits every value from the `/workday` run it
+watches (see `/workday`'s "Configure for your project" table for definitions):
+
+- `<runs-dir>` — auto-detected as the newest workday run directory; per-lane state files and
+  `watch-log.md` live here
+- `<comms-db>` / `<comms.py>` — the same comms bus as the lanes; prefix every call with
+  `AGENT_ORG_DB=<comms-db>`
+- `<project-root>` / trunk branch — for the read-only `git -C <worktree> log <trunk>..lane/{x}`
+  inspections
+
 ## Invocation
 
 ```
@@ -98,6 +110,20 @@ SEVERITY: steerable | owner-decision
   decides later; the night is not lost.
 - Always append one line to the run's `watch-log.md`:
   `<ISO> LANE-{X} <verdict> — <action taken>`.
+
+#### Example steering post (DRIFT, Lane C, from John)
+
+Subject `[WATCH][LANE-C]`, body in caveman form (steering posts are agent-to-agent), posted
+exactly like this:
+
+```bash
+AGENT_ORG_DB=<comms-db> <comms.py> post c-suite john \
+  --to lane-c --subject "[WATCH][LANE-C]" \
+  "DRIFT: commit 4f2a91c edits packages/api/routes/billing.ts — Lane D territory.
+Revert that file on lane/c-frontend, re-commit UI-only slice of DES-207.
+Need the billing contract change? File [LANE-D] request on dept-heads, don't edit it yourself.
+Then continue queue — DES-212 next, unaffected."
+```
 
 ### 5. Loop / stop
 

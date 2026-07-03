@@ -1,6 +1,6 @@
 ---
 name: video
-description: "When the user wants to create, generate, or produce video content using AI tools or programmatic frameworks. Also use when the user mentions 'video production,' 'AI video,' 'Remotion,' 'Hyperframes,' 'HeyGen,' 'Synthesia,' 'Veo,' 'Runway,' 'Kling,' 'Pika,' 'video generation,' 'AI avatar,' 'talking head video,' 'programmatic video,' 'video template,' 'explainer video,' 'product demo video,' 'video pipeline,' or 'make me a video.' Use this for video creation, generation, and production workflows. For video content strategy and what to post, see social-content. For paid video ad creative, see ad-creative."
+description: "When the user wants to create, generate, or produce video content using AI tools or programmatic frameworks. Also use when the user mentions 'video production,' 'AI video,' 'Remotion,' 'Hyperframes,' 'HeyGen,' 'Synthesia,' 'Veo,' 'Runway,' 'Kling,' 'Pika,' 'video generation,' 'AI avatar,' 'talking head video,' 'programmatic video,' 'video template,' 'explainer video,' 'product demo video,' 'video pipeline,' or 'make me a video.' Use this for video creation, generation, and production workflows. For video content strategy and what to post, see social-content. For paid video ad creative, see ad-creative. Invoke with /video."
 metadata:
   version: 1.0.0
 ---
@@ -131,11 +131,13 @@ Generate original footage from text or image prompts. Use for B-roll, hero visua
 | Model | Resolution | Max Duration | Best For | Cost |
 |-------|-----------|-------------|----------|------|
 | **Veo 3** (Google) | Up to 1080p (4K varies) | Variable | Highest quality, synced audio | API-based |
-| **Runway Gen-4** | Up to 4K | ~10 sec/gen | Motion control, temporal consistency | $12-76/mo |
+| **Runway Gen-4.5** | Up to 4K | ~10 sec/gen | Motion control, temporal consistency | $12-76/mo |
 | **Kling 3.0** | Up to 1080p | Up to 2 min | Volume production, lowest cost | $0.029/sec |
 | **Pika** | 1080p | Short clips | Fast generation, effects | Per-credit |
 
-**Sora (OpenAI)** has had limited availability and reliability issues. Check current status before recommending.
+**Sora (OpenAI)** is being discontinued — the Sora app/web experience shut down in April 2026 and the API sunsets September 24, 2026 ([OpenAI Help Center](https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation)). Don't build new workflows on it.
+
+> **Freshness:** Model lineup and pricing verified as of July 2026 — these rot fast. Always confirm against the official pricing pages ([Runway](https://runwayml.com/pricing), [Kling](https://klingai.com), [HeyGen](https://www.heygen.com/pricing)) before budgeting.
 
 ### Prompting for Video Models
 

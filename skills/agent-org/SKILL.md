@@ -150,6 +150,18 @@ Budget nights: `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` overrides every agent's model
 
 The org is for *execution* of structured work where review gates and clean handoffs matter.
 
+## Troubleshooting
+
+Symptom → likely cause → fix. The comms CLI is `python .claude/comms/comms.py` throughout.
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| path_guard blocks an edit that should be allowed (exit 2, "department mismatch") | A stale active claim in `comms.db` overlaps the path, or the claiming dept's `owns` globs in `org.config.json` don't actually cover it | `comms.py claims --active --for-path <path>` to see who holds what; `comms.py release --id N <agent>` the stale claim, or fix the dept's `owns` globs in `.claude/agents/org.config.json`. `AGENT_ORG_DISABLE=1` bypasses while debugging — nothing else. |
+| `comms.db` locked or corrupted | A crashed agent left a write transaction open (WAL `-wal`/`-shm` sidecars hot), or disk-level corruption | Inspect first: `sqlite3 .claude/comms.db "PRAGMA integrity_check;"` and `"SELECT * FROM claims WHERE status='active';"`. If no run is live, delete `comms.db` (+ `-wal`/`-shm`) — comms.py re-creates it from `schema.sql` on next use. Lost: all message history, read cursors, the claims ledger, and the audit trail; agents must re-claim before editing. |
+| `comms: ACL DENY ... cannot post` (exit 2) | The agent isn't a member of that channel — membership is the hardcoded `ACL` dict in `comms/comms.py` (the three channels are fixed; `org.config.json` only maps paths) | `comms.py whoami <agent>` shows its allowed channels. Route up the chain instead: junior → head on `dev-floor`, head → Tim on `dept-heads` — only Tim spans `dept-heads` and `c-suite`. |
+| Every agent suddenly runs the same model tier (John's review reads Sonnet-shallow, or an all-Opus bill) | `CLAUDE_CODE_SUBAGENT_MODEL` is set — it overrides EVERY subagent's model for the session (the budget-night lever left on) | Unset the env var; per-agent `model:` frontmatter routing resumes on the next spawn. |
+| Org run stalls — a spawned agent never reports back | The agent died mid-chain (context blowout, tool error) and the relay hop above it has nothing to consume | Find where the chain went quiet: `comms.py stats`, then `sqlite3 .claude/comms.db "SELECT id,channel,from_agent,to_agent,subject FROM messages ORDER BY id DESC LIMIT 5;"` (sqlite reads bypass the ACL for the human). Release orphaned claims (`comms.py claims --active`), then re-brief **flattened**: the orchestrator spawns the dept head + John directly — marathon-org's default execution model — instead of re-running the relay chain. |
+
 ## Files in this skill
 
 ```

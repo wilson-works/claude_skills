@@ -151,7 +151,7 @@ For dry-run: stop here.
 
 **Step 3 -- Pre-flight settings update (REQUIRED)**
 
-Update `C:\Users\patri\.claude\settings.json` to add these entries to `permissions.allow` if not already present:
+Update `~/.claude/settings.json` to add these entries to `permissions.allow` if not already present:
 
 ```json
 "Edit(<your-project-backlog-path>/**)",
@@ -208,7 +208,7 @@ This is an automated marathon-council loop tick.
    <state-dir>/marathon-council-state.json
 
 2. Read the full marathon-council skill instructions:
-   C:\Users\patri\.claude\skills\marathon-council\SKILL.md
+   ~/.claude/skills/marathon-council/SKILL.md
 
 3. Execute Phase 3 (Wave Loop Tick) as documented in the skill.
 

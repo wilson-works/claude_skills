@@ -24,8 +24,8 @@ Before using this skill, set these placeholders:
 ```
 /bg-pipeline full qa sweep across all sections
 /bg-pipeline /qa-sweep section-a, /qa-sweep section-b, /qa-sweep section-c
-/bg-pipeline /validate all then /qa-sweep section-c
-/bg-pipeline /design-audit then /design-polish area-x then /design-audit
+/bg-pipeline /spec-audit all then /qa-sweep section-c
+/bg-pipeline /review-ui then /ui-styling area-x then /review-ui
 /bg-pipeline continuous: /qa-sweep all
 ```
 
@@ -48,7 +48,7 @@ Pipeline: Full QA Sweep
 |-- Step 2: /qa-sweep section-a          [background agent]
 |-- Step 3: /qa-sweep section-b          [background agent]
 |-- Step 4: /qa-sweep section-c          [background agent]
-|-- Step 5: /validate                    [background agent]
+|-- Step 5: /spec-audit                  [background agent]
 \-- Step 6: Aggregate results -> summary report
 ```
 
@@ -86,7 +86,7 @@ For each step in the pipeline, spawn a sub-agent using the Agent tool with `run_
 
 **Model routing per step** (see docs/MODELS.md): pass `model` on each Agent call —
 - `read-only` QA/audit steps → `model: "sonnet"` (pattern-matching against a rubric; Sonnet 5 is the right tier and runs 5-way parallel cheaply)
-- `write` steps (design-polish, work-orders) → `model: "sonnet"`, escalate a step to `"opus"` only if it failed on Sonnet in a previous iteration
+- `write` steps (ui-styling, work-orders) → `model: "sonnet"`, escalate a step to `"opus"` only if it failed on Sonnet in a previous iteration
 - purely mechanical steps (log collation, result formatting) → `model: "haiku"`
 - the final aggregation/summary runs in the main session (inherits its model) — it's the judgment step
 
@@ -97,11 +97,11 @@ On Claude Code v2.1.145+, prefer preloading the skill via the agent's `skills:` 
 Before launching, classify each step as one of:
 - `read-only` - the step only reads files, code, or browser state (grep, screenshot, audit). Safe to run in parallel with any other read-only step.
 - `write` - the step modifies files, code, or backlog entries. Must run serially - never in parallel with another write step.
-- `sequential` - the step explicitly depends on output from the prior step (e.g., design-audit runs first, then design-polish uses its findings). Run after the prior step completes.
+- `sequential` - the step explicitly depends on output from the prior step (e.g., review-ui runs first, then ui-styling uses its findings). Run after the prior step completes.
 
 Apply this rule: **if all pending steps are `read-only`, launch them all simultaneously in a single message as concurrent Agent tool calls.** If the next step is `write` or `sequential`, wait for all prior steps to complete first.
 
-Most QA skills (qa-sweep, validate, audit-page, perf-trace, review-ui) are read-only - they can run in parallel. Most write skills (design-polish, work-orders, deploy) are write - run them serial.
+Most QA skills (qa-sweep, spec-audit, audit-page, perf-trace, review-ui) are read-only - they can run in parallel. Most write skills (ui-styling, work-orders, deploy) are write - run them serial.
 
 **For sequential pipelines:**
 - Wait for each agent to complete before launching the next
@@ -171,14 +171,13 @@ Notify the user that the pipeline is complete and point them to the results file
 
 ## Skill I/O Contracts
 
-Skill concurrency classification for pipeline planning. Skills not listed here are assumed `read-only` unless their name includes "polish", "orders", or "deploy".
+Skill concurrency classification for pipeline planning. Skills not listed here are assumed `read-only` unless their name includes "styling", "orders", or "deploy".
 
 EDIT THIS TABLE for your project's skill set.
 
 | Skill | Concurrency | Outputs |
 |---|---|---|
 | qa-sweep | read-only | findings report |
-| validate | read-only | validation report |
 | audit-page | read-only | lighthouse scores |
 | perf-trace | read-only | perf trace report |
 | review-ui | read-only | screenshot + findings |
@@ -186,8 +185,7 @@ EDIT THIS TABLE for your project's skill set.
 | smoke-check | read-only | PASS/FAIL verdict |
 | preflight | read-only | env status |
 | test-flow | read-only | flow report |
-| design-audit | read-only | compliance report |
-| design-polish | write | modified component files |
+| ui-styling | write | modified component files |
 | work-orders | write | backlog updates + commits |
 | deploy | write | git push |
 
@@ -201,19 +199,19 @@ EDIT THIS SECTION for your project. The defaults below are illustrative.
 ```
 /bg-pipeline full-qa
 ```
-Runs: preflight -> [qa-sweep section-a + qa-sweep section-b + qa-sweep section-c + validate] (parallel, all read-only) -> summary
+Runs: preflight -> [qa-sweep section-a + qa-sweep section-b + qa-sweep section-c + spec-audit] (parallel, all read-only) -> summary
 
 ### `pre-deploy`
 ```
 /bg-pipeline pre-deploy
 ```
-Runs: preflight -> [qa-sweep section-a + qa-sweep section-b + design-audit + audit-page] (parallel, all read-only) -> summary
+Runs: preflight -> [qa-sweep section-a + qa-sweep section-b + review-ui + audit-page] (parallel, all read-only) -> summary
 
 ### `design-pass`
 ```
 /bg-pipeline design-pass
 ```
-Runs: design-audit (read-only) -> design-polish area-a (write, serial) -> design-polish area-b (write, serial) -> design-audit (read-only, re-verify) -> summary
+Runs: review-ui (read-only) -> ui-styling area-a (write, serial) -> ui-styling area-b (write, serial) -> review-ui (read-only, re-verify) -> summary
 
 ### `friction-sweep`
 ```
@@ -246,12 +244,20 @@ Each iteration starts fresh (clean context window) but references the previous i
 
 ---
 
+## Failure Modes
+
+- **Step timeout** -- a background agent that has produced nothing well past its expected window (default assumption: ~30 minutes per step) is timed out. Mark the step `TIMEOUT` in the results file, retry it at most once, and keep launching steps that don't depend on it. Never block the whole pipeline waiting on one silent agent.
+- **Partial results file** -- an agent that dies mid-write leaves its section truncated. Treat any step section missing its closing summary as `FAILED (partial)`: keep what landed, and have the aggregation step flag those findings as incomplete rather than silently averaging them into the scores.
+- **Two steps writing the same file** -- never allowed. At plan time, require disjoint outputs: each write step's output paths (see the Skill I/O Contracts table) must not overlap with any other step's in the same pipeline. If the requested pipeline would violate this, serialize the conflicting steps or split their output files before launching. (The shared pipeline results file is the known exception -- appends to it are serialized through the orchestrator; parallel agents must never write it directly at the same time.)
+
+---
+
 ## Important Notes
 
 - Each background agent gets a full, clean context window - that's the whole point
 - The main session stays responsive while agents work in the background
 - Results accumulate in the pipeline results file, not in your conversation
 - If an agent fails or times out, note it in the results and continue with the next step
-- For pipelines that modify code (e.g., design-polish), use `isolation: "worktree"` to prevent conflicts between parallel agents
+- For pipelines that modify code (e.g., ui-styling), use `isolation: "worktree"` to prevent conflicts between parallel agents
 - The user will be notified as each background agent completes
 - Keep agent prompts self-contained - each agent knows nothing about the main conversation

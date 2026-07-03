@@ -1,12 +1,18 @@
 ---
 name: content-engine
-description: Create platform-native content systems for X, LinkedIn, TikTok, YouTube, newsletters, and repurposed multi-platform campaigns. Use when the user wants social posts, threads, scripts, content calendars, or one source asset adapted cleanly across platforms.
+description: Create platform-native content systems for X, LinkedIn, TikTok, YouTube, newsletters, and repurposed multi-platform campaigns. Use when the user wants social posts, threads, scripts, content calendars, or one source asset adapted cleanly across platforms. Invoke with /content-engine.
 origin: ECC
 ---
 
 # Content Engine
 
 Build platform-native content without flattening the author's real voice into platform slop.
+
+## Configure for your project
+
+Replace this placeholder before relying on this skill (the upstream default was the author's own: Affaan / ECC):
+
+- `<author>` — the person or brand whose voice the content should carry
 
 ## When to Activate
 
@@ -49,7 +55,7 @@ Run it first when:
 - the content is launch, outreach, or reputation-sensitive
 
 Reuse the resulting `VOICE PROFILE` here instead of rebuilding a second voice model.
-If the user wants Affaan / ECC voice specifically, still treat `brand-voice` as the source of truth and feed it the best live or source-derived material available.
+If the user wants the `<author>` voice specifically, still treat `brand-voice` as the source of truth and feed it the best live or source-derived material available.
 
 ## Hard Bans
 
@@ -127,5 +133,5 @@ Before delivering:
 ## Related Skills
 
 - `brand-voice` for source-derived voice profiles
-- `crosspost` for platform-specific distribution
-- `x-api` for sourcing recent posts and publishing approved X output
+- `social-content` for platform-specific distribution, scheduling, and calendars
+- the X API (where access is available) for sourcing recent posts and publishing approved X output

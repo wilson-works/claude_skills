@@ -1,6 +1,6 @@
 ---
 name: ckm:ui-styling
-description: Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across applications.
+description: Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across applications. Invoke with /ui-styling [component or layout].
 argument-hint: "[component or layout]"
 license: MIT
 metadata:
@@ -11,6 +11,8 @@ metadata:
 # UI Styling Skill
 
 Comprehensive skill for creating beautiful, accessible user interfaces combining shadcn/ui components, Tailwind CSS utility styling, and canvas-based visual design systems.
+
+> **Note:** The upstream helper scripts (`scripts/shadcn_add.py`, `scripts/tailwind_config_gen.py`) are not bundled in this pack — the workflows below describe the manual/agent-driven equivalent (the standard `npx shadcn@latest` CLI covers most of it). Install the scripts from the upstream source if you want the automated path.
 
 ## Reference
 
@@ -213,13 +215,13 @@ Covers:
 **Python automation for component installation and configuration generation.**
 
 ### shadcn_add.py
-Add shadcn/ui components with dependency handling:
+Add shadcn/ui components with dependency handling (if installed; otherwise use `npx shadcn@latest add ...`):
 ```bash
 python scripts/shadcn_add.py button card dialog
 ```
 
 ### tailwind_config_gen.py
-Generate tailwind.config.js with custom theme:
+Generate tailwind.config.js with custom theme (if installed; otherwise write the config manually):
 ```bash
 python scripts/tailwind_config_gen.py --colors brand:blue --fonts display:Inter
 ```

@@ -1,6 +1,6 @@
 ---
 name: co-marketing
-description: "When the user wants to find co-marketing partners, plan joint campaigns, or brainstorm partnership opportunities. Use when the user says 'co-marketing,' 'partner marketing,' 'joint campaign,' 'who should we partner with,' 'integration marketing,' 'cross-promotion,' 'collaborate with another company,' 'partnership ideas,' or 'co-brand.' For customer referral programs, see referral-program. For launch-specific partnerships, see launch-strategy."
+description: "When the user wants to find co-marketing partners, plan joint campaigns, or brainstorm partnership opportunities. Use when the user says 'co-marketing,' 'partner marketing,' 'joint campaign,' 'who should we partner with,' 'integration marketing,' 'cross-promotion,' 'collaborate with another company,' 'partnership ideas,' or 'co-brand.' For customer referral programs, see referral-program. For launch-specific partnerships, see launch-strategy. Invoke with /co-marketing."
 metadata:
   version: 1.0.0
 ---
@@ -72,7 +72,7 @@ Rate potential partners (1-5) on:
 - Whose content does your audience share?
 
 **Data sources:**
-- Crossbeam or Reveal for account overlap
+- Crossbeam for account overlap ([merged with Reveal in 2024](https://www.crossbeam.com/crossbeam-and-reveal-merger-announcement), combined under the Crossbeam brand)
 - Customer surveys ("what else do you use?")
 - G2/Capterra category neighbors
 - Job postings mentioning your tool + others
@@ -181,7 +181,7 @@ Would you be open to a quick call to explore?
 
 ### What to Prepare for the Call
 
-1. **Account overlap data** (if available via Crossbeam/Reveal)
+1. **Account overlap data** (if available via Crossbeam)
 2. **2-3 specific campaign ideas** (not just "let's do something")
 3. **Your audience metrics** (list size, traffic, engagement)
 4. **Examples of past partnerships** (shows you can execute)
@@ -237,7 +237,7 @@ Would you be open to a quick call to explore?
 
 ### Partner Identification
 - [ ] List tools your customers already use
-- [ ] Check Crossbeam/Reveal for account overlap
+- [ ] Check Crossbeam for account overlap
 - [ ] Score top 5 potential partners
 - [ ] Research their past co-marketing activities
 

@@ -1,13 +1,13 @@
 ---
 name: caveman
-description: "Semantic text compression for long autonomous sessions. Strips articles, conjunctions, and filler while preserving facts, numbers, and names. 40-58% token savings. Auto-triggers at ~50 tool call rounds or for inter-agent comms. Invoke with /caveman [on|off|compress text]."
+description: "Semantic text compression for long autonomous sessions. Strips articles, conjunctions, and filler while preserving facts, numbers, and names. Typically 40-58% token savings (observed range, varies with content type). Auto-triggers at ~50 tool call rounds or for inter-agent comms. Invoke with /caveman [on|off|compress text]."
 ---
 
 # Caveman -- Semantic Context Compression
 
 ## Purpose
 
-Reduces token usage by 40-58% during long autonomous sessions where no human is actively reading output. Strips predictable grammar (articles, conjunctions, filler) while preserving all factual content (numbers, paths, names, code). LLMs reconstruct full meaning from compressed text with near-zero information loss.
+Reduces token usage by 40-58% (typical observed range — varies with content type) during long autonomous sessions where no human is actively reading output. Strips predictable grammar (articles, conjunctions, filler) while preserving all factual content (numbers, paths, names, code). LLMs reconstruct full meaning from compressed text with near-zero information loss.
 
 ## Invocation
 
@@ -180,4 +180,4 @@ Note: Sonnet 5 and Opus 4.8 both carry 1M-token context windows, which softens t
 - Caveman compression is for OUTPUT only. It does not affect how you read or process input.
 - Code quality is never compromised. All code, edits, and technical implementations remain full-fidelity.
 - When a human sends a direct message (not via inbox), respond in natural language regardless of caveman mode.
-- The 40-58% savings estimate is based on typical status update and explanation text. Actual savings vary by content type.
+- The 40-58% figure is a typical observed range, not a benchmark — actual savings vary with content type. Prose-heavy output (status updates, explanations) sits near the top of the range; code-heavy output sits near the bottom, because code, paths, and identifiers are preserved verbatim and only the surrounding prose compresses.

@@ -137,6 +137,19 @@ For each WO popped from `queue`:
 ### Phase 4 (cleanup)
 When `queue` is empty AND no in-flight: post a final c-suite message from James (via a final Agent call) summarizing the run. Delete the cron. Mark `status: complete`.
 
+### What James's final wave summary looks like on c-suite
+
+Per the Phase 2 brief, James closes each WO with a c-suite post addressed to `ceo` carrying the resolution and a confidence 1-5 — this is the post the Phase 3 cron tick parses. Synthetic example:
+
+```
+python .claude/comms/comms.py post c-suite james --to ceo --wo BUG-141 \
+  --subject "BUG-141 reviewed & ready to merge" \
+  "BUG-141 resolved. Root cause: tax-mapping loader dropped rows w/ null county code.
+Fix: default-to-state fallback in packages/tax-mapping/loader.py + regression test.
+Route: tim -> cindy (backend) -> marcus. Cindy pre-review: pass. John: approved, no findings.
+pytest green | ruff clean. Branch marathon-org/BUG-141. Confidence: 4/5."
+```
+
 ## Differences vs /marathon-orders worth knowing
 
 | Aspect | marathon-orders | marathon-org |
@@ -168,6 +181,13 @@ python .claude/comms/comms.py read c-suite james --limit 100 | grep BUG-141
 python .claude/comms/comms.py read dept-heads tim --limit 100 | grep BUG-141
 python .claude/comms/comms.py read dev-floor cindy --limit 100 | grep BUG-141
 ```
+
+## Failure Modes
+
+1. **John rejects the same WO twice**: do not launch a third implement→review round — a rejection loop burns tokens without producing new information. Park the WO as `blocked` in the state file with John's last review verbatim as the reason, release its claims, and advance to the next WO. Blocked WOs surface in `--status` and the final James summary for the human to re-scope.
+2. **comms.py unreachable or DB locked**: the bus is the audit trail, not the engine. Fall back to direct orchestration — spawn head + John as normal, carry the routing trace in the state file's `orgTrace` only, and note "comms unavailable" in that wave's report. Do not retry-loop the bus mid-wave; re-test it on the next cron tick.
+3. **Stale path claim blocking a lane**: `comms.py claims --active` to find the holder. If the holder's WO is no longer in-flight per the state file (completed, failed, or parked), clear it: `python .claude/comms/comms.py release --path <path> <holder>`. Never release a claim whose WO is still in-flight — that is a real conflict; sequence the WOs instead.
+4. **A spawned head never reports back**: an implementer silent past one full cron interval — no comms post, no new commits on `marathon-org/{WO.id}` — is timed out. Mark the wave `failed-timeout`, release its claims, and requeue the WO once for a fresh spawn on the next tick. A second timeout parks it as `blocked` (see #1).
 
 ## Hard rules during a marathon-org
 

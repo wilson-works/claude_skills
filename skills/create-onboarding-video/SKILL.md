@@ -1,6 +1,6 @@
 ---
 name: create-onboarding-video
-description: Produce short, punchy iOS app onboarding videos in Remotion that showcase a feature in action by animating isolated pieces of the UI (cropped components, not full screens) with nice UI-like transitions. Use when the user asks to create, build, or generate an onboarding video, app preview, feature demo clip, App Store preview, or any short video that demonstrates a mobile app feature using supplied screenshots.
+description: Produce short, punchy iOS app onboarding videos in Remotion that showcase a feature in action by animating isolated pieces of the UI (cropped components, not full screens) with nice UI-like transitions. Use when the user asks to create, build, or generate an onboarding video, app preview, feature demo clip, App Store preview, or any short video that demonstrates a mobile app feature using supplied screenshots. Invoke with /create-onboarding-video.
 ---
 
 # Create Onboarding Video
@@ -46,7 +46,7 @@ For each screen, identify the **single piece of the feature that proves the feat
 
 ### 3. Build with Remotion
 
-**Always invoke the `remotion-best-practices` skill before writing Remotion code.** When you do, include this guidance in your prompt to it:
+**If the `remotion-best-practices` skill is installed, always invoke it before writing Remotion code** (otherwise apply the guidance below directly). When you do, include this guidance in your prompt to it:
 
 > Build a short iOS-app onboarding video. **Never render the whole screen** — each beat must show a *piece of the feature in action*: an isolated/cropped/masked UI component (button, card, row, sheet, field, chart, etc.) animating through the interaction that demonstrates what the feature does. Place it on a clean tinted background; the rest of the app chrome is omitted or implied. Use **nice UI-like transitions** — springs, masked reveals, shared-element morphs, crossfades, parallax — to move between beats. Prefer `spring()` over linear interpolation, use `<Sequence>` to chain beats, and keep each beat short (90–240 frames at 30fps). Stills go in `public/` and load via `staticFile()`; crop them with CSS `clip-path` / `overflow: hidden` / absolute positioning to extract the focal element.
 
@@ -79,7 +79,7 @@ Render a preview, show it to the user, and ask which beats need to be slower, fa
 - **Different UI / new screen: reset.** If the next interaction lands on a *different* UI (a new screen, a different form, a different beat altogether) the pointer does fade out and the next interaction starts with a fresh fade-in at center. The reset is what tells the viewer "we're somewhere new now."
 - **Forbidden:** entering from off-frame edges, multi-segment paths within a single move, curves, zig-zags, intermediate keyframes that bend the trajectory, fading the pointer out + back in between taps on the **same** UI. The motion should feel like the user's finger **appearing where the eye already is** and gliding straight to each action in turn — not like a hand entering from off-screen, and not like the cursor blinking out between every tap on the same form.
 - **Match the app's design language.** Use the colors, corner radii, and type from the supplied stills; don't restyle them.
-- **Delegate to `remotion-best-practices`.** It is the source of truth for how to write Remotion code — invoke it any time you're about to author or modify a composition, scene, or transition.
+- **Delegate to `remotion-best-practices` when available.** It is the source of truth for how to write Remotion code — invoke it any time you're about to author or modify a composition, scene, or transition.
 
 ## When in doubt
 

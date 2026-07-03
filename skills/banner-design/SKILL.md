@@ -1,6 +1,6 @@
 ---
 name: ckm:banner-design
-description: "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with AI-generated visuals. Actions: design, create, generate banner. Platforms: Facebook, Twitter/X, LinkedIn, YouTube, Instagram, Google Display, website hero, print. Styles: minimalist, gradient, bold typography, photo-based, illustrated, geometric, retro, glassmorphism, 3D, neon, duotone, editorial, collage. Uses ui-ux-pro-max, frontend-design, ai-artist, ai-multimodal skills."
+description: "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with AI-generated visuals. Actions: design, create, generate banner. Platforms: Facebook, Twitter/X, LinkedIn, YouTube, Instagram, Google Display, website hero, print. Styles: minimalist, gradient, bold typography, photo-based, illustrated, geometric, retro, glassmorphism, 3D, neon, duotone, editorial, collage. Uses the ui-ux-pro-max skill plus AI image generation. Invoke with /banner-design [platform] [style] [dimensions]."
 argument-hint: "[platform] [style] [dimensions]"
 license: MIT
 metadata:
@@ -48,13 +48,13 @@ Collect via AskUserQuestion:
 
 For each art direction option:
 
-1. **Create HTML/CSS banner** using `frontend-design` skill
+1. **Create HTML/CSS banner** directly in HTML/CSS
    - Use exact platform dimensions from size reference
    - Apply safe zone rules (critical content in central 70-80%)
    - Max 2 typefaces, single CTA, 4.5:1 contrast ratio
    - Inject brand context via `inject-brand-context.cjs`
 
-2. **Generate visual elements** with `ai-artist` + `ai-multimodal` skills
+2. **Generate visual elements** with Gemini image models (via the external claudekit `ai-artist` + `ai-multimodal` scripts if installed; otherwise use the `image` skill)
 
    **a) Search prompt inspiration** (6000+ examples in ai-artist):
    ```bash
@@ -97,7 +97,7 @@ For each art direction option:
 
 ### Step 4: Export Banners to Images
 
-After designing HTML banners, export each to PNG using `chrome-devtools` skill:
+After designing HTML banners, export each to PNG with headless Chrome (external claudekit `chrome-devtools` script if installed; otherwise Chrome DevTools MCP or Playwright):
 
 1. **Serve HTML files** via local server (python http.server or similar)
 2. **Screenshot each banner** at exact platform dimensions:
@@ -117,7 +117,7 @@ After designing HTML banners, export each to PNG using `chrome-devtools` skill:
      --output "assets/banners/{campaign}/{variant}-{size}.png"
    ```
 
-**Output path convention** (per `assets-organizing` skill):
+**Output path convention**:
 ```
 assets/banners/{campaign}/
 ├── minimalist-1500x500.png
@@ -135,7 +135,7 @@ assets/banners/{campaign}/
 
 Present all exported images side-by-side. For each option show:
 - Art direction style name
-- Exported PNG preview (use `ai-multimodal` skill to display if needed)
+- Exported PNG preview (read the image file to display if needed)
 - Key design rationale
 - File path & dimensions
 
@@ -179,7 +179,7 @@ Full 22 styles: `references/banner-sizes-and-styles.md`
 - **Safe zones**: critical content in central 70-80% of canvas
 - **CTA**: one per banner, bottom-right, min 44px height, action verb
 - **Typography**: max 2 fonts, min 16px body, ≥32px headline
-- **Text ratio**: under 20% for ads (Meta penalizes heavy text)
+- **Text ratio**: keep ad text minimal — Meta [dropped its 20% text-limit rule in 2020](https://www.searchenginejournal.com/facebook-removes-the-20-text-limit-on-ad-images/381844/) so heavy text is no longer penalized, but Meta still advises that images with less text perform better
 - **Print**: 300 DPI, CMYK, 3-5mm bleed
 - **Brand**: always inject via `inject-brand-context.cjs`
 

@@ -70,7 +70,7 @@ Schema:
   "cronJobId": "cron_xxx",
   "startedAt": "ISO timestamp",
   "queue": [
-    { "id": "BUG-016", "title": "...", "priority": "critical", "category": "bugs", "details": "...", "context": "...", "attempts": 0 }
+    { "id": "BUG-016", "title": "...", "priority": "critical", "category": "bugs", "details": "...", "context": "...", "acceptance": "...", "attempts": 0 }
   ],
   "inFlight": [
     {
@@ -142,7 +142,7 @@ Report how many were pruned.
 **Step 2 -- Read and parse backlog**
 
 Read the relevant backlog files (all four, or filtered by category arg). For each `### [ID]` block, extract:
-- ID, title, priority (from `**Priority**: ...` field), category, full details, full context, and date added
+- ID, title, priority (from `**Priority**: ...` field), category, full details, full context, acceptance (from `**Acceptance**: ...` field), and date added
 
 **Step 3 -- Sort the queue**
 
@@ -170,7 +170,7 @@ For dry-run: stop here.
 
 **Step 5 -- Pre-flight settings update (REQUIRED)**
 
-Before asking for confirmation, update `C:\Users\patri\.claude\settings.json` to add these 5 entries to the `permissions.allow` array if they are not already present:
+Before asking for confirmation, update `~/.claude/settings.json` to add these 5 entries to the `permissions.allow` array if they are not already present:
 
 ```json
 "Edit(<your-project-backlog-path>/**)",
@@ -228,7 +228,7 @@ This is an automated marathon-orders loop tick.
    <state-dir>/marathon-state.json
 
 2. Read the full marathon-orders skill instructions:
-   C:\Users\patri\.claude\skills\marathon-orders\SKILL.md
+   ~/.claude/skills/marathon-orders/SKILL.md
 
 3. Execute Phase 3 (Wave Loop Tick) as documented in the skill.
 
@@ -605,6 +605,9 @@ Details:
 
 Context:
 [context -- verbatim from backlog item]
+
+Acceptance:
+[acceptance -- verbatim from backlog item. This is your done condition.]
 
 [If attempts > 0]: Previous attempt note: [lastAttempt text from backlog item]
 [If related items exist]: Related: [related IDs]

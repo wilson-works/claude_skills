@@ -5,6 +5,12 @@ description: Uses Chrome DevTools MCP to take screenshots, inspect DOM, check co
 
 # Review UI via Chrome DevTools MCP
 
+## Configure for your project
+
+Before using this skill, swap this placeholder for your project value:
+
+- `<dev-server-url>` — your dev server URL (e.g. `http://localhost:5173`)
+
 ## Purpose
 
 This skill uses the Chrome DevTools MCP server to visually review a running web application. It navigates to the specified URL, takes screenshots, checks for errors, and reports findings — closing the gap between code changes and visual verification.
@@ -12,15 +18,15 @@ This skill uses the Chrome DevTools MCP server to visually review a running web 
 ## Prerequisites
 
 - Chrome DevTools MCP server must be connected (configured in `.mcp.json`)
-- The target app must be running (e.g., `localhost:5173` for Vite dev server)
+- The target app must be running at `<dev-server-url>` (e.g., `localhost:5173` for a Vite dev server)
 - For authenticated pages: Chrome must be launched with `--remote-debugging-port=9222` and the MCP config must include `--browserUrl=http://127.0.0.1:9222`
 
 ## Invocation
 
 ```
-/review-ui                          # Reviews localhost:5173 (default)
+/review-ui                          # Reviews <dev-server-url> (default)
 /review-ui http://localhost:3000    # Reviews a specific URL
-/review-ui /dashboard               # Reviews localhost:5173/dashboard
+/review-ui /dashboard               # Reviews <dev-server-url>/dashboard
 /review-ui /settings check mobile   # Reviews with specific instructions
 ```
 
@@ -29,8 +35,8 @@ This skill uses the Chrome DevTools MCP server to visually review a running web 
 ### 1. Navigate
 
 - If a URL is provided, navigate to it
-- If a path is provided (starts with `/`), prepend `http://localhost:5173`
-- If nothing is provided, navigate to `http://localhost:5173`
+- If a path is provided (starts with `/`), prepend `<dev-server-url>`
+- If nothing is provided, navigate to `<dev-server-url>`
 - Wait for the page to fully load
 
 ### 2. Desktop Screenshot + Console Check
@@ -58,7 +64,7 @@ Provide a structured report:
 - Any failed network requests
 
 **Accessibility:**
-- Note any obvious issues (missing alt text, contrast, touch targets < 44x44px)
+- Note any obvious issues (missing alt text, contrast, touch targets under 44x44px — the recommended default per Apple HIG's 44x44 pt guidance; WCAG 2.5.8's hard minimum is 24x24 CSS px)
 
 **Recommendations:**
 - Only flag actual problems — do not invent issues
