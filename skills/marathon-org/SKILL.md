@@ -14,11 +14,11 @@ The org-aware sibling of `/marathon-orders`. Same state file, same cron cadence,
 
 For the same backlog, `/marathon-org` runs slower per WO but produces cleaner diffs and better cross-department coordination because everyone knows who's editing what via `comms claims`.
 
-## Execution model in this environment (READ FIRST — overrides the literal chain below)
+## Execution model (READ FIRST — overrides the literal chain below)
 
-In this Claude Code environment a spawned sub-agent **cannot itself spawn sub-agents**. The relay chain described above and in Phase 2 (cto-james → Tim → head → junior → John) assumes recursive spawn and is **mechanically impossible here** — followed literally, every WO fails with "no spawn/Write tools" and the run produces nothing.
+Current Claude Code (v2.1.172+) supports **nested sub-agents to depth 5**, so the literal relay chain (cto-james → Tim → head → junior → John) is mechanically possible. This skill still defaults to **flattened orchestration** deliberately: it is roughly half the token cost per WO (no relay retelling at each hop), every spawn is visible in one transcript, and it works identically on older versions where nested spawn is unavailable. Route literally only when you specifically want the relay hops in the comms audit trail and accept the cost.
 
-So the **top-level orchestrator (this session) performs every spawn directly**. Read each "X spawns Y" step below as "the orchestrator spawns Y on behalf of X":
+Default mode: the **top-level orchestrator (this session) performs every spawn directly**. Read each "X spawns Y" step below as "the orchestrator spawns Y on behalf of X":
 
 - Spawn the **department head** agent (write-capable) to implement the WO in-territory.
 - Spawn **chief-engineer-john** (review-only) as the merge gate.
@@ -171,7 +171,7 @@ python .claude/comms/comms.py read dev-floor cindy --limit 100 | grep BUG-141
 
 ## Hard rules during a marathon-org
 
-- The cron tick NEVER spawns juniors directly. Only James does (via Tim, via the head). Skipping the chain breaks the audit trail.
+- Every WO's spawn set is the same: implementer (dept head, write-capable) + John (review gate), with James/Tim advisory when direction is ambiguous. The cron tick never skips the head or the John review to "save a spawn" — the pre-review chain IS the product. (Per the Execution model above, the orchestrator does the spawning on the org's behalf; the accountability trail lives in the comms posts, not in who literally called the Agent tool.)
 - Claims are mandatory. The path_guard hook will block any unauthorized edit anyway.
 - Review gates: confidence < 3 OR tests red = ask the human. No "best effort" merging in unattended mode.
 - `--stop` pauses cleanly: it lets in-flight juniors finish their current edit, then halts the cron. It does NOT yank a junior mid-edit.

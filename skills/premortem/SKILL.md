@@ -102,7 +102,7 @@ Each failure reason should be:
 
 ### step 3: deep-dive agents (one per failure reason, all in parallel)
 
-Take every failure reason from step 2 and spawn one sub-agent per reason, all in parallel. Each agent takes its assigned failure reason and goes deep on it independently.
+Take every failure reason from step 2 and spawn one sub-agent per reason, all in parallel, each with `model: "sonnet"` — like the council's advisors, premortem value comes from breadth of independent failure lenses, not tier depth. Reserve the session's model (ideally Opus) for the step-4 synthesis, which is the single judgment point. Each agent takes its assigned failure reason and goes deep on it independently.
 
 **Sub-agent prompt template:**
 

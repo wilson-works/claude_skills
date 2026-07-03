@@ -95,6 +95,7 @@ For each item in the approved run plan, spawn a short-lived Sonnet context agent
 ```
 Agent(
   model: "sonnet",
+  effort: "low",
   run_in_background: false,
   description: "CONTEXT: [ID] [title]",
   prompt: """
@@ -258,7 +259,8 @@ Every time `/work-orders` is invoked, automatically prune completed items older 
 
 ## Important Notes
 
-- Always use `model: "sonnet"` for cost efficiency -- these are execution tasks, not design decisions
+- Always use `model: "sonnet"` for cost efficiency -- these are execution tasks, not design decisions. Context-brief agents additionally run `effort: "low"` (read-and-summarize work; the default reasoning budget is wasted there).
+- **Escalation rule**: if an item fails on Sonnet (agent reports blocked, tests stay red, or the diff misses the acceptance criteria), do not re-spawn the same prompt on Sonnet — re-queue it once with `model: "opus"` and the failure summary prepended, or hand it to `/marathon-orders`. One Sonnet failure is signal, two is waste. (See docs/MODELS.md.)
 - Always use `isolation: "worktree"` so each agent works on an isolated copy
 - The user must approve the run plan before any agents are spawned
 - Failed items stay in the backlog -- they are never silently dropped

@@ -1,7 +1,7 @@
 ---
 name: marathon-research-council
 description: Condense N completed marathon-research outputs into a build-ready council summary. Convenes a 5-advisor LLM council that reviews the research collectively, peer-reviews each other anonymously, and produces a chairman synthesis plus a per-marathon "build-ready chunk" card. Designed to bridge the gap between raw R&D output (large, exploratory) and backlog work orders (small, executable). Invoke with `/marathon-research-council [marathon-slug ...]` or `/marathon-research-council --since YYYY-MM-DD`.
-trigger: Use when 3+ marathon-research outputs have completed and need to be condensed before building, or when the user asks to "council the research", "review the marathons", or "turn marathons into work orders".
+when_to_use: Use when 3+ marathon-research outputs have completed and need to be condensed before building, or when the user asks to "council the research", "review the marathons", or "turn marathons into work orders".
 ---
 
 # Marathon-Research Council

@@ -120,10 +120,19 @@ See [INSTALL.md](INSTALL.md). Three-step:
 
 1. Copy `agents/*.md` into `<your-repo>/.claude/agents/`.
 2. Copy `comms/` into `<your-repo>/.claude/comms/`.
-3. Copy `hooks/path_guard.py` into `<your-repo>/.claude/hooks/`, register in `settings.json` as a `PreToolUse` hook on Write/Edit/MultiEdit.
+3. Copy `hooks/path_guard.py` + `hooks/leak_guard.py` into `<your-repo>/.claude/hooks/`, register both in `settings.json` as `PreToolUse` hooks on Write/Edit/MultiEdit.
 4. Copy `org.config.example.json` to `<your-repo>/.claude/agents/org.config.json` and edit globs.
 
 Bonus: `/comms-stats` and inspecting `<repo>/.claude/comms.db` directly with `sqlite3` for debugging.
+
+## Model & effort routing (see docs/MODELS.md)
+
+The roster encodes **Opus decides, Sonnet ships**: James, John, Tim, and the dept heads carry `model: opus`; the juniors carry `model: sonnet` (Sonnet 5 — 1M native context). Two tuned deviations:
+
+- **John runs `effort: xhigh` + `memory: project`.** He is the single merge gate — one cranked review per WO is the cheapest quality in the org, and his project memory (`.claude/agent-memory/chief-engineer-john/`) accrues repo-specific review standards across runs.
+- **Tim runs `effort: medium`.** Routing and digesting don't need the full Opus reasoning budget.
+
+Budget nights: `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` overrides every agent's model for the session — an all-Sonnet org run with zero file edits. (Requires Claude Code v2.1.145+ for `effort:`, v2.1.196+ for `memory:`; both are ignored harmlessly on older versions.)
 
 ## Token discipline (how this stays cheap)
 
@@ -152,7 +161,8 @@ agent-org/
 │   ├── comms.py                      SQLite-backed CLI (ACL + claims)
 │   └── schema.sql                    db schema
 ├── hooks/
-│   └── path_guard.py                 PreToolUse path-ownership enforcement
+│   ├── path_guard.py                 PreToolUse path-ownership enforcement
+│   └── leak_guard.py                 PreToolUse credential/leak blocker (self-testing: --selftest)
 ├── agents/
 │   ├── cto-james.md                  C-suite (3)
 │   ├── chief-engineer-john.md

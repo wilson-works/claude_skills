@@ -28,7 +28,7 @@ Commits current changes and pushes to GitHub, which triggers an automatic Railwa
 - If the user provided a message, use it as the commit message
 - If not, analyze the diff and write a concise commit message
 - Stage all modified/added files relevant to the changes (prefer specific files over `git add -A`)
-- Commit with the message, appending `Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>`
+- Commit with the message, appending `Co-Authored-By: Claude <noreply@anthropic.com>` (do not hardcode a model version — it goes stale)
 
 ### 3. Push
 

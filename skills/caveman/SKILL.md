@@ -111,9 +111,9 @@ AFTER: "Alpha: you changed text-secondary in tokens.css. Need final value for st
 Caveman mode activates automatically in these contexts:
 
 ### Always Caveman (regardless of mode setting)
-- Background agent prompts (preamble injected by /crew skill)
-- Inter-agent messages in `crew-inbox.json`
-- Milestone messages in the crew registry
+- Background agent prompts (bg-pipeline, marathon-*, workday lane sub-agents)
+- Inter-agent messages on the agent-org comms bus (`comms.py post` bodies)
+- Marathon state-file notes and milestone posts to c-suite/dept-heads
 - Pipeline result file entries (bg-pipeline outputs)
 
 ### Auto-Activate After Threshold
@@ -163,15 +163,17 @@ Session tool calls: 12
 Auto-trigger at: ~50 tool calls
 ```
 
-## Integration with /crew
+## Integration with the rest of the pack
 
-The /crew skill references caveman compression in several places:
-- Background agent preambles include caveman instructions
-- Inbox messages between agents use caveman format
-- Milestones use caveman format
-- The crew skill checks tool call count and activates caveman when threshold is reached
+The long-running skills in this pack lean on caveman compression in several places:
+- **bg-pipeline** — background agent preambles and pipeline result entries use caveman format
+- **agent-org comms** — `comms.py` bodies are capped at 2000 chars; caveman-compressed posts fit 2-3× more signal under the cap
+- **marathon-* / workday** — state-file notes, milestone posts, and wave summaries compress; the orchestrator activates caveman once past the tool-call threshold
+- **workday-watch** — `[WATCH][LANE-X]` steering posts are caveman by convention (they're read by lanes, not humans)
 
-When /crew is active, caveman activation is handled automatically. You only need `/caveman on` to force it early or `/caveman off` to override the auto-trigger.
+When those skills are active, caveman activation is handled by their own loops. You only need `/caveman on` to force it early or `/caveman off` to override the auto-trigger.
+
+Note: Sonnet 5 and Opus 4.8 both carry 1M-token context windows, which softens the *hard* ceiling — but compression still pays: you are billed for every token you carry, and auto-compaction near ~967K is lossy. Cheap tokens are still tokens.
 
 ## Important Notes
 

@@ -94,12 +94,14 @@ post. Never reach into another lane's territory.
 `--lanes 3` drops Lane D (api work folds into B); `--lanes 2` keeps A+B only. Default 4. Lane
 E always runs regardless of work-lane count — never leave the merge to bare human git.
 
-## Execution model in this environment (READ THIS)
+## Execution model (READ THIS)
 
-In this Claude Code environment a spawned sub-agent **cannot itself spawn sub-agents**. The
-literal relay chain (cto-james → Tim → head → junior → John) assumes recursive spawn and is
-mechanically impossible here. Therefore **each lane session (the top-level orchestrator) does
-all spawning directly**:
+Current Claude Code (v2.1.172+) supports nested sub-agents (depth 5), so the literal relay
+chain (cto-james → Tim → head → junior → John) is mechanically possible. `/workday` lanes
+still use **flattened orchestration by design**: an 8-hour unattended run cannot afford
+relay-hop token overhead or a mid-chain stall nobody is watching, and flattening keeps every
+spawn in the lane's own transcript for the morning audit. Therefore **each lane session (the
+top-level orchestrator) does all spawning directly**:
 
 - Spawn the **department head** agent (write-capable) to implement the WO in-territory.
 - Spawn **chief-engineer-john** (review-only) as the per-WO merge gate.
@@ -108,7 +110,15 @@ all spawning directly**:
 - Preserve everything that matters — worktree isolation, path-guard territory, comms claims,
   the verification gate, independent review — and drop only the spawn-chain theater.
 
-This is generic to the environment, not project-specific; the lane prompt template encodes it.
+This is a deliberate cost/reliability choice, not an environmental limitation on current
+versions; the lane prompt template encodes it.
+
+**Model routing per lane** (see [docs/MODELS.md](../../docs/MODELS.md)): the dept-head
+implementer runs its frontmatter model (Sonnet 5 — 1M native context, so a long lane no
+longer thins out mid-night); `chief-engineer-john` reviews on Opus at `effort: xhigh` (his
+frontmatter) — one cranked review per WO is the cheapest quality you can buy. For a budget
+night, launch lanes with `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` to force all-Sonnet spawns
+without editing any file.
 
 ## Invocation
 
@@ -321,10 +331,12 @@ met and verified. If the clock hits with the goal unmet: finish or fully revert 
 WO (leave NO half-done commit), report `final-status: partial` with the precise gap. "Queue
 empty" alone is NOT done if the goal is unmet — say so honestly.
 
-EXECUTION MODEL (this environment forbids sub-agents spawning sub-agents): YOU do all
-spawning. Spawn the dept-head agent (write-capable) to implement; spawn chief-engineer-john
-(review-only) as the per-WO merge gate; optionally spawn cto-james/Tim for advisory direction
-(they return judgment, don't spawn). Never write a prompt that asks a sub-agent to spawn one.
+EXECUTION MODEL (flattened by design — do NOT relay-spawn even if your Claude Code version
+allows nested sub-agents): YOU do all spawning. Spawn the dept-head agent (write-capable) to
+implement; spawn chief-engineer-john (review-only) as the per-WO merge gate; optionally spawn
+cto-james/Tim for advisory direction (they return judgment, don't spawn). Never write a
+prompt that asks a sub-agent to spawn one — unattended runs pay the relay overhead and risk
+mid-chain stalls with nobody watching.
 
 ORCHESTRATOR DISCIPLINE (HARD RULES):
 - You NEVER read or grep source. Every Read/Grep/implementation goes to a sub-agent.
@@ -443,8 +455,9 @@ within ~20 min; a red error + stop means that lane is safely parked — tell me 
   merge to bare human git.
 - **No idle waves.** Chain WOs back-to-back. Crons are for the long-session-limit reset and
   staggered to avoid re-tripping the API limit — not a pacing mechanism.
-- **No nested spawn.** The lane session does all spawning (head implements, John reviews).
-  Never write a prompt that asks a sub-agent to spawn a sub-agent.
+- **No nested spawn (by design).** The lane session does all spawning (head implements, John
+  reviews). Never write a prompt that asks a sub-agent to spawn a sub-agent — even on Claude
+  Code versions that allow it, unattended lanes flatten for cost and observability.
 - **Keep-last-1 cleanup runs on every fresh `/workday`** so no session re-reads a plan from
   days ago. The run dir is gitignored — archived/pruned freely.
 - **Never overwrite `org.config.json`** (project-customized). Never self-modify

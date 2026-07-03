@@ -2,6 +2,8 @@
 
 A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, marketing and growth, design intelligence, fundraising, business strategy, dev workflow, and architecture work. Project-agnostic -- drop them into any repo, swap a few placeholders, and go.
 
+The pack is tuned for the current Claude lineup — **Opus 4.8 decides, Sonnet 5 ships, Haiku 4.5 sweeps**: review gates run Opus at high effort, implementation runs Sonnet, and one env var (`CLAUDE_CODE_SUBAGENT_MODEL=sonnet`) turns any org run into a budget all-Sonnet night. See **[docs/MODELS.md](docs/MODELS.md)**.
+
 ## Skills (98)
 
 ### Browser / QA (Chrome DevTools MCP)

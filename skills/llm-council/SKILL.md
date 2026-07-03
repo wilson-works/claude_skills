@@ -140,7 +140,9 @@ Save the framed question for the transcript.
 ### step 2: convene the council (5 sub-agents in parallel)
 
 
-Spawn all 5 advisors simultaneously as sub-agents. Each gets:
+Spawn all 5 advisors simultaneously as sub-agents, each with `model: "sonnet"` — council
+breadth comes from five genuinely different lenses, not from tier depth, and Sonnet 5 holds
+a strong opinion at a fifth of the cost. Each gets:
 
 
 1. Their advisor identity and thinking style (from the descriptions above)
@@ -182,7 +184,7 @@ This is the step that makes the council more than just "ask 5 times." It's the c
 Collect all 5 advisor responses. Anonymize them as Response A through E (randomize which advisor maps to which letter so there's no positional bias).
 
 
-Spawn 5 new sub-agents, one for each advisor. Each reviewer sees all 5 anonymized responses and answers three questions:
+Spawn 5 new sub-agents (`model: "sonnet"` again), one for each advisor. Each reviewer sees all 5 anonymized responses and answers three questions:
 
 
 1. Which response is the strongest and why? (pick one)
@@ -233,6 +235,8 @@ Keep your review under 200 words. Be direct.
 
 
 This is the final step. One agent gets everything: the original question, all 5 advisor responses (now de-anonymized so you can see which advisor said what), and all 5 peer reviews.
+
+The chairman is the one place tier depth pays: spawn with `model: "opus"` (or run the synthesis in the main session if it's already on Opus). Ten inputs, genuine disagreements to adjudicate, one output the user acts on — that's Opus work. Advisors on Sonnet, chairman on Opus is the council's whole cost curve.
 
 
 The chairman's job is to produce the final council output. It follows this structure:
@@ -425,6 +429,8 @@ The user sees the HTML report. The transcript is there if they want to dig deepe
 
 
 - **Always spawn all 5 advisors in parallel.** Sequential spawning wastes time and lets earlier responses bleed into later ones.
+
+- **Model routing: advisors and reviewers on Sonnet, chairman on Opus.** (See docs/MODELS.md.) The five perspectives are a breadth instrument — upgrading advisors to Opus mostly buys longer answers, not better tension. The chairman synthesis is the single judgment point; that's where the tier belongs.
 
 - **Always anonymize for peer review.** If reviewers know which advisor said what, they'll defer to certain thinking styles instead of evaluating on merit.
 

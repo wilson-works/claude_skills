@@ -52,9 +52,12 @@ Open `<repo>/.claude/agents/org.config.json`. The roster is fixed. Only edit the
 
 The `shared` array is paths any agent (or main session) can edit without dept-ownership enforcement: README, CLAUDE.md, docs, the backlog folder, package manifests.
 
-## Step 3 - register the hook
+## Step 3 - register the hooks
 
-Edit `<repo>/.claude/settings.json` and add the path_guard hook to PreToolUse:
+Two PreToolUse hooks ship with the skill: **path_guard** (department path ownership) and
+**leak_guard** (blocks credential material — AWS/GitHub/Slack/Anthropic/Stripe/Google keys,
+PEM blocks — in written content; see the docstring in `hooks/leak_guard.py` for the optional
+config). Copy both into `<repo>/.claude/hooks/` and register:
 
 ```json
 {
@@ -63,13 +66,18 @@ Edit `<repo>/.claude/settings.json` and add the path_guard hook to PreToolUse:
       {
         "matcher": "Write|Edit|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "python .claude/hooks/path_guard.py" }
+          { "type": "command", "command": "python .claude/hooks/path_guard.py" },
+          { "type": "command", "command": "python .claude/hooks/leak_guard.py" }
         ]
       }
     ]
   }
 }
 ```
+
+Verify leak_guard with its built-in suite: `python .claude/hooks/leak_guard.py --selftest`
+(expect 14/14). It fails safe — unparseable input is denied, `LEAK_GUARD_DISABLE=1`
+bypasses while debugging.
 
 If you already have PreToolUse hooks, ADD this command to the same matcher's `hooks` array — don't replace.
 

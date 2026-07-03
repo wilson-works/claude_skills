@@ -287,7 +287,7 @@ Log RAM at start in the wave entry.
 
 **Step 3 — Sonnet scope-check (front-runner) — HARD RULE #2 gate**
 
-Spawn `Agent(subagent_type: general-purpose, model: sonnet)` with the prompt from "Sonnet Scope-Check Prompt Template" below. Parse for `SCOPE_BRIEF_START ... SCOPE_BRIEF_END` or `SCOPE_UNCLEAR_START ... SCOPE_UNCLEAR_END`.
+Spawn `Agent(subagent_type: general-purpose, model: sonnet, effort: low)` with the prompt from "Sonnet Scope-Check Prompt Template" below — this is a cheap gate, not analysis; low effort keeps the front-runner fast. Parse for `SCOPE_BRIEF_START ... SCOPE_BRIEF_END` or `SCOPE_UNCLEAR_START ... SCOPE_UNCLEAR_END`.
 
 **Step 4 — Handle scope failure (HARD RULE #2)**
 

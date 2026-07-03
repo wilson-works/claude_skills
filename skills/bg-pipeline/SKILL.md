@@ -84,6 +84,14 @@ For each step in the pipeline, spawn a sub-agent using the Agent tool with `run_
 3. Instructions to write findings to the shared output file
 4. Context from previous steps (if sequential)
 
+**Model routing per step** (see docs/MODELS.md): pass `model` on each Agent call —
+- `read-only` QA/audit steps → `model: "sonnet"` (pattern-matching against a rubric; Sonnet 5 is the right tier and runs 5-way parallel cheaply)
+- `write` steps (design-polish, work-orders) → `model: "sonnet"`, escalate a step to `"opus"` only if it failed on Sonnet in a previous iteration
+- purely mechanical steps (log collation, result formatting) → `model: "haiku"`
+- the final aggregation/summary runs in the main session (inherits its model) — it's the judgment step
+
+On Claude Code v2.1.145+, prefer preloading the skill via the agent's `skills:` frontmatter (or spawning a subagent type that declares it) over pasting the full SKILL.md into the prompt — same content, cached once instead of re-sent per step.
+
 **Concurrency classification (determines launch strategy):**
 
 Before launching, classify each step as one of:

@@ -95,9 +95,9 @@ For dry-run: stop here.
 
 ### Phase 3: Spawn distill agents in parallel
 
-For each eligible topic, spawn `Agent(subagent_type: general-purpose, model: sonnet)` with the prompt template below. Send all agents in a single message (parallel execution).
+For each eligible topic, spawn `Agent(subagent_type: general-purpose, model: sonnet, effort: medium)` with the prompt template below. Send all agents in a single message (parallel execution).
 
-Sonnet is the right model — distillation is synthesis-light: re-organize and surgically reference, don't deeply re-reason. Opus would be overkill and slow.
+Sonnet at medium effort is the right setting — distillation is synthesis-light: re-organize and surgically reference, don't deeply re-reason. Opus would be overkill and slow, and the default high reasoning budget mostly buys latency here.
 
 ### Phase 4: Validate each summary
 
