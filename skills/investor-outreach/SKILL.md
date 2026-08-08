@@ -1,6 +1,6 @@
 ---
 name: investor-outreach
-description: Draft cold emails, warm intro blurbs, follow-ups, update emails, and investor communications for fundraising. Use when the user wants outreach to angels, VCs, strategic investors, or accelerators and needs concise, personalized, investor-facing messaging.
+description: Draft cold emails, warm intro blurbs, follow-ups, update emails, and investor communications for fundraising. Use when the user wants outreach to angels, VCs, strategic investors, or accelerators and needs concise, personalized, investor-facing messaging. Invoke with /investor-outreach.
 origin: ECC
 ---
 
@@ -80,6 +80,41 @@ Include:
 - the answer or update promised
 - one new proof point if available
 - the next step
+
+## Worked Examples
+
+All names and numbers are synthetic. Lumen Analytics is a seed-stage product analytics startup; the investor is invented.
+
+### Cold email, annotated
+
+Subject: Lumen Analytics — analytics for mid-market SaaS, 11 paying teams
+
+> [Company, category, one proof number. Fully readable in a phone notification — no "quick question" bait.]
+
+Hi Dana,
+
+Your post on why mid-market SaaS teams get priced out of enterprise BI matched what our first 11 customers told us almost word for word.
+
+> [Opener names one real, checkable artifact tied to this investor. If the draft can't do this, it isn't finished — see Personalization Sources.]
+
+Lumen Analytics gives mid-market SaaS teams product analytics without needing a data team. Eight months post-launch: 11 paying teams, $40k MRR growing ~15% month over month, 124% net revenue retention.
+
+> [One sentence of what, one sentence of proof. The numbers persuade — no "excited," no adjectives.]
+
+We're raising a $2M seed. Are you open to a 25-minute call next Tuesday or Thursday afternoon?
+
+> [One concrete, time-bounded ask with options. Not "would love to connect."]
+
+Priya Shah
+Co-founder & CEO, Lumen Analytics — previously led analytics at a 400-person SaaS company
+
+> [Sign-off carries exactly one credibility anchor, nothing else.]
+
+### Warm intro forwardable blurb
+
+Written in third person so the connector can forward it verbatim, no editing required. Under 100 words.
+
+Lumen Analytics builds product analytics for mid-market SaaS teams that don't have a data team. Eight months after launch they're at $40k MRR across 11 paying teams, with 124% net revenue retention. Priya (CEO) previously led analytics at a 400-person SaaS company, and her co-founder built that company's data pipeline. They're raising a $2M seed and asked if you'd be open to a 25-minute call — happy to connect you if it's a fit.
 
 ## Quality Gate
 

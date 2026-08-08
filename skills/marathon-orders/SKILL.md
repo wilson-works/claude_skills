@@ -142,7 +142,7 @@ Report how many were pruned.
 **Step 2 -- Read and parse backlog**
 
 Read the relevant backlog files (all four, or filtered by category arg). For each `### [ID]` block, extract:
-- ID, title, priority (from `**Priority**: ...` field), category, full details, full context, and date added
+- ID, title, priority (from `**Priority**: ...` field), category, full details, full context, acceptance (from `**Acceptance**: ...` field), and date added
 
 **Step 3 -- Sort the queue**
 
@@ -800,6 +800,7 @@ The `Follow-up` line is omitted if the agent reported `concerns: none`.
 ## Important Notes
 
 - **Opus is expensive.** Default wave size is 1 intentionally. Only use `--wave 2` when the next two items are clearly independent (different files, different systems).
+- **Opus-per-WO is this skill's deliberate exception to the "Sonnet ships" rule** (docs/MODELS.md): the queue that reaches marathon-orders is depth work — security fixes, multi-file architecture, items that already failed a Sonnet agent. If a queue turns out to be mostly shallow items, stop and run `/work-orders` instead; don't pay Opus rates for Sonnet work. For a budget pass over a deep queue, `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` downgrades every spawned agent for the session — the review gate still runs.
 - **The review gate always runs.** Even for confidence 5 items, the diff is read and the build is checked. This is the anti-spaghetti guard.
 - **Cron auto-expires after 7 days.** This is a CronCreate hard limit. Marathon is not designed for week-long unattended runs.
 - **The state file is the single source of truth.** If it is deleted or corrupted mid-marathon, the marathon cannot be resumed. Background agents will continue running and their worktree branches will still exist -- you can manually merge them after checking their diffs.

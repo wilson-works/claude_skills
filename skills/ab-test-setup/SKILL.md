@@ -1,6 +1,6 @@
 ---
 name: ab-test-setup
-description: When the user wants to plan, design, or implement an A/B test or experiment, or build a growth experimentation program. Also use when the user mentions "A/B test," "split test," "experiment," "test this change," "variant copy," "multivariate test," "hypothesis," "should I test this," "which version is better," "test two versions," "statistical significance," "how long should I run this test," "growth experiments," "experiment velocity," "experiment backlog," "ICE score," "experimentation program," or "experiment playbook." Use this whenever someone is comparing two approaches and wants to measure which performs better, or when they want to build a systematic experimentation practice. For tracking implementation, see analytics-tracking. For page-level conversion optimization, see page-cro.
+description: When the user wants to plan, design, or implement an A/B test or experiment, or build a growth experimentation program. Also use when the user mentions "A/B test," "split test," "experiment," "test this change," "variant copy," "multivariate test," "hypothesis," "should I test this," "which version is better," "test two versions," "statistical significance," "how long should I run this test," "growth experiments," "experiment velocity," "experiment backlog," "ICE score," "experimentation program," or "experiment playbook." Use this whenever someone is comparing two approaches and wants to measure which performs better, or when they want to build a systematic experimentation practice. For tracking implementation, see analytics-tracking. For page-level conversion optimization, see page-cro. Invoke with /ab-test-setup.
 metadata:
   version: 1.2.0
 ---
@@ -86,6 +86,8 @@ We'll know this is true when [metrics].
 | 3% | 47k/variant | 12k/variant | 2k/variant |
 | 5% | 27k/variant | 7k/variant | 1.2k/variant |
 | 10% | 12k/variant | 3k/variant | 550/variant |
+
+Figures are approximate (two-sided test, 95% significance, 80% power) — compute exact numbers with [Evan Miller's sample size calculator](https://www.evanmiller.org/ab-testing/sample-size.html), the standard reference.
 
 **Calculators:**
 - [Evan Miller's](https://www.evanmiller.org/ab-testing/sample-size.html)
@@ -283,6 +285,8 @@ Track your experimentation rate as a leading indicator of growth:
 | Average test duration | 2-4 weeks |
 | Backlog depth | 20+ hypotheses queued |
 | Cumulative lift | Compound gains from all winners |
+
+Win-rate benchmarks vary widely by source: [Convert's roundup of published studies](https://www.convert.com/blog/a-b-testing/ab-testing-stats/) puts typical win rates around 10-30%, and [Optimizely's analysis of 127k experiments](https://www.optimizely.com/insights/blog/get-more-wins-experimentation-metrics-for-program-success/) found only ~12% win on the primary metric. The other targets above are industry rules of thumb — treat as priors, not benchmarks.
 
 ### The Experiment Playbook
 

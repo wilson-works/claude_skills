@@ -1,6 +1,6 @@
 ---
 name: popup-cro
-description: When the user wants to create or optimize popups, modals, overlays, slide-ins, or banners for conversion purposes. Also use when the user mentions "exit intent," "popup conversions," "modal optimization," "lead capture popup," "email popup," "announcement banner," "overlay," "collect emails with a popup," "exit popup," "scroll trigger," "sticky bar," or "notification bar." Use this for any overlay or interrupt-style conversion element. For forms outside of popups, see form-cro. For general page conversion optimization, see page-cro.
+description: When the user wants to create or optimize popups, modals, overlays, slide-ins, or banners for conversion purposes. Also use when the user mentions "exit intent," "popup conversions," "modal optimization," "lead capture popup," "email popup," "announcement banner," "overlay," "collect emails with a popup," "exit popup," "scroll trigger," "sticky bar," or "notification bar." Use this for any overlay or interrupt-style conversion element. For forms outside of popups, see form-cro. For general page conversion optimization, see page-cro. Invoke with /popup-cro.
 metadata:
   version: 1.1.0
 ---
@@ -266,6 +266,7 @@ Before providing recommendations, understand:
 - Don't rely on color alone
 
 ### Google Guidelines
+- Reference: [Google's interstitials and dialogs guidelines](https://developers.google.com/search/docs/appearance/avoid-intrusive-interstitials)
 - Intrusive interstitials hurt SEO
 - Mobile especially sensitive
 - Allow: Cookie notices, age verification, reasonable banners
@@ -292,9 +293,10 @@ Before providing recommendations, understand:
 - Escape key
 
 ### Benchmarks
+Large-scale popup studies broadly support these ranges — see [Wisepops' 1B+ display study](https://wisepops.com/blog/popup-stats) (~4.8% average popup conversion, ~3.9% exit intent) and [OptiMonk's popup statistics](https://www.optimonk.com/popup-statistics):
 - Email popup: 2-5% conversion typical
 - Exit intent: 3-10% conversion
-- Click-triggered: Higher (10%+, self-selected)
+- Click-triggered: Higher (10%+, self-selected) — industry rule of thumb; treat as a prior, not a benchmark
 
 ---
 

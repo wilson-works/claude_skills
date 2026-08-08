@@ -392,6 +392,7 @@ const entry = `
 - **Priority**: ${PRIORITY}
 - **Source**: bughunter wave ${WAVE_NUM} route ${ROUTE}
 - **Details**: ${DETAILS}
+- **Acceptance**: ${ACCEPTANCE}
 - **Evidence**: screenshot <evidence-dir>/wave-${WAVE_NUM}/[file].png. Console: "${CONSOLE_MSG}". Network: ${NETWORK_SUMMARY}.
 - **Likely cause**: ${LIKELY_COMMIT} (${LIKELY_COMMIT_MSG})
 - **Context**: Filed during marathon-bughunter run ${SESSION_ID}.

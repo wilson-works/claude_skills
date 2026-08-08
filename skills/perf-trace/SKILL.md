@@ -5,6 +5,12 @@ description: Records a performance trace on a page via Chrome DevTools MCP, anal
 
 # Performance Trace via Chrome DevTools MCP
 
+## Configure for your project
+
+Before using this skill, swap this placeholder for your project value:
+
+- `<dev-server-url>` — your dev server URL (e.g. `http://localhost:5173`)
+
 ## Purpose
 
 Records a performance trace on a running web page, then analyzes the results to identify bottlenecks, slow renders, memory issues, and Core Web Vitals problems.
@@ -17,8 +23,8 @@ Records a performance trace on a running web page, then analyzes the results to 
 ## Invocation
 
 ```
-/perf-trace                          # Traces localhost:5173
-/perf-trace /dashboard               # Traces localhost:5173/dashboard
+/perf-trace                          # Traces <dev-server-url>
+/perf-trace /dashboard               # Traces <dev-server-url>/dashboard
 /perf-trace /workouts after scroll   # Traces with specific interaction
 ```
 
@@ -27,8 +33,8 @@ Records a performance trace on a running web page, then analyzes the results to 
 ### 1. Navigate
 
 - If a URL is provided, navigate to it
-- If a path is provided (starts with `/`), prepend `http://localhost:5173`
-- If nothing is provided, navigate to `http://localhost:5173`
+- If a path is provided (starts with `/`), prepend `<dev-server-url>`
+- If nothing is provided, navigate to `<dev-server-url>`
 - Wait for the page to fully load
 
 ### 2. Start Trace
@@ -66,7 +72,7 @@ Thresholds:
 
 ### 4. Memory Check
 
-- Use `take_memory_snapshot` to capture current memory state
+- Use `take_heapsnapshot` to capture current memory state
 - Note total JS heap size
 - Flag if heap seems unusually large for the page complexity
 

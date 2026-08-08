@@ -1,6 +1,6 @@
 ---
 name: distill
-description: "Convert marathon-research outputs into ≤200-line summaries/ cards with surgical @-references back to the marathon and canonical source files. Invoke with /distill (auto-detect new marathons) or /distill <slug> (just one). Auto-fired by marathon-research Phase 4 (step 5) after a marathon completes."
+description: "Convert marathon-research outputs into ≤200-line summary cards with surgical @-references back to the marathon and canonical source files. Invoke with /distill (auto-detect new marathons) or /distill <slug> (just one). Auto-fired by marathon-research Phase 4 (step 5) after a marathon completes."
 ---
 
 # Distill — Marathon → Summary Card
@@ -95,9 +95,9 @@ For dry-run: stop here.
 
 ### Phase 3: Spawn distill agents in parallel
 
-For each eligible topic, spawn `Agent(subagent_type: general-purpose, model: sonnet)` with the prompt template below. Send all agents in a single message (parallel execution).
+For each eligible topic, spawn `Agent(subagent_type: general-purpose, model: sonnet, effort: medium)` with the prompt template below. Send all agents in a single message (parallel execution).
 
-Sonnet is the right model — distillation is synthesis-light: re-organize and surgically reference, don't deeply re-reason. Opus would be overkill and slow.
+Sonnet at medium effort is the right setting — distillation is synthesis-light: re-organize and surgically reference, don't deeply re-reason. Opus would be overkill and slow, and the default high reasoning budget mostly buys latency here.
 
 ### Phase 4: Validate each summary
 

@@ -1,6 +1,6 @@
 ---
 name: ckm:brand
-description: Brand voice, visual identity, messaging frameworks, asset management, brand consistency. Activate for branded content, tone of voice, marketing assets, brand compliance, style guides.
+description: Brand voice, visual identity, messaging frameworks, asset management, brand consistency. Activate for branded content, tone of voice, marketing assets, brand compliance, style guides. Invoke with /brand [update|review|create] [args].
 argument-hint: "[update|review|create] [args]"
 metadata:
   author: claudekit
@@ -10,6 +10,8 @@ metadata:
 # Brand
 
 Brand identity, voice, messaging, asset management, and consistency frameworks.
+
+> **Note:** The upstream helper scripts (`scripts/inject-brand-context.cjs`, `scripts/sync-brand-to-tokens.cjs`, `scripts/validate-asset.cjs`, `scripts/extract-colors.cjs`) are not bundled in this pack — the workflows below describe the manual/agent-driven equivalent. Install the scripts from the upstream source if you want the automated path.
 
 ## When to Use
 
@@ -22,18 +24,18 @@ Brand identity, voice, messaging, asset management, and consistency frameworks.
 
 ## Quick Start
 
-**Inject brand context into prompts:**
+**Inject brand context into prompts** (if installed; otherwise read `docs/brand-guidelines.md` directly):
 ```bash
 node scripts/inject-brand-context.cjs
 node scripts/inject-brand-context.cjs --json
 ```
 
-**Validate an asset:**
+**Validate an asset** (if installed):
 ```bash
 node scripts/validate-asset.cjs <asset-path>
 ```
 
-**Extract/compare colors:**
+**Extract/compare colors** (if installed):
 ```bash
 node scripts/extract-colors.cjs --palette
 node scripts/extract-colors.cjs <image-path>
@@ -43,7 +45,7 @@ node scripts/extract-colors.cjs <image-path>
 
 ```bash
 # 1. Edit docs/brand-guidelines.md (or use /brand update)
-# 2. Sync to design tokens
+# 2. Sync to design tokens (if installed; otherwise update the token files manually)
 node scripts/sync-brand-to-tokens.cjs
 # 3. Verify
 node scripts/inject-brand-context.cjs --json | head -20

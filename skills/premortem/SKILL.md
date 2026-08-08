@@ -1,15 +1,15 @@
 ---
 name: premortem
-description: "Run a premortem on any plan, launch, product, hire, strategy, or decision. Assumes it already failed 6 months from now and works backward to find every reason why. Produces a revised plan with blind spots exposed. MANDATORY TRIGGERS: 'premortem this', 'premortem my', 'run a premortem', 'what could kill this', 'future-proof this', 'stress test this plan', 'what am i missing here', 'find the blind spots'. STRONG TRIGGERS: 'what could go wrong', 'am i missing anything', 'poke holes in this', 'where will this break', 'devil's advocate this'. Do NOT trigger on simple feedback requests, factual questions, or LLM Council requests. DO trigger when someone has a plan or commitment where the cost of being wrong is high."
+description: "Run a premortem on any plan, launch, product, hire, strategy, or decision. Assumes it already failed 6 months from now and works backward to find every reason why. Produces a revised plan with blind spots exposed. MANDATORY TRIGGERS: 'premortem this', 'premortem my', 'run a premortem', 'what could kill this', 'future-proof this', 'stress test this plan', 'what am i missing here', 'find the blind spots'. STRONG TRIGGERS: 'what could go wrong', 'am i missing anything', 'poke holes in this', 'where will this break', 'devil's advocate this'. Do NOT trigger on simple feedback requests, factual questions, or LLM Council requests. DO trigger when someone has a plan or commitment where the cost of being wrong is high. Invoke with /premortem [plan or decision]."
 ---
 
 # Premortem
 
 A premortem is the opposite of a postmortem. Instead of figuring out what went wrong after something fails, you imagine it already failed and figure out why before you start.
 
-The method comes from psychologist Gary Klein. He published it in Harvard Business Review. Daniel Kahneman (the Nobel Prize-winning psychologist behind "Thinking, Fast and Slow") called it his single most valuable decision-making technique. Google, Goldman Sachs, and Procter & Gamble all use it before major decisions.
+The method comes from psychologist Gary Klein. He published it as ["Performing a Project Premortem"](https://hbr.org/2007/09/performing-a-project-premortem) in Harvard Business Review, September 2007. Daniel Kahneman (the Nobel Prize-winning psychologist behind "Thinking, Fast and Slow") called it his single most valuable decision-making technique. Google, Goldman Sachs, and Procter & Gamble all use it before major decisions.
 
-The core insight: when you ask people "what could go wrong?" they give you cautious, hedged answers. When you say "this already failed, tell me why," their brains switch into narrative mode and generate way more specific, creative, honest reasons. Researchers at Wharton and Cornell called this "prospective hindsight" and found it significantly increases the ability to identify causes of future outcomes.
+The core insight: when you ask people "what could go wrong?" they give you cautious, hedged answers. When you say "this already failed, tell me why," their brains switch into narrative mode and generate way more specific, creative, honest reasons. Researchers at Wharton, Cornell, and the University of Colorado called this "prospective hindsight" and found it significantly increases the ability to identify causes of future outcomes (Mitchell, Russo & Pennington, ["Back to the future: Temporal perspective in the explanation of events,"](https://doi.org/10.1002/bdm.3960020103) Journal of Behavioral Decision Making, 1989).
 
 The reason this matters for AI-assisted decisions: Claude defaults to agreeable, optimistic responses. If you ask "is this a good plan?" it will find reasons to say yes. The premortem breaks this pattern by forcing the frame into "this is dead, explain how it died." Claude stops looking for reasons your plan will work and starts explaining how it fell apart.
 
@@ -102,7 +102,7 @@ Each failure reason should be:
 
 ### step 3: deep-dive agents (one per failure reason, all in parallel)
 
-Take every failure reason from step 2 and spawn one sub-agent per reason, all in parallel. Each agent takes its assigned failure reason and goes deep on it independently.
+Take every failure reason from step 2 and spawn one sub-agent per reason, all in parallel, each with `model: "sonnet"` — like the council's advisors, premortem value comes from breadth of independent failure lenses, not tier depth. Reserve the session's model (ideally Opus) for the step-4 synthesis, which is the single judgment point. Each agent takes its assigned failure reason and goes deep on it independently.
 
 **Sub-agent prompt template:**
 
@@ -188,7 +188,7 @@ Also provide a concise summary in the chat: the most likely failure, the hidden 
 
 ---
 
-## example: premortming a product launch
+## example: premorteming a product launch
 
 **User:** "premortem this: I'm about to launch a $297 live workshop on how to use Claude Cowork for marketing teams. 50 seats. Targeting marketing managers at companies with 10-50 employees."
 

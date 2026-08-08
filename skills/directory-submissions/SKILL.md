@@ -1,6 +1,6 @@
 ---
 name: directory-submissions
-description: When the user wants to submit their product to startup, SaaS, AI, agent, MCP, no-code, or review directories for backlinks, domain rating, and discovery. Also use when the user mentions "directory submissions," "submit to directories," "backlinks from directories," "list my product," "submit to Product Hunt," "BetaList," "TAAFT," "Futurepedia," "G2 listing," "Capterra listing," "AlternativeTo," "SaaSHub," "AI directories," "MCP registry," "agent directory," "dofollow backlinks," "launch directories," or "directory tracker." Use this whenever someone is planning the directory layer of a product launch or an ongoing backlink campaign. For the broader launch moment, see launch-strategy. For programmatic SEO pages that should live behind these backlinks, see programmatic-seo. For AI citation optimization, see ai-seo.
+description: When the user wants to submit their product to startup, SaaS, AI, agent, MCP, no-code, or review directories for backlinks, domain rating, and discovery. Also use when the user mentions "directory submissions," "submit to directories," "backlinks from directories," "list my product," "submit to Product Hunt," "BetaList," "TAAFT," "Futurepedia," "G2 listing," "Capterra listing," "AlternativeTo," "SaaSHub," "AI directories," "MCP registry," "agent directory," "dofollow backlinks," "launch directories," or "directory tracker." Use this whenever someone is planning the directory layer of a product launch or an ongoing backlink campaign. For the broader launch moment, see launch-strategy. For programmatic SEO pages that should live behind these backlinks, see programmatic-seo. For AI citation optimization, see ai-seo. Invoke with /directory-submissions.
 metadata:
   version: 1.0.0
 ---
@@ -122,7 +122,7 @@ Per submission:
 3. Upload assets.
 4. Submit.
 5. Log: date, URL, status, moderator notes.
-6. Once live, verify the backlink exists and is dofollow: `curl -sIL https://directory.com/your-listing | grep -i rel=`. If absent, the link is dofollow.
+6. Once live, verify the backlink exists and is dofollow: `curl -sL https://directory.com/your-listing | grep -io '<a[^>]*yourdomain\.com[^>]*>'` and inspect the anchor tag's `rel` attribute. If it contains `nofollow`, `ugc`, or `sponsored`, the link passes no equity; if there's no such `rel` value, it's dofollow. (Some directories render links via JavaScript — if curl finds nothing, check the rendered DOM in your browser's inspector.)
 
 ---
 
@@ -159,7 +159,7 @@ Product Hunt is the single highest-leverage submission but also the most easily 
 
 ## Reviews Playbook (G2 / Capterra / TrustRadius)
 
-G2 and Capterra (now owned by G2 as of Feb 2026) listings are **worthless without reviews**. 10 reviews is the magic threshold for Grid appearance. Run the 10-in-30 protocol during launch month.
+G2 and Capterra ([acquired by G2 from Gartner in early 2026](https://company.g2.com/news/g2-acquires-capterra-software-advice-getapp), along with GetApp and Software Advice) listings are **worthless without reviews**. 10 reviews is the magic threshold for Grid appearance. Run the 10-in-30 protocol during launch month.
 
 ### The 10-in-30 protocol
 
@@ -178,13 +178,13 @@ G2 and Capterra (now owned by G2 as of Feb 2026) listings are **worthless withou
 ### Badges and paid plans
 
 - **"Users Love Us" badge** is still free: requires 20 reviews at 4.0+ average.
-- **Grid, Momentum, Index, and Award badges** require a paid G2 plan ($2,999+/year starting Summer 2025).
+- **Grid, Momentum, Index, and Award badges** require a paid G2 plan — Starter listed at $2,999/year as of mid-2026, but pricing changes; check [sell.g2.com/plans](https://sell.g2.com/plans).
 - **Do not spend on paid G2 in year one.** The free listing + Users Love Us badge is sufficient.
 
 ### Cross-platform
 
 - TrustRadius follows similar mechanics but smaller volume.
-- Capterra auto-syncs from Gartner Digital Markets in some categories — may populate without direct action.
+- Capterra listings sync with sister sites GetApp and Software Advice (the former Gartner Digital Markets network, now under G2) in some categories — may populate without direct action.
 
 ---
 

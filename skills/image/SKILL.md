@@ -1,6 +1,6 @@
 ---
 name: image
-description: "When the user wants to create, generate, edit, or optimize images for marketing — blog heroes, social graphics, product mockups, profile banners, listing visuals, or brand assets. Also use when the user mentions 'AI image generation,' 'generate an image,' 'create a graphic,' 'product mockup,' 'hero image,' 'social media graphic,' 'banner image,' 'cover photo,' 'profile banner,' 'listing screenshot,' 'Flux,' 'Midjourney,' 'DALL-E,' 'GPT Image,' 'Ideogram,' 'Gemini image,' 'Canva,' 'Figma,' 'image optimization,' 'compress images,' 'WebP,' or 'OG image.' Use this for general-purpose marketing image creation and optimization. For paid ad image creative and platform-specific ad specs, see ad-creative. For video production, see video."
+description: "When the user wants to create, generate, edit, or optimize images for marketing — blog heroes, social graphics, product mockups, profile banners, listing visuals, or brand assets. Also use when the user mentions 'AI image generation,' 'generate an image,' 'create a graphic,' 'product mockup,' 'hero image,' 'social media graphic,' 'banner image,' 'cover photo,' 'profile banner,' 'listing screenshot,' 'Flux,' 'Midjourney,' 'DALL-E,' 'GPT Image,' 'Ideogram,' 'Gemini image,' 'Canva,' 'Figma,' 'image optimization,' 'compress images,' 'WebP,' or 'OG image.' Use this for general-purpose marketing image creation and optimization. For paid ad image creative and platform-specific ad specs, see ad-creative. For video production, see video. Invoke with /image."
 metadata:
   version: 1.0.0
 ---
@@ -63,6 +63,8 @@ Generate original images from text prompts. The fastest way to create unique mar
 | **Stable Diffusion** | Self-hosted, customizable | Varies | Open source | Free (GPU costs) |
 
 **Note:** DALL-E 3 is deprecated. OpenAI's current image models are the GPT Image family (`gpt-image-1`, etc.).
+
+> **Freshness:** Model lineup and pricing verified as of July 2026 — these rot fast. Always confirm against the official pricing pages linked in the table above ([Gemini](https://ai.google.dev/gemini-api/docs/pricing), [BFL/Flux](https://docs.bfl.ai/quick_start/pricing), [Ideogram](https://about.ideogram.ai/api-pricing), [OpenAI](https://platform.openai.com/docs/pricing)) before budgeting.
 
 ### When to Use Which
 

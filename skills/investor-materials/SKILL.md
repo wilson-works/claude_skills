@@ -1,6 +1,6 @@
 ---
 name: investor-materials
-description: Create and update pitch decks, one-pagers, investor memos, accelerator applications, financial models, and fundraising materials. Use when the user needs investor-facing documents, projections, use-of-funds tables, milestone plans, or materials that must stay internally consistent across multiple fundraising assets.
+description: Create and update pitch decks, one-pagers, investor memos, accelerator applications, financial models, and fundraising materials. Use when the user needs investor-facing documents, projections, use-of-funds tables, milestone plans, or materials that must stay internally consistent across multiple fundraising assets. Invoke with /investor-materials.
 origin: ECC
 ---
 
@@ -55,7 +55,7 @@ Recommended flow:
 11. use of funds / milestones
 12. appendix
 
-If the user wants a web-native deck, pair this skill with `frontend-slides`.
+If the user wants a web-native deck, pair this skill with `slides`.
 
 ### One-Pager / Memo
 - state what the company does in one clean sentence

@@ -1,6 +1,6 @@
 ---
 name: llm-council
-description: "Run any question, idea, or decision through a council of 5 AI advisors who independently analyze it, peer-review each other anonymously, and synthesize a final verdict. Based on Karpathy's LLM Council methodology. MANDATORY TRIGGERS: 'council this', 'run the council', 'war room this', 'pressure-test this', 'stress-test this', 'debate this'. STRONG TRIGGERS (use when combined with a real decision or tradeoff): 'should I X or Y', 'which option', 'what would you do', 'is this the right move', 'validate this', 'get multiple perspectives', 'I can't decide', 'I'm torn between'. Do NOT trigger on simple yes/no questions, factual lookups, or casual 'should I' without a meaningful tradeoff (e.g. 'should I use markdown' is not a council question). DO trigger when the user presents a genuine decision with stakes, multiple options, and context that suggests they want it pressure-tested from multiple angles."
+description: "Run any question, idea, or decision through a council of 5 AI advisors who independently analyze it, peer-review each other anonymously, and synthesize a final verdict. Based on Karpathy's LLM Council methodology. MANDATORY TRIGGERS: 'council this', 'run the council', 'war room this', 'pressure-test this', 'stress-test this', 'debate this'. STRONG TRIGGERS (use when combined with a real decision or tradeoff): 'should I X or Y', 'which option', 'what would you do', 'is this the right move', 'validate this', 'get multiple perspectives', 'I can't decide', 'I'm torn between'. Do NOT trigger on simple yes/no questions, factual lookups, or casual 'should I' without a meaningful tradeoff (e.g. 'should I use markdown' is not a council question). DO trigger when the user presents a genuine decision with stakes, multiple options, and context that suggests they want it pressure-tested from multiple angles. Invoke with /llm-council [question]."
 ---
 
 
@@ -13,7 +13,7 @@ You ask one AI a question, you get one answer. That answer might be great. It mi
 The council fixes this. It runs your question through 5 independent advisors, each thinking from a fundamentally different angle. Then they review each other's work. Then a chairman synthesizes everything into a final recommendation that tells you where the advisors agree, where they clash, and what you should actually do.
 
 
-This is adapted from Andrej Karpathy's LLM Council. He dispatches queries to multiple models, has them peer-review each other anonymously, then a chairman produces the final answer. We do the same thing inside Claude using sub-agents with different thinking lenses instead of different models.
+This is adapted from Andrej Karpathy's [LLM Council](https://github.com/karpathy/llm-council) (see his [announcement post on X](https://x.com/karpathy/status/1990577951671509438)). He dispatches queries to multiple models, has them peer-review each other anonymously, then a chairman produces the final answer. We do the same thing inside Claude using sub-agents with different thinking lenses instead of different models.
 
 
 ---
@@ -140,7 +140,9 @@ Save the framed question for the transcript.
 ### step 2: convene the council (5 sub-agents in parallel)
 
 
-Spawn all 5 advisors simultaneously as sub-agents. Each gets:
+Spawn all 5 advisors simultaneously as sub-agents, each with `model: "sonnet"` — council
+breadth comes from five genuinely different lenses, not from tier depth, and Sonnet 5 holds
+a strong opinion at a fifth of the cost. Each gets:
 
 
 1. Their advisor identity and thinking style (from the descriptions above)
@@ -182,7 +184,7 @@ This is the step that makes the council more than just "ask 5 times." It's the c
 Collect all 5 advisor responses. Anonymize them as Response A through E (randomize which advisor maps to which letter so there's no positional bias).
 
 
-Spawn 5 new sub-agents, one for each advisor. Each reviewer sees all 5 anonymized responses and answers three questions:
+Spawn 5 new sub-agents (`model: "sonnet"` again), one for each advisor. Each reviewer sees all 5 anonymized responses and answers three questions:
 
 
 1. Which response is the strongest and why? (pick one)
@@ -233,6 +235,8 @@ Keep your review under 200 words. Be direct.
 
 
 This is the final step. One agent gets everything: the original question, all 5 advisor responses (now de-anonymized so you can see which advisor said what), and all 5 peer reviews.
+
+The chairman is the one place tier depth pays: spawn with `model: "opus"` (or run the synthesis in the main session if it's already on Opus). Ten inputs, genuine disagreements to adjudicate, one output the user acts on — that's Opus work. Advisors on Sonnet, chairman on Opus is the council's whole cost curve.
 
 
 The chairman's job is to produce the final council output. It follows this structure:
@@ -421,10 +425,25 @@ The user sees the HTML report. The transcript is there if they want to dig deepe
 ---
 
 
+## failure modes
+
+
+- **All five advisors land on the same take.** A council that agrees five times is one answer with extra steps. The defense is in the prompts: give each advisor a genuinely distinct persona and angle, and keep the "lean fully into your assigned perspective, don't be balanced" instruction intact. If responses still converge, the question probably has one right answer and didn't need a council.
+
+- **An advisor sub-agent dies mid-round.** Don't restart the round and don't block on it. Proceed with the responses you have (N-1 advisors, N-1 reviewers) and have the chairman note the missing seat in the synthesis so the user knows one angle went uncovered.
+
+- **Cost and runtime scale with advisor count.** Five advisors is roughly 5x the cost of asking once, and the peer-review round spawns five more sub-agents before the chairman even starts. That's the price of the method. It's worth paying when the decision has real stakes — which is exactly why the council shouldn't run on trivial questions.
+
+
+---
+
+
 ## important notes
 
 
 - **Always spawn all 5 advisors in parallel.** Sequential spawning wastes time and lets earlier responses bleed into later ones.
+
+- **Model routing: advisors and reviewers on Sonnet, chairman on Opus.** (See docs/MODELS.md.) The five perspectives are a breadth instrument — upgrading advisors to Opus mostly buys longer answers, not better tension. The chairman synthesis is the single judgment point; that's where the tier belongs.
 
 - **Always anonymize for peer review.** If reviewers know which advisor said what, they'll defer to certain thinking styles instead of evaluating on merit.
 

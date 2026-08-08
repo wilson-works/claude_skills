@@ -1,6 +1,6 @@
 ---
 name: ui-ux-pro-max
-description: "UI/UX design intelligence for web and mobile. Includes 50+ styles, 161 color palettes, 57 font pairings, 161 product types, 99 UX guidelines, and 25 chart types across 10 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, and HTML/CSS). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, and check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, and mobile app. Elements: button, modal, navbar, sidebar, card, table, form, and chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, and flat design. Topics: color systems, accessibility, animation, layout, typography, font pairing, spacing, interaction states, shadow, and gradient. Integrations: shadcn/ui MCP for component search and examples."
+description: "UI/UX design intelligence for web and mobile. Includes 50+ styles, 161 color palettes, 57 font pairings, 161 product types, 99 UX guidelines, and 25 chart types across 10 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, and HTML/CSS). Actions: plan, build, create, design, implement, review, fix, improve, optimize, enhance, refactor, and check UI/UX code. Projects: website, landing page, dashboard, admin panel, e-commerce, SaaS, portfolio, blog, and mobile app. Elements: button, modal, navbar, sidebar, card, table, form, and chart. Styles: glassmorphism, claymorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, responsive, skeuomorphism, and flat design. Topics: color systems, accessibility, animation, layout, typography, font pairing, spacing, interaction states, shadow, and gradient. Integrations: shadcn/ui MCP for component search and examples. Invoke with /ui-ux-pro-max."
 ---
 
 # UI/UX Pro Max - Design Intelligence
@@ -305,6 +305,12 @@ Search specific domains using the CLI tool below.
 
 ---
 
+## Configure for your project
+
+- `<tech-stack>` — the stack you are building with. The guidance in this skill covers 10 stacks (React, Next.js, Vue, Svelte, SwiftUI, React Native, Flutter, Tailwind, shadcn/ui, HTML/CSS); this pack's bundled `--stack` search data currently ships `react-native` only, so for other stacks use the domain searches plus your stack's own best practices. Set `<tech-stack>` once and use it in Step 1 and Step 4 below.
+
+---
+
 ## Prerequisites
 
 Check if Python is installed:
@@ -330,6 +336,10 @@ sudo apt update && sudo apt install python3
 winget install Python.Python.3.12
 ```
 
+**search.py failure modes:**
+- `python3`/`python` not found even though Python is installed: on Windows, invoke via the launcher — `py scripts/search.py ...` (the Store's `python` stub often shadows real installs); on macOS/Linux use `python3`.
+- Search returns empty/no results: broaden the query — fewer, more generic keywords (e.g. `"fintech dashboard"` instead of `"B2B fintech compliance dashboard dark"`), or try an adjacent `--domain`.
+
 ---
 
 ## How to Use This Skill
@@ -346,7 +356,7 @@ Use this skill when the user requests any of the following:
 | **Improve / optimize** | "Make this faster", "Improve mobile experience" | Step 3 (domain search: ux, react) |
 | **Implement dark mode** | "Add dark mode support" | Step 3 (domain: style "dark mode") |
 | **Add charts / data viz** | "Add an analytics dashboard chart" | Step 3 (domain: chart) |
-| **Stack best practices** | "React performance tips"、"SwiftUI navigation" | Step 4 (stack search) |
+| **Stack best practices** | "React performance tips", "SwiftUI navigation" | Step 4 (stack search) |
 
 Follow this workflow:
 
@@ -356,7 +366,7 @@ Extract key information from user request:
 - **Product type**: Entertainment (social, video, music, gaming), Tool (scanner, editor, converter), Productivity (task manager, notes, calendar), or hybrid
 - **Target audience**: C-end consumer users; consider age group, usage context (commute, leisure, work)
 - **Style keywords**: playful, vibrant, minimal, dark mode, content-first, immersive, etc.
-- **Stack**: React Native (this project's only tech stack)
+- **Stack**: `<tech-stack>` (set in "Configure for your project" above; e.g. React Native)
 
 ### Step 2: Generate Design System (REQUIRED)
 

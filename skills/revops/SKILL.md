@@ -1,6 +1,6 @@
 ---
 name: revops
-description: "When the user wants help with revenue operations, lead lifecycle management, or marketing-to-sales handoff processes. Also use when the user mentions 'RevOps,' 'revenue operations,' 'lead scoring,' 'lead routing,' 'MQL,' 'SQL,' 'pipeline stages,' 'deal desk,' 'CRM automation,' 'marketing-to-sales handoff,' 'data hygiene,' 'leads aren't getting to sales,' 'pipeline management,' 'lead qualification,' or 'when should marketing hand off to sales.' Use this for anything involving the systems and processes that connect marketing to revenue. For cold outreach emails, see cold-email. For email drip campaigns, see email-sequence. For pricing decisions, see pricing-strategy."
+description: "When the user wants help with revenue operations, lead lifecycle management, or marketing-to-sales handoff processes. Also use when the user mentions 'RevOps,' 'revenue operations,' 'lead scoring,' 'lead routing,' 'MQL,' 'SQL,' 'pipeline stages,' 'deal desk,' 'CRM automation,' 'marketing-to-sales handoff,' 'data hygiene,' 'leads aren't getting to sales,' 'pipeline management,' 'lead qualification,' or 'when should marketing hand off to sales.' Use this for anything involving the systems and processes that connect marketing to revenue. For cold outreach emails, see cold-email. For email drip campaigns, see email-sequence. For pricing decisions, see pricing-strategy. Invoke with /revops."
 metadata:
   version: 1.1.0
 ---
@@ -140,7 +140,7 @@ Define response times and document them:
 ### Speed-to-Lead
 
 Response time is the single biggest factor in lead conversion:
-- Contact within **5 minutes** = 21x more likely to qualify (Lead Connect)
+- Contact within **5 minutes** (vs. 30 minutes) = 21x more likely to qualify (InsideSales.com/MIT Lead Response Management study, Dr. James Oldroyd; see also the HBR 2011 companion, ["The Short Life of Online Sales Leads"](https://hbr.org/2011/03/the-short-life-of-online-sales-leads))
 - After **30 minutes**, conversion drops by 10x
 - After **24 hours**, the lead is effectively cold
 
@@ -254,7 +254,7 @@ Document every exception. Track which non-standard terms get requested most — 
 
 | Tool | Strength |
 |------|----------|
-| Clearbit | Real-time enrichment, good for tech companies |
+| Clearbit (now HubSpot Breeze Intelligence) | Real-time enrichment, good for tech companies; HubSpot-only since the acquisition |
 | Apollo | Contact data + sequences, strong for prospecting |
 | ZoomInfo | Enterprise-grade, largest B2B database |
 
@@ -326,7 +326,7 @@ For implementation, see the [tools registry](../../tools/REGISTRY.md). Key RevOp
 | **Salesforce** | Enterprise CRM, pipeline management, reporting | [salesforce.md](../../tools/integrations/salesforce.md) |
 | **Calendly** | Meeting scheduling, round-robin routing | [calendly.md](../../tools/integrations/calendly.md) |
 | **SavvyCal** | Scheduling with priority-based availability | [savvycal.md](../../tools/integrations/savvycal.md) |
-| **Clearbit** | Real-time lead enrichment and scoring | [clearbit.md](../../tools/integrations/clearbit.md) |
+| **Clearbit (HubSpot Breeze Intelligence)** | Real-time lead enrichment and scoring, now part of HubSpot | [clearbit.md](../../tools/integrations/clearbit.md) |
 | **Apollo** | Contact data, enrichment, and outbound sequences | [apollo.md](../../tools/integrations/apollo.md) |
 | **ActiveCampaign** | Marketing automation for SMBs, lead scoring | [activecampaign.md](../../tools/integrations/activecampaign.md) |
 | **Zapier** | Cross-tool automation and workflow glue | [zapier.md](../../tools/integrations/zapier.md) |

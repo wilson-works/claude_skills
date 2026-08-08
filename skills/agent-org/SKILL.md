@@ -70,6 +70,46 @@ The CEO (the human) speaks directly to each of the seven branch chiefs. Within e
 
 ACL is enforced in `comms.py` itself. A junior trying to post to `c-suite` gets exit-code 2 with an explanation. A finance senior trying to read `dev-floor` is denied. A CAO head trying to post on `cpa-floor` is denied. There is no soft path around it.
 
+## Topology: which mode am I in
+
+This skill assumes **Mode A** — the org runs as **subagents of one session**. That has always been
+the design: see the install notes ("Parallel *subagents* that write to the same path race on the
+claim") and the invocation pattern below ("From the main session, invoke James"). The path guard
+reasons about "main session work" for the same reason.
+
+**Mode A — subagents of one orchestrator (the default).**
+- Spawn workers with the `Agent` tool; add `isolation: "worktree"` when two workers might touch the
+  same tree.
+- **Address a worker by its `agentId`, captured from the spawn result — not by its role name.**
+  A role or subagent-type name does not resolve; the orchestrator must persist agentIds in its state.
+- Route messages with `SendMessage`. Sibling-to-sibling works; so does child-to-`main` (queued for
+  main's next turn).
+- **Scheduling stays with the orchestrator: subagents have no `CronCreate`.** (Nested spawn depth is
+  a separate axis and does not change this.)
+
+**Mode B — separately-launched terminal sessions.** Supported, and what `/parallel-session` and
+`/workday` use. Note two limits: `SendMessage` **cannot reach another terminal session** (its
+addressing is session-scoped), so the comms bus and files on disk are the only channel; and the
+claim layer is outside its design envelope there — `comms.py` sets WAL but no `busy_timeout`, and a
+database-lock error currently reads as "no claims held", which fails open. Treat territory as the
+real boundary and claims as advisory across terminals until that fix lands.
+
+### SendMessage is transport; comms.py is governance. Not substitutes.
+
+`SendMessage` carries **no authenticated sender** (the receiver sees the subagent *type*, not the
+persona) and enforces **nothing**. It moves text. It is not a replacement for the bus:
+
+| Capability | Provided by | Native equivalent |
+|---|---|---|
+| Hard ACL across 22 channels, exit-2 deny | `comms.py` | **none** |
+| Durable audit log that outlives the session | `comms.py` / `schema.sql` | **none** (transcripts are session-scoped) |
+| Per-agent unread cursor | `comms.py` | **none** (native delivery is push, no cursor) |
+| Path claims feeding the PreToolUse guard | `comms.py` + `path_guard.py` | partial — `isolation: "worktree"` avoids the collision differently |
+| `work_order` tagging / thread reconstruction | `comms.py` | **none** |
+
+So in Mode A use `SendMessage` for **routing** and keep `comms.py` for **governance**. Dropping the
+bus in favour of native messaging deletes the ACL and the audit trail.
+
 ## The path guard (CTO branch + write-capable CAO/CMO depts)
 
 `hooks/path_guard.py` runs as a `PreToolUse` hook on Write/Edit/MultiEdit. Logic:
@@ -309,10 +349,19 @@ See [INSTALL.md](INSTALL.md). Three-step:
 
 1. Copy `agents/*.md` into `<your-repo>/.claude/agents/` (all 70 agent files, or a subset — see INSTALL.md for the leaner CTO-only and CTO+CFO+COO recipes).
 2. Copy `comms/` into `<your-repo>/.claude/comms/`.
-3. Copy `hooks/path_guard.py` into `<your-repo>/.claude/hooks/`, register in `settings.json` as a `PreToolUse` hook on Write/Edit/MultiEdit.
+3. Copy `hooks/path_guard.py` + `hooks/leak_guard.py` into `<your-repo>/.claude/hooks/`, register both in `settings.json` as `PreToolUse` hooks on Write/Edit/MultiEdit.
 4. Copy `org.config.example.json` to `<your-repo>/.claude/agents/org.config.json` and edit globs.
 
 Bonus: `/comms-stats` and inspecting `<repo>/.claude/comms.db` directly with `sqlite3` for debugging.
+
+## Model & effort routing (see docs/MODELS.md)
+
+The roster encodes **Opus decides, Sonnet ships**: James, John, Tim, and the dept heads carry `model: opus`; the juniors carry `model: sonnet` (Sonnet 5 — 1M native context). Two tuned deviations:
+
+- **John runs `effort: xhigh` + `memory: project`.** He is the single merge gate — one cranked review per WO is the cheapest quality in the org, and his project memory (`.claude/agent-memory/chief-engineer-john/`) accrues repo-specific review standards across runs.
+- **Tim runs `effort: medium`.** Routing and digesting don't need the full Opus reasoning budget.
+
+Budget nights: `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` overrides every agent's model for the session — an all-Sonnet org run with zero file edits. (Requires Claude Code v2.1.145+ for `effort:`, v2.1.196+ for `memory:`; both are ignored harmlessly on older versions.)
 
 ## Token discipline (how this stays cheap)
 
@@ -333,6 +382,18 @@ Bonus: `/comms-stats` and inspecting `<repo>/.claude/comms.db` directly with `sq
 
 The org is for *execution* of structured work where review gates and clean handoffs matter.
 
+## Troubleshooting
+
+Symptom → likely cause → fix. The comms CLI is `python .claude/comms/comms.py` throughout.
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| path_guard blocks an edit that should be allowed (exit 2, "department mismatch") | A stale active claim in `comms.db` overlaps the path, or the claiming dept's `owns` globs in `org.config.json` don't actually cover it | `comms.py claims --active --for-path <path>` to see who holds what; `comms.py release --id N <agent>` the stale claim, or fix the dept's `owns` globs in `.claude/agents/org.config.json`. `AGENT_ORG_DISABLE=1` bypasses while debugging — nothing else. |
+| `comms.db` locked or corrupted | A crashed agent left a write transaction open (WAL `-wal`/`-shm` sidecars hot), or disk-level corruption | Inspect first: `sqlite3 .claude/comms.db "PRAGMA integrity_check;"` and `"SELECT * FROM claims WHERE status='active';"`. If no run is live, delete `comms.db` (+ `-wal`/`-shm`) — comms.py re-creates it from `schema.sql` on next use. Lost: all message history, read cursors, the claims ledger, and the audit trail; agents must re-claim before editing. |
+| `comms: ACL DENY ... cannot post` (exit 2) | The agent isn't a member of that channel — membership is the hardcoded `ACL` dict in `comms/comms.py` (the three channels are fixed; `org.config.json` only maps paths) | `comms.py whoami <agent>` shows its allowed channels. Route up the chain instead: junior → head on `dev-floor`, head → Tim on `dept-heads` — only Tim spans `dept-heads` and `c-suite`. |
+| Every agent suddenly runs the same model tier (John's review reads Sonnet-shallow, or an all-Opus bill) | `CLAUDE_CODE_SUBAGENT_MODEL` is set — it overrides EVERY subagent's model for the session (the budget-night lever left on) | Unset the env var; per-agent `model:` frontmatter routing resumes on the next spawn. |
+| Org run stalls — a spawned agent never reports back | The agent died mid-chain (context blowout, tool error) and the relay hop above it has nothing to consume | Find where the chain went quiet: `comms.py stats`, then `sqlite3 .claude/comms.db "SELECT id,channel,from_agent,to_agent,subject FROM messages ORDER BY id DESC LIMIT 5;"` (sqlite reads bypass the ACL for the human). Release orphaned claims (`comms.py claims --active`), then re-brief **flattened**: the orchestrator spawns the dept head + John directly — marathon-org's default execution model — instead of re-running the relay chain. |
+
 ## Files in this skill
 
 ```
@@ -344,76 +405,80 @@ agent-org/
 │   ├── comms.py                      SQLite-backed CLI (ACL + claims, 7-branch)
 │   └── schema.sql                    db schema
 ├── hooks/
-│   └── path_guard.py                 PreToolUse path-ownership enforcement
-└── agents/                           (70 files total)
-    ├── cto-james.md                  CTO branch — c-suite (3)
-    ├── chief-engineer-john.md
-    ├── exec-assistant-tim.md
-    ├── head-backend-cindy.md         CTO branch — dept heads (5)
-    ├── head-frontend-gavin.md
-    ├── head-database-diana.md
-    ├── head-qa-rachel.md
-    ├── head-api-josh.md
-    ├── junior-backend-marcus.md      CTO branch — juniors (10)
-    ├── junior-backend-priya.md
-    ├── junior-frontend-ava.md
-    ├── junior-frontend-kai.md
-    ├── junior-database-leo.md
-    ├── junior-database-nora.md
-    ├── junior-qa-owen.md
-    ├── junior-qa-maya.md
-    ├── junior-api-felix.md
-    ├── junior-api-zara.md
-    ├── cfo-eleanor.md                CFO branch — suite (2)
-    ├── cfo-ea-sophia.md
-    ├── head-controller-hal.md        CFO branch — dept heads (4)
-    ├── head-treasurer-imani.md
-    ├── head-tax-anya.md
-    ├── head-fpa-nadia.md
-    ├── senior-accountant-lila.md     CFO branch — seniors (8)
-    ├── senior-accountant-theo.md
-    ├── senior-treasury-tomas.md
-    ├── senior-treasury-bea.md
-    ├── senior-tax-reyna.md
-    ├── senior-tax-devon.md
-    ├── senior-fpa-eli.md
-    ├── senior-fpa-quinn.md
-    ├── coo-mara.md                   COO branch — suite (2)
-    ├── coo-ea-jasper.md
-    ├── head-hr-rosalind.md           COO branch — dept head (1)
-    ├── senior-hr-lena.md             COO branch — seniors (2)
-    ├── senior-hr-chidi.md
-    ├── cao-amelia.md                 CAO branch — suite (3: Amelia + Victor + Elena)
-    ├── vp-ai-victor.md
-    ├── cao-ea-elena.md
-    ├── head-claude-clay.md           CAO branch — dept heads (4)
-    ├── head-copy-camille.md
-    ├── head-coding-cole.md
-    ├── wellness-officer-wren.md
-    ├── dor-marisol.md                EA-rep branch — suite (2)
-    ├── dor-ea-anika.md
-    ├── head-exams-otto.md            EA-rep branch — dept heads (3)
-    ├── head-collections-kira.md
-    ├── head-notices-mateo.md
-    ├── senior-exams-tess.md          EA-rep branch — seniors (3)
-    ├── senior-collections-rafa.md
-    ├── senior-notices-ines.md
-    ├── cap-everett.md                CPA-attest branch — suite (2)
-    ├── cap-ea-juno.md
-    ├── head-audit-priscilla.md       CPA-attest branch — dept heads (3)
-    ├── head-attest-mason.md
-    ├── head-quality-saira.md
-    ├── senior-audit-niall.md         CPA-attest branch — seniors (3)
-    ├── senior-attest-orla.md
-    ├── senior-quality-finn.md
-    ├── cmo-margot.md                 CMO branch — suite (2)
-    ├── cmo-ea-rina.md
-    ├── head-brand-sela.md            CMO branch — dept heads (4)
-    ├── head-demand-rocco.md
-    ├── head-content-yara.md
-    ├── head-analytics-arlo.md
-    ├── senior-brand-fern.md          CMO branch — seniors (4)
-    ├── senior-demand-tate.md
-    ├── senior-content-luca.md
-    └── senior-analytics-iggy.md
+│   ├── path_guard.py                 PreToolUse path-ownership enforcement
+│   └── leak_guard.py                 PreToolUse credential/leak blocker (self-testing: --selftest)
+├── agents/                           (70 files total)
+│   ├── cto-james.md                  CTO branch — c-suite (3)
+│   ├── chief-engineer-john.md
+│   ├── exec-assistant-tim.md
+│   ├── head-backend-cindy.md         CTO branch — dept heads (5)
+│   ├── head-frontend-gavin.md
+│   ├── head-database-diana.md
+│   ├── head-qa-rachel.md
+│   ├── head-api-josh.md
+│   ├── junior-backend-marcus.md      CTO branch — juniors (10)
+│   ├── junior-backend-priya.md
+│   ├── junior-frontend-ava.md
+│   ├── junior-frontend-kai.md
+│   ├── junior-database-leo.md
+│   ├── junior-database-nora.md
+│   ├── junior-qa-owen.md
+│   ├── junior-qa-maya.md
+│   ├── junior-api-felix.md
+│   ├── junior-api-zara.md
+│   ├── cfo-eleanor.md                CFO branch — suite (2)
+│   ├── cfo-ea-sophia.md
+│   ├── head-controller-hal.md        CFO branch — dept heads (4)
+│   ├── head-treasurer-imani.md
+│   ├── head-tax-anya.md
+│   ├── head-fpa-nadia.md
+│   ├── senior-accountant-lila.md     CFO branch — seniors (8)
+│   ├── senior-accountant-theo.md
+│   ├── senior-treasury-tomas.md
+│   ├── senior-treasury-bea.md
+│   ├── senior-tax-reyna.md
+│   ├── senior-tax-devon.md
+│   ├── senior-fpa-eli.md
+│   ├── senior-fpa-quinn.md
+│   ├── coo-mara.md                   COO branch — suite (2)
+│   ├── coo-ea-jasper.md
+│   ├── head-hr-rosalind.md           COO branch — dept head (1)
+│   ├── senior-hr-lena.md             COO branch — seniors (2)
+│   ├── senior-hr-chidi.md
+│   ├── cao-amelia.md                 CAO branch — suite (3: Amelia + Victor + Elena)
+│   ├── vp-ai-victor.md
+│   ├── cao-ea-elena.md
+│   ├── head-claude-clay.md           CAO branch — dept heads (4)
+│   ├── head-copy-camille.md
+│   ├── head-coding-cole.md
+│   ├── wellness-officer-wren.md
+│   ├── dor-marisol.md                EA-rep branch — suite (2)
+│   ├── dor-ea-anika.md
+│   ├── head-exams-otto.md            EA-rep branch — dept heads (3)
+│   ├── head-collections-kira.md
+│   ├── head-notices-mateo.md
+│   ├── senior-exams-tess.md          EA-rep branch — seniors (3)
+│   ├── senior-collections-rafa.md
+│   ├── senior-notices-ines.md
+│   ├── cap-everett.md                CPA-attest branch — suite (2)
+│   ├── cap-ea-juno.md
+│   ├── head-audit-priscilla.md       CPA-attest branch — dept heads (3)
+│   ├── head-attest-mason.md
+│   ├── head-quality-saira.md
+│   ├── senior-audit-niall.md         CPA-attest branch — seniors (3)
+│   ├── senior-attest-orla.md
+│   ├── senior-quality-finn.md
+│   ├── cmo-margot.md                 CMO branch — suite (2)
+│   ├── cmo-ea-rina.md
+│   ├── head-brand-sela.md            CMO branch — dept heads (4)
+│   ├── head-demand-rocco.md
+│   ├── head-content-yara.md
+│   ├── head-analytics-arlo.md
+│   ├── senior-brand-fern.md          CMO branch — seniors (4)
+│   ├── senior-demand-tate.md
+│   ├── senior-content-luca.md
+│   └── senior-analytics-iggy.md
+└── marathons/
+    ├── marathon-org.md               unattended org-routed marathon
+    └── work-orders-org.md            single-WO org-routed run
 ```

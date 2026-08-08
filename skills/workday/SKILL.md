@@ -59,7 +59,7 @@ into the generated prompts so the lane sessions need no further configuration):
 | `<plans>` | optional plan sources for a bigger bite | `docs/specs/**`, `docs/adr/**` |
 | `<runs-dir>` | gitignored dir for run artifacts (trivial cleanup, invisible to context scans) | `<project-root>/.tmp/workday-<date>/` |
 | `<archive>` | where superseded runs are parked | `<project-root>/.claude/archive/workday/<date>/` |
-| `<comms-db>` | agent-org comms DB (shared across worktrees) | `<project-root>/.claude/comms/comms.db` |
+| `<comms-db>` | agent-org comms DB (shared across worktrees) | `<project-root>/.claude/comms.db` |
 | `<comms.py>` | comms CLI; prefix `AGENT_ORG_DB=<comms-db>` | `python <project-root>/.claude/comms/comms.py` |
 | `<stop-clock>` | wall-clock stop; `--stop-at HH:MM` overrides; else launch + 8h | `08:30` local |
 | `<guardrails>` | your project's locked architecture + constraints (from CLAUDE.md / ADRs) the lanes must respect when deciding in your absence | — |
@@ -94,12 +94,14 @@ post. Never reach into another lane's territory.
 `--lanes 3` drops Lane D (api work folds into B); `--lanes 2` keeps A+B only. Default 4. Lane
 E always runs regardless of work-lane count — never leave the merge to bare human git.
 
-## Execution model in this environment (READ THIS)
+## Execution model (READ THIS)
 
-In this Claude Code environment a spawned sub-agent **cannot itself spawn sub-agents**. The
-literal relay chain (cto-james → Tim → head → junior → John) assumes recursive spawn and is
-mechanically impossible here. Therefore **each lane session (the top-level orchestrator) does
-all spawning directly**:
+Current Claude Code (v2.1.172+) supports nested sub-agents (depth 5), so the literal relay
+chain (cto-james → Tim → head → junior → John) is mechanically possible. `/workday` lanes
+still use **flattened orchestration by design**: an 8-hour unattended run cannot afford
+relay-hop token overhead or a mid-chain stall nobody is watching, and flattening keeps every
+spawn in the lane's own transcript for the morning audit. Therefore **each lane session (the
+top-level orchestrator) does all spawning directly**:
 
 - Spawn the **department head** agent (write-capable) to implement the WO in-territory.
 - Spawn **chief-engineer-john** (review-only) as the per-WO merge gate.
@@ -108,7 +110,15 @@ all spawning directly**:
 - Preserve everything that matters — worktree isolation, path-guard territory, comms claims,
   the verification gate, independent review — and drop only the spawn-chain theater.
 
-This is generic to the environment, not project-specific; the lane prompt template encodes it.
+This is a deliberate cost/reliability choice, not an environmental limitation on current
+versions; the lane prompt template encodes it.
+
+**Model routing per lane** (see [docs/MODELS.md](../../docs/MODELS.md)): the dept-head
+implementer runs its frontmatter model (Sonnet 5 — 1M native context, so a long lane no
+longer thins out mid-night); `chief-engineer-john` reviews on Opus at `effort: xhigh` (his
+frontmatter) — one cranked review per WO is the cheapest quality you can buy. For a budget
+night, launch lanes with `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` to force all-Sonnet spawns
+without editing any file.
 
 ## Invocation
 
@@ -201,8 +211,9 @@ the prior-art window cheap to read.
 ### Step 3 — Build 4 territory-disjoint lane queues
 
 Read `<backlog>` (all categories, or filtered to the theme/`<plans>` if a theme arg given)
-and parse every `### [ID]` block. Bucket each WO into exactly one lane by the path territory
-it must write (derive from `org.config.json`). Rules:
+and parse every `### [ID]` block. Bucket each WO into exactly one lane: honor an explicit
+`**Lane**` field on the WO when present (the `/backlog` routing field), else by the path
+territory it must write (derive from `org.config.json`). Rules:
 
 - A WO that needs both a migration and backend source → split: schema slice to Lane A,
   source slice to Lane B, with an explicit `[LANE-A]`/`[LANE-B]` cross-request noted in both
@@ -322,10 +333,12 @@ met and verified. If the clock hits with the goal unmet: finish or fully revert 
 WO (leave NO half-done commit), report `final-status: partial` with the precise gap. "Queue
 empty" alone is NOT done if the goal is unmet — say so honestly.
 
-EXECUTION MODEL (this environment forbids sub-agents spawning sub-agents): YOU do all
-spawning. Spawn the dept-head agent (write-capable) to implement; spawn chief-engineer-john
-(review-only) as the per-WO merge gate; optionally spawn cto-james/Tim for advisory direction
-(they return judgment, don't spawn). Never write a prompt that asks a sub-agent to spawn one.
+EXECUTION MODEL (flattened by design — do NOT relay-spawn even if your Claude Code version
+allows nested sub-agents): YOU do all spawning. Spawn the dept-head agent (write-capable) to
+implement; spawn chief-engineer-john (review-only) as the per-WO merge gate; optionally spawn
+cto-james/Tim for advisory direction (they return judgment, don't spawn). Never write a
+prompt that asks a sub-agent to spawn one — unattended runs pay the relay overhead and risk
+mid-chain stalls with nobody watching.
 
 ORCHESTRATOR DISCIPLINE (HARD RULES):
 - You NEVER read or grep source. Every Read/Grep/implementation goes to a sub-agent.
@@ -434,6 +447,43 @@ hits something it shouldn't decide alone); a bad night is fully recoverable — 
 pushed, the live app is untouched, the lane branches hold all the work until cleanup is
 confirmed; and one verification line ("you should see four sessions each post a short status
 within ~20 min; a red error + stop means that lane is safely parked — tell me in the morning").
+
+## Mode A — single-orchestrator native (alternative topology)
+
+Everything above is **Mode B**: five separately-launched sessions (four lanes + Lane E), each
+pasted by the owner, coordinating through worktrees and the comms bus. Mode B is the default.
+
+**Mode A** runs the same lanes as **background subagents of one orchestrator session**. `/workday`
+is a natural fit because it is already worktree-isolated — Mode A just moves who owns the sessions.
+
+| Pick Mode B when | Pick Mode A when |
+|---|---|
+| You want to watch and steer five windows | The run is fully unattended |
+| A lane must outlive the orchestrator | You want one window and one git identity |
+| Lanes need independent context budgets | You want failure surfaced immediately, not at merge |
+| You are resuming an in-flight Mode B run | You are starting fresh |
+
+How it differs in practice:
+
+- **Spawn:** each lane is an `Agent` call with `run_in_background: true` and `isolation:
+  "worktree"`, replacing `git worktree add` + a pasted prompt. Lane E still runs last, on the trunk.
+- **Address:** capture each lane's `agentId` from its spawn result into the lane state file.
+  **Role names do not resolve** — `SendMessage` needs the real agentId.
+- **Route:** `SendMessage` carries cross-lane requests (the `[LANE-A]` contract-request protocol)
+  instead of a comms post the other lane has to poll for. **Keep `comms.py` anyway** for the ACL,
+  the durable audit trail and `work_order` tagging — `SendMessage` has no authenticated sender and
+  enforces nothing, so it is transport, not governance.
+- **Liveness + completion:** the harness notifies the orchestrator when a lane finishes *or errors*,
+  so no cron and no polling. A hung lane (never finishes, never errors) is the one case still
+  needing a timer, and that timer lives with the orchestrator — **subagents have no `CronCreate`**.
+- **Recovery:** strictly better than Mode B. The orchestrator sees a lane die and can re-dispatch;
+  it does not need the owner to re-paste anything.
+
+**Rule-70 still binds.** Mode A puts the implementer's report and John's review in one context and
+lets one author write both prompts. The orchestrator **routes; it never certifies** — only John's
+returned verdict may pass a WO, John must never receive the implementer's narrative as his input,
+and the verification modality is fixed on the WO before the implementer runs. See
+`/parallel-session` §"MANDATORY rule-70 guards" for the full four.
 
 ## Hard rules
 

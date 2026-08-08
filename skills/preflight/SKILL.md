@@ -1,6 +1,6 @@
 ---
 name: preflight
-description: Validates that the development environment is ready for QA skills - checks dev server, Chrome DevTools MCP, and auth state. Run before other QA skills or invoked automatically by your QA runners.
+description: Validates that the development environment is ready for QA skills - checks dev server, Chrome DevTools MCP, and auth state. Run before other QA skills or invoked automatically by your QA runners. Invoke with /preflight [url].
 ---
 
 # Preflight Environment Check
@@ -75,5 +75,5 @@ If any check is FAIL, stop and tell the user what to fix. If checks are WARN, re
 
 - This skill should take under 10 seconds
 - Do NOT fix anything - only diagnose and report
-- Other QA skills (e.g. `/qa-sweep`, `/validate`) should run this as their first step
+- Other QA skills (e.g. `/qa-sweep`, `/smoke-check`) should run this as their first step
 - If invoked standalone, just report and exit

@@ -14,11 +14,11 @@ The org-aware sibling of `/marathon-orders`. Same state file, same cron cadence,
 
 For the same backlog, `/marathon-org` runs slower per WO but produces cleaner diffs and better cross-department coordination because everyone knows who's editing what via `comms claims`.
 
-## Execution model in this environment (READ FIRST — overrides the literal chain below)
+## Execution model (READ FIRST — overrides the literal chain below)
 
-In this Claude Code environment a spawned sub-agent **cannot itself spawn sub-agents**. The relay chain described above and in Phase 2 (cto-james → Tim → head → junior → John) assumes recursive spawn and is **mechanically impossible here** — followed literally, every WO fails with "no spawn/Write tools" and the run produces nothing.
+Current Claude Code (v2.1.172+) supports **nested sub-agents to depth 5**, so the literal relay chain (cto-james → Tim → head → junior → John) is mechanically possible. This skill still defaults to **flattened orchestration** deliberately: it is roughly half the token cost per WO (no relay retelling at each hop), every spawn is visible in one transcript, and it works identically on older versions where nested spawn is unavailable. Route literally only when you specifically want the relay hops in the comms audit trail and accept the cost.
 
-So the **top-level orchestrator (this session) performs every spawn directly**. Read each "X spawns Y" step below as "the orchestrator spawns Y on behalf of X":
+Default mode: the **top-level orchestrator (this session) performs every spawn directly**. Read each "X spawns Y" step below as "the orchestrator spawns Y on behalf of X":
 
 - Spawn the **department head** agent (write-capable) to implement the WO in-territory.
 - Spawn **chief-engineer-john** (review-only) as the merge gate.
@@ -137,6 +137,19 @@ For each WO popped from `queue`:
 ### Phase 4 (cleanup)
 When `queue` is empty AND no in-flight: post a final c-suite message from James (via a final Agent call) summarizing the run. Delete the cron. Mark `status: complete`.
 
+### What James's final wave summary looks like on c-suite
+
+Per the Phase 2 brief, James closes each WO with a c-suite post addressed to `ceo` carrying the resolution and a confidence 1-5 — this is the post the Phase 3 cron tick parses. Synthetic example:
+
+```
+python .claude/comms/comms.py post c-suite james --to ceo --wo BUG-141 \
+  --subject "BUG-141 reviewed & ready to merge" \
+  "BUG-141 resolved. Root cause: tax-mapping loader dropped rows w/ null county code.
+Fix: default-to-state fallback in packages/tax-mapping/loader.py + regression test.
+Route: tim -> cindy (backend) -> marcus. Cindy pre-review: pass. John: approved, no findings.
+pytest green | ruff clean. Branch marathon-org/BUG-141. Confidence: 4/5."
+```
+
 ## Differences vs /marathon-orders worth knowing
 
 | Aspect | marathon-orders | marathon-org |
@@ -177,9 +190,22 @@ Add this block to every agent spawned during a marathon-org wave:
 ANTI-STALL: If you have been reading/analyzing for 15+ minutes without writing code, START IMPLEMENTING NOW. If your approach fails twice, report status: partial. Do not loop. Do not write planning documents. Your only output is code changes + the result block.
 ```
 
+## Failure Modes
+
+1. **John rejects the same WO twice**: do not launch a third implement→review round — a rejection loop burns tokens without producing new information. Park the WO as `blocked` in the state file with John's last review verbatim as the reason, release its claims, and advance to the next WO. Blocked WOs surface in `--status` and the final James summary for the human to re-scope.
+2. **comms.py unreachable or DB locked**: the bus is the audit trail, not the engine. Fall back to direct orchestration — spawn head + John as normal, carry the routing trace in the state file's `orgTrace` only, and note "comms unavailable" in that wave's report. Do not retry-loop the bus mid-wave; re-test it on the next cron tick.
+3. **Stale path claim blocking a lane**: `comms.py claims --active` to find the holder. If the holder's WO is no longer in-flight per the state file (completed, failed, or parked), clear it: `python .claude/comms/comms.py release --path <path> <holder>`. Never release a claim whose WO is still in-flight — that is a real conflict; sequence the WOs instead.
+4. **A spawned head never reports back**: an implementer silent past one full cron interval — no comms post, no new commits on `marathon-org/{WO.id}` — is timed out. Mark the wave `failed-timeout`, release its claims, and requeue the WO once for a fresh spawn on the next tick. A second timeout parks it as `blocked` (see #1).
+
 ## Hard rules during a marathon-org
 
-- The cron tick NEVER spawns juniors directly. Only James does (via Tim, via the head). Skipping the chain breaks the audit trail.
+- Every WO's spawn set is the same: implementer (dept head, write-capable) + John (review gate), with James/Tim advisory when direction is ambiguous. The cron tick never skips the head or the John review to "save a spawn" — the pre-review chain IS the product. (Per the Execution model above, the orchestrator does the spawning on the org's behalf; the accountability trail lives in the comms posts, not in who literally called the Agent tool.)
 - Claims are mandatory. The path_guard hook will block any unauthorized edit anyway.
 - Review gates: confidence < 3 OR tests red = ask the human. No "best effort" merging in unattended mode.
 - `--stop` pauses cleanly: it lets in-flight juniors finish their current edit, then halts the cron. It does NOT yank a junior mid-edit.
+- **The cron is session-only.** `CronCreate` jobs live only in this Claude session; nothing is
+  written to disk and there is no `.claude/scheduled_tasks.json`. The `durable` param has **no
+  effect**, and recurring jobs auto-expire after 7 days. That lifetime is correct here — the cron
+  drives this session's own wave loop, so if the session dies there is nothing left to tick for.
+  Full-crash recovery is a fresh `/marathon-org --continue`, not a timer. What the cron is
+  genuinely for is the **timeout watchdog**: a hung agent never completes and so never notifies.

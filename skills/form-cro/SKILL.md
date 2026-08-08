@@ -1,6 +1,6 @@
 ---
 name: form-cro
-description: When the user wants to optimize any form that is NOT signup/registration — including lead capture forms, contact forms, demo request forms, application forms, survey forms, or checkout forms. Also use when the user mentions "form optimization," "lead form conversions," "form friction," "form fields," "form completion rate," "contact form," "nobody fills out our form," "form abandonment," "too many fields," "demo request form," or "lead form isn't converting." Use this for any non-signup form that captures information. For signup/registration forms, see signup-flow-cro. For popups containing forms, see popup-cro.
+description: When the user wants to optimize any form that is NOT signup/registration — including lead capture forms, contact forms, demo request forms, application forms, survey forms, or checkout forms. Also use when the user mentions "form optimization," "lead form conversions," "form friction," "form fields," "form completion rate," "contact form," "nobody fills out our form," "form abandonment," "too many fields," "demo request form," or "lead form isn't converting." Use this for any non-signup form that captures information. For signup/registration forms, see signup-flow-cro. For popups containing forms, see popup-cro. Invoke with /form-cro.
 metadata:
   version: 1.1.0
 ---
@@ -41,7 +41,7 @@ Before providing recommendations, identify:
 ## Core Principles
 
 ### 1. Every Field Has a Cost
-Each field reduces completion rate. Rule of thumb:
+Each field reduces completion rate — [Baymard's checkout research](https://baymard.com/blog/checkout-flow-average-form-fields) found the average checkout shows 11.3 form fields, roughly twice what's necessary, and that cutting fields measurably reduces abandonment. The reduction figures below are industry rules of thumb — treat as priors, not benchmarks:
 - 3 fields: Baseline
 - 4-6 fields: 10-25% reduction
 - 7+ fields: 25-50%+ reduction

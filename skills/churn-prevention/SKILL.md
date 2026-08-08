@@ -1,6 +1,6 @@
 ---
 name: churn-prevention
-description: "When the user wants to reduce churn, build cancellation flows, set up save offers, recover failed payments, or implement retention strategies. Also use when the user mentions 'churn,' 'cancel flow,' 'offboarding,' 'save offer,' 'dunning,' 'failed payment recovery,' 'win-back,' 'retention,' 'exit survey,' 'pause subscription,' 'involuntary churn,' 'people keep canceling,' 'churn rate is too high,' 'how do I keep users,' or 'customers are leaving.' Use this whenever someone is losing subscribers or wants to build systems to prevent it. For post-cancel win-back email sequences, see email-sequence. For in-app upgrade paywalls, see paywall-upgrade-cro."
+description: "When the user wants to reduce churn, build cancellation flows, set up save offers, recover failed payments, or implement retention strategies. Also use when the user mentions 'churn,' 'cancel flow,' 'offboarding,' 'save offer,' 'dunning,' 'failed payment recovery,' 'win-back,' 'retention,' 'exit survey,' 'pause subscription,' 'involuntary churn,' 'people keep canceling,' 'churn rate is too high,' 'how do I keep users,' or 'customers are leaving.' Use this whenever someone is losing subscribers or wants to build systems to prevent it. For post-cancel win-back email sequences, see email-sequence. For in-app upgrade paywalls, see paywall-upgrade-cro. Invoke with /churn-prevention."
 metadata:
   version: 1.1.0
 ---
@@ -321,6 +321,8 @@ Not all failures are the same. Retry strategy by decline type:
 | Overall payment recovery | <30% | 40-50% | 60%+ |
 | Pre-dunning prevention | None | 10-15% | 20-30% |
 
+*These figures are directional and vendor-reported — retention platforms (Churnkey, Baremetrics Recover) publish recovery stats drawn from their own customer bases, not independent industry data. Definitions matter: Baremetrics' May 2026 Recover benchmark reports a median **attempted** recovery rate of 12.7% (recovered ÷ recovery attempts), far below the naive rates above, which divide by all failed charges. Agree on the metric before comparing. Source (verified July 2026): https://baremetrics.com/blog/subscription-payment-recovery-benchmarks*
+
 For the complete dunning playbook with provider-specific setup, see [references/dunning-playbook.md](references/dunning-playbook.md).
 
 ---
@@ -367,7 +369,7 @@ Test one variable at a time:
 ## Common Mistakes
 
 - **No cancel flow at all** — Instant cancel leaves money on the table. Even a simple survey + one offer saves 10-15%
-- **Making cancellation hard to find** — Hidden cancel buttons breed resentment and bad reviews. Many jurisdictions require easy cancellation (FTC Click-to-Cancel rule)
+- **Making cancellation hard to find** — Hidden cancel buttons breed resentment and bad reviews. Regulation still demands easy cancellation even though the FTC's federal "Click-to-Cancel" rule was vacated by the Eighth Circuit in July 2025 (the FTC began new rulemaking to revive it in January 2026): ROSCA and state auto-renewal laws apply, notably California's AB 2863 (effective July 1, 2025), which requires cancellation to be as easy as sign-up and available in the same medium. Verified July 2026 — see https://www.crowell.com/en/insights/client-alerts/clicking-all-the-right-boxes-ftc-moves-to-revive-click-to-cancel-rule-following-eighth-circuit-vacatur and https://www.dwt.com/insights/2024/10/ab-2863-updates-california-automatic-renewal-law
 - **Same offer for every reason** — A blanket discount doesn't address "missing feature" or "not using it"
 - **Discounts too deep** — 50%+ discounts train customers to cancel-and-return for deals
 - **Ignoring involuntary churn** — Often 30-50% of total churn and the easiest to fix
@@ -387,7 +389,7 @@ For implementation, see the [tools registry](../../tools/REGISTRY.md).
 
 | Tool | Best For | Key Feature |
 |------|----------|-------------|
-| **Churnkey** | Full cancel flow + dunning | AI-powered adaptive offers, 34% avg save rate |
+| **Churnkey** | Full cancel flow + dunning | AI-powered adaptive offers, vendor-reported ~34% avg save rate |
 | **ProsperStack** | Cancel flows with analytics | Advanced rules engine, Stripe/Chargebee integration |
 | **Raaft** | Simple cancel flow builder | Easy setup, good for early-stage |
 | **Chargebee Retention** | Chargebee customers | Native integration, was Brightback |

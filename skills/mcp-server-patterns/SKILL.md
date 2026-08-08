@@ -1,14 +1,12 @@
 ---
 name: mcp-server-patterns
-description: Build MCP servers with Node/TypeScript SDK — tools, resources, prompts, Zod validation, stdio vs Streamable HTTP. Use Context7 or official MCP docs for latest API.
+description: Build MCP servers with Node/TypeScript SDK — tools, resources, prompts, Zod validation, stdio vs Streamable HTTP. Use Context7 or official MCP docs for latest API. Invoke with /mcp-server-patterns.
 origin: ECC
 ---
 
 # MCP Server Patterns
 
 The Model Context Protocol (MCP) lets AI assistants call tools, read resources, and use prompts from your server. Use this skill when building or maintaining MCP servers. The SDK API evolves; check Context7 (query-docs for "MCP") or the official MCP documentation for current method names and signatures.
-
-For the broader routing decision of when a capability should be a rule, a skill, MCP, or a plain CLI/API workflow, see [docs/capability-surface-selection.md](../../docs/capability-surface-selection.md).
 
 ## When to Use
 
@@ -53,6 +51,71 @@ const server = new McpServer({ name: "my-server", version: "1.0.0" });
 Register tools and resources using the API your SDK version provides: some versions use `server.tool(name, description, schema, handler)` (positional args), others use `server.tool({ name, description, inputSchema }, handler)` or `registerTool()`. Same for resources — include a `uri` in the handler when the API provides it. Check the official MCP docs or Context7 for the current `@modelcontextprotocol/sdk` signatures to avoid copy-paste errors.
 
 Use **Zod** (or the SDK’s preferred schema format) for input validation.
+
+## Pinned working example
+
+Verified against `@modelcontextprotocol/sdk` v1.29 (npm `latest`), July 2026. The version-agnostic guidance above still applies; this is one known-good combination to copy from. Heads-up: SDK **v2 is in beta** under new package names (`@modelcontextprotocol/server`) with `inputSchema: z.object(...)` — don't mix the two styles.
+
+`package.json`:
+
+```json
+{
+  "name": "my-mcp-server",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": { "my-mcp-server": "server.js" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.23.8"
+  }
+}
+```
+
+`server.js` — one tool, one resource, stdio entrypoint:
+
+```javascript
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
+
+const server = new McpServer({ name: "my-server", version: "1.0.0" });
+
+// Tool: registerTool(name, metadata, handler).
+// In v1, inputSchema is a raw Zod shape — NOT z.object({...}).
+server.registerTool(
+  "add",
+  {
+    title: "Add two numbers",
+    description: "Returns a + b",
+    inputSchema: { a: z.number(), b: z.number() },
+  },
+  async ({ a, b }) => ({
+    content: [{ type: "text", text: String(a + b) }],
+  })
+);
+
+// Resource: registerResource(name, uri, metadata, readCallback).
+// The callback receives the parsed URL.
+server.registerResource(
+  "config",
+  "config://app",
+  {
+    title: "Application Config",
+    description: "Application configuration data",
+    mimeType: "text/plain",
+  },
+  async (uri) => ({
+    contents: [{ uri: uri.href, text: "App configuration here" }],
+  })
+);
+
+// stdio entrypoint. Never console.log in a stdio server — stdout is the
+// protocol channel; use console.error for diagnostics.
+const transport = new StdioServerTransport();
+await server.connect(transport);
+```
+
+Run with `node server.js`, or register with a client, e.g. `claude mcp add my-server -- node /abs/path/server.js`.
 
 ## Best Practices
 

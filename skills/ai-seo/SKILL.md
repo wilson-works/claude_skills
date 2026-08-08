@@ -1,6 +1,6 @@
 ---
 name: ai-seo
-description: "When the user wants to optimize content for AI search engines, get cited by LLMs, or appear in AI-generated answers. Also use when the user mentions 'AI SEO,' 'AEO,' 'GEO,' 'LLMO,' 'answer engine optimization,' 'generative engine optimization,' 'LLM optimization,' 'AI Overviews,' 'optimize for ChatGPT,' 'optimize for Perplexity,' 'AI citations,' 'AI visibility,' 'zero-click search,' 'how do I show up in AI answers,' 'LLM mentions,' or 'optimize for Claude/Gemini.' Use this whenever someone wants their content to be cited or surfaced by AI assistants and AI search engines. For traditional technical and on-page SEO audits, see seo-audit. For structured data implementation, see schema-markup."
+description: "When the user wants to optimize content for AI search engines, get cited by LLMs, or appear in AI-generated answers. Also use when the user mentions 'AI SEO,' 'AEO,' 'GEO,' 'LLMO,' 'answer engine optimization,' 'generative engine optimization,' 'LLM optimization,' 'AI Overviews,' 'optimize for ChatGPT,' 'optimize for Perplexity,' 'AI citations,' 'AI visibility,' 'zero-click search,' 'how do I show up in AI answers,' 'LLM mentions,' or 'optimize for Claude/Gemini.' Use this whenever someone wants their content to be cited or surfaced by AI assistants and AI search engines. For traditional technical and on-page SEO audits, see seo-audit. For structured data implementation, see schema-markup. Invoke with /ai-seo."
 metadata:
   version: 1.2.0
 ---
@@ -60,11 +60,10 @@ Traditional SEO gets you ranked. AI SEO gets you **cited**.
 In traditional search, you need to rank on page 1. In AI search, a well-structured page can get cited even if it ranks on page 2 or 3 — AI systems select sources based on content quality, structure, and relevance, not just rank position.
 
 **Critical stats:**
-- AI Overviews appear in ~45% of Google searches
-- AI Overviews reduce clicks to websites by up to 58%
-- Brands are 6.5x more likely to be cited via third-party sources than their own domains
-- Optimized content gets cited 3x more often than non-optimized
-- Statistics and citations boost visibility by 40%+ across queries
+- AI Overviews appear on a large and growing share of Google searches — 2025–2026 studies report anywhere from ~20% to 60%+, varying widely by query category and methodology
+- When an AI Overview appears, click-through to websites drops measurably
+- Brands are frequently cited via third-party sources (review sites, Wikipedia, comparison articles) rather than their own domains
+- GEO methods can boost source visibility by up to 40% in generative engine responses; adding quotations, statistics, and source citations performed best ([Princeton GEO paper, arXiv:2311.09735](https://arxiv.org/abs/2311.09735))
 
 ---
 
@@ -116,15 +115,15 @@ For each priority page, verify:
 
 ### Step 4: AI Bot Access Check
 
-Verify your robots.txt allows AI crawlers. Each AI platform has its own bot, and blocking it means that platform can't cite you:
+Verify your robots.txt allows AI crawlers. Most platforms now run separate bots for training, search indexing, and user-initiated fetches — blocking the search bot is what kills citations:
 
-- **GPTBot** and **ChatGPT-User** — OpenAI (ChatGPT)
-- **PerplexityBot** — Perplexity
-- **ClaudeBot** and **anthropic-ai** — Anthropic (Claude)
-- **Google-Extended** — Google Gemini and AI Overviews
-- **Bingbot** — Microsoft Copilot (via Bing)
+- **OpenAI** ([bot docs](https://developers.openai.com/api/docs/bots)): **OAI-SearchBot** controls ChatGPT search visibility/citation; **GPTBot** controls model training; **ChatGPT-User** handles user-initiated page visits
+- **Perplexity** ([bot docs](https://docs.perplexity.ai/guides/bots)): **PerplexityBot** indexes for Perplexity search results; **Perplexity-User** handles user-initiated visits
+- **Anthropic** ([crawler docs](https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web-and-how-can-site-owners-block-the-crawler)): **Claude-SearchBot** indexes for search citation; **ClaudeBot** collects training data; **Claude-User** handles user-initiated visits
+- **Google** ([crawler docs](https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers)): **Google-Extended** controls Gemini model training and grounding only — blocking it does *not* affect Google Search or AI Overviews, which ride on normal Googlebot indexing
+- **Microsoft**: **Bingbot** — Copilot cites via the Bing index
 
-Check your robots.txt for `Disallow` rules targeting any of these. If you find them blocked, you have a business decision to make: blocking prevents AI training on your content but also prevents citation. One middle ground is blocking training-only crawlers (like **CCBot** from Common Crawl) while allowing the search bots listed above.
+Check your robots.txt for `Disallow` rules targeting any of these. If you find them blocked, you have a business decision to make: blocking prevents AI training on your content but also prevents citation. One middle ground is blocking training-only crawlers (**GPTBot**, **ClaudeBot**, **Google-Extended**, **CCBot** from Common Crawl) while allowing the search bots (**OAI-SearchBot**, **PerplexityBot**, **Claude-SearchBot**).
 
 See [references/platform-ranking-factors.md](references/platform-ranking-factors.md) for the full robots.txt configuration.
 
@@ -166,29 +165,31 @@ For detailed templates for each block type, see [references/content-patterns.md]
 
 AI systems prefer sources they can trust. Build citation-worthiness.
 
-**The Princeton GEO research** (KDD 2024, studied across Perplexity.ai) ranked 9 optimization methods:
+**The Princeton GEO research** ([GEO: Generative Engine Optimization](https://arxiv.org/abs/2311.09735), Aggarwal et al., KDD 2024) benchmarked nine optimization methods. Findings from the paper:
 
-| Method | Visibility Boost | How to Apply |
-|--------|:---------------:|--------------|
-| **Cite sources** | +40% | Add authoritative references with links |
-| **Add statistics** | +37% | Include specific numbers with sources |
-| **Add quotations** | +30% | Expert quotes with name and title |
-| **Authoritative tone** | +25% | Write with demonstrated expertise |
-| **Improve clarity** | +20% | Simplify complex concepts |
-| **Technical terms** | +18% | Use domain-specific terminology |
-| **Unique vocabulary** | +15% | Increase word diversity |
-| **Fluency optimization** | +15-30% | Improve readability and flow |
-| ~~Keyword stuffing~~ | **-10%** | **Actively hurts AI visibility** |
+| Method | Result | How to Apply |
+|--------|--------|--------------|
+| **Add quotations** | Top performer | Expert quotes with name and title |
+| **Add statistics** | Top performer | Include specific numbers with sources |
+| **Cite sources** | Top performer | Add authoritative references with links |
+| **Fluency optimization** | Solid gains | Improve readability and flow |
+| **Improve clarity** | Solid gains | Simplify complex concepts |
+| **Authoritative tone** | Moderate gains | Write with demonstrated expertise |
+| **Technical terms** | Moderate gains | Use domain-specific terminology |
+| **Unique vocabulary** | Moderate gains | Increase word diversity |
+| ~~Keyword stuffing~~ | **Little to no improvement** | **Traditional SEO tactics don't transfer** |
 
-**Best combination:** Fluency + Statistics = maximum boost. Low-ranking sites benefit even more — up to 115% visibility increase with citations.
+The paper reports visibility boosts of up to 40% in generative engine responses, with the top methods (quotations, statistics, cited sources) improving visibility roughly 25–40% over baseline depending on the metric. Effectiveness varies by domain — test against your own queries.
 
-**Statistics and data** (+37-40% citation boost)
+**Lower-ranked sites benefit most:** in the paper's experiments, Cite Sources boosted visibility of fifth-ranked websites by 115.1%, while top-ranked sites lost share.
+
+**Statistics and data** (a top GEO method)
 - Include specific numbers with sources
 - Cite original research, not summaries of research
 - Add dates to all statistics
 - Original data beats aggregated data
 
-**Expert attribution** (+25-30% citation boost)
+**Expert attribution** (a top GEO method)
 - Named authors with credentials
 - Expert quotes with titles and organizations
 - "According to [Source]" framing for claims
@@ -290,17 +291,17 @@ Content with proper schema shows 30-40% higher AI visibility. For implementation
 
 ## Content Types That Get Cited Most
 
-Not all content is equally citable. Prioritize these formats:
+Not all content is equally citable. Exact citation-share breakdowns vary by study and platform, but these formats consistently earn citations:
 
-| Content Type | Citation Share | Why AI Cites It |
-|-------------|:------------:|----------------|
-| **Comparison articles** | ~33% | Structured, balanced, high-intent |
-| **Definitive guides** | ~15% | Comprehensive, authoritative |
-| **Original research/data** | ~12% | Unique, citable statistics |
-| **Best-of/listicles** | ~10% | Clear structure, entity-rich |
-| **Product pages** | ~10% | Specific details AI can extract |
-| **How-to guides** | ~8% | Step-by-step structure |
-| **Opinion/analysis** | ~10% | Expert perspective, quotable |
+| Content Type | Why AI Cites It |
+|-------------|----------------|
+| **Comparison articles** | Structured, balanced, high-intent |
+| **Definitive guides** | Comprehensive, authoritative |
+| **Original research/data** | Unique, citable statistics |
+| **Best-of/listicles** | Clear structure, entity-rich |
+| **Product pages** | Specific details AI can extract |
+| **How-to guides** | Step-by-step structure |
+| **Opinion/analysis** | Expert perspective, quotable |
 
 **Underperformers for AI citation:**
 - Generic blog posts without structure
@@ -394,16 +395,16 @@ Monthly manual check:
 
 ## Common Mistakes
 
-- **Ignoring AI search entirely** — ~45% of Google searches now show AI Overviews, and ChatGPT/Perplexity are growing fast
+- **Ignoring AI search entirely** — AI Overviews now appear on a large share of Google searches, and ChatGPT/Perplexity are growing fast
 - **Treating AI SEO as separate from SEO** — Good traditional SEO is the foundation; AI SEO adds structure and authority on top
 - **Writing for AI, not humans** — If content reads like it was written to game an algorithm, it won't get cited or convert
 - **No freshness signals** — Undated content loses to dated content because AI systems weight recency heavily. Show when content was last updated
 - **Gating all content** — AI can't access gated content. Keep your most authoritative content open
 - **Ignoring third-party presence** — You may get more AI citations from a Wikipedia mention than from your own blog
 - **No structured data** — Schema markup gives AI systems structured context about your content
-- **Keyword stuffing** — Unlike traditional SEO where it's just ineffective, keyword stuffing actively reduces AI visibility by 10% (Princeton GEO study)
+- **Keyword stuffing** — The Princeton GEO study found keyword stuffing delivered little to no visibility improvement, unlike every other method tested ([arXiv:2311.09735](https://arxiv.org/abs/2311.09735))
 - **Hiding pricing behind "contact sales" or JS-rendered pages** — AI agents evaluating your product on behalf of buyers can't parse what they can't read. Add a `/pricing.md` file
-- **Blocking AI bots** — If GPTBot, PerplexityBot, or ClaudeBot are blocked in robots.txt, those platforms can't cite you
+- **Blocking AI bots** — If OAI-SearchBot, PerplexityBot, or Claude-SearchBot are blocked in robots.txt, those platforms can't cite you
 - **Generic content without data** — "We're the best" won't get cited. "Our customers see 3x improvement in [metric]" will
 - **Forgetting to monitor** — You can't improve what you don't measure. Check AI visibility monthly at minimum
 

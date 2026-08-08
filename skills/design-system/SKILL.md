@@ -1,6 +1,6 @@
 ---
 name: ckm:design-system
-description: Token architecture, component specifications, and slide generation. Three-layer tokens (primitive→semantic→component), CSS variables, spacing/typography scales, component specs, strategic slide creation. Use for design tokens, systematic design, brand-compliant presentations.
+description: Token architecture, component specifications, and slide generation. Three-layer tokens (primitive→semantic→component), CSS variables, spacing/typography scales, component specs, strategic slide creation. Use for design tokens, systematic design, brand-compliant presentations. Invoke with /design-system [component or token].
 argument-hint: "[component or token]"
 license: MIT
 metadata:
@@ -11,6 +11,8 @@ metadata:
 # Design System
 
 Token architecture, component specifications, systematic design, slide generation.
+
+> **Note:** The upstream helper scripts (`scripts/generate-tokens.cjs`, `scripts/validate-tokens.cjs`, `scripts/search-slides.py`, `scripts/slide-token-validator.py`, `scripts/fetch-background.py`) are not bundled in this pack — the workflows below describe the manual/agent-driven equivalent. Install the scripts from the upstream source if you want the automated path.
 
 ## When to Use
 
@@ -50,12 +52,12 @@ Component (component-specific)
 
 ## Quick Start
 
-**Generate tokens:**
+**Generate tokens** (if installed; otherwise write the CSS from the token JSON by hand):
 ```bash
 node scripts/generate-tokens.cjs --config tokens.json -o tokens.css
 ```
 
-**Validate usage:**
+**Validate usage** (if installed; otherwise grep `src/` for hardcoded hex values):
 ```bash
 node scripts/validate-tokens.cjs --dir src/
 ```
@@ -119,6 +121,8 @@ Brand-compliant presentations using design tokens + Chart.js + contextual decisi
 | `assets/css/slide-animations.css` | CSS animation library |
 
 ### Slide Search (BM25)
+
+If `scripts/search-slides.py` is installed:
 
 ```bash
 # Basic search (auto-detect domain)
@@ -231,7 +235,7 @@ assets/designs/slides/claudekit-pitch-251223.html
 ### Command
 
 ```bash
-/slides:create "10-slide investor pitch for ClaudeKit Marketing"
+/slides create "10-slide investor pitch for ClaudeKit Marketing"
 ```
 
 ## Best Practices

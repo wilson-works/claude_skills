@@ -5,6 +5,15 @@ description: "Walks through a user flow in the browser via Chrome DevTools MCP �
 
 # Test Flow via Chrome DevTools MCP
 
+## Configure for your project
+
+Before using this skill, swap these placeholders for your project values:
+
+- `<verticals-config-path>` — where your project's vertical/section terminology definitions live (e.g. `packages/core/src/verticals.ts`)
+- `<vertical-ids>` — your project's own list of vertical ids (e.g. `tax-prep`, `bookkeeping`, `legal`, `construction`, `healthcare`, `generic`)
+
+If your project has no vertical/terminology system, ignore the `--vertical` flag entirely.
+
 ## Purpose
 
 Performs an interactive end-to-end walkthrough of a user flow in the browser. Fills forms, clicks buttons, navigates between pages, and screenshots each step — simulating what a real user would do.
@@ -27,7 +36,7 @@ Performs an interactive end-to-end walkthrough of a user flow in the browser. Fi
 ```
 
 **Flags:**
-- `--vertical [id]` -- Verify all UI copy uses correct vertical terminology (tax-prep, bookkeeping, legal, construction, healthcare, generic). Read `packages/core/src/verticals.ts` to load the terminology map. Flag any generic terms ("Work Items") that should be vertical-specific ("Tax Returns").
+- `--vertical [id]` -- Verify all UI copy uses correct vertical terminology. Valid ids are your project's `<vertical-ids>` (e.g. tax-prep, bookkeeping, legal, construction, healthcare, generic). Read `<verticals-config-path>` to load the terminology map. Flag any generic terms ("Work Items") that should be vertical-specific ("Tax Returns").
 - `--friction` -- Enable friction overlay analysis at every step. In addition to the normal flow checks, evaluate each step for: missing loading feedback, unclear next actions, dead ends, poor error recovery, empty states without guidance, slow transitions (>3s), ambiguous copy, and mobile overflow issues.
 
 ## Workflow
@@ -61,6 +70,11 @@ For each step in the flow:
 - After each action, check `list_console_messages` for new errors
 - Check `list_network_requests` for failed API calls (4xx/5xx)
 
+**Timing and selector gotchas:**
+- Prefer `wait_for` on a visible element (button text, heading) over fixed sleeps — fixed waits are both flaky and slow
+- Re-snapshot after any navigation or DOM-changing action; element UIDs from an earlier snapshot go stale and clicks will miss
+- Screenshot after each step, not just at the end — when a later step fails, the per-step screenshots show exactly where the flow diverged
+
 ### 3. Report Results
 
 After completing the flow, provide a summary:
@@ -92,7 +106,7 @@ Use realistic but clearly fake data:
 
 When `--vertical [id]` is provided:
 
-1. Read `packages/core/src/verticals.ts` and load the terminology for the specified vertical
+1. Read `<verticals-config-path>` (e.g. `packages/core/src/verticals.ts`) and load the terminology for the specified vertical
 2. At every step, check all visible UI text for generic terms that should be vertical-specific:
    - "Work Item" should be the vertical's `terminology.workItem` (e.g., "Tax Return")
    - "Items" should be `terminology.workItemPlural` (e.g., "Tax Returns")

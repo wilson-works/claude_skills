@@ -274,7 +274,17 @@ $usedPct = [math]::Round((($totalKB - $freeKB) / $totalKB) * 100, 1)
 Write-Output "USED_PCT:$usedPct"
 ```
 
-(On non-Windows hosts, swap in an OS-appropriate equivalent.)
+On macOS:
+```bash
+memory_pressure | awk -F': *' '/free percentage/ {gsub(/%/,"",$2); printf "USED_PCT:%.1f\n", 100-$2}'
+```
+
+On Linux:
+```bash
+free | awk '/^Mem:/ {printf "USED_PCT:%.1f\n", ($2-$7)/$2*100}'
+```
+
+(All three emit the same `USED_PCT:<n>` line the orchestrator parses.)
 
 If `usedPct >= 75`:
 1. Find stale processes (>1GB working set, started >30 min ago).
@@ -287,7 +297,7 @@ Log RAM at start in the wave entry.
 
 **Step 3 — Sonnet scope-check (front-runner) — HARD RULE #2 gate**
 
-Spawn `Agent(subagent_type: general-purpose, model: sonnet)` with the prompt from "Sonnet Scope-Check Prompt Template" below. Parse for `SCOPE_BRIEF_START ... SCOPE_BRIEF_END` or `SCOPE_UNCLEAR_START ... SCOPE_UNCLEAR_END`.
+Spawn `Agent(subagent_type: general-purpose, model: sonnet, effort: low)` with the prompt from "Sonnet Scope-Check Prompt Template" below — this is a cheap gate, not analysis; low effort keeps the front-runner fast. Parse for `SCOPE_BRIEF_START ... SCOPE_BRIEF_END` or `SCOPE_UNCLEAR_START ... SCOPE_UNCLEAR_END`.
 
 **Step 4 — Handle scope failure (HARD RULE #2)**
 
@@ -451,7 +461,7 @@ Go to Phase 2.
 
 1. `CronDelete(state.cronJobId)`.
 2. Update state to `status: "complete"`.
-3. Cleanup: delete lock file, delete `<temp-dir>/` orchestration scripts (keep R&D outputs intact). **Preserve `validate-section.js`** — it is reused across runs and referenced by the validator-override memory.
+3. Cleanup: delete lock file, delete `<temp-dir>/` orchestration scripts (keep R&D outputs intact). **Preserve the `validate-N.js` citation validators** (their `validate-N-result.json` outputs can go) — the validators are reusable across runs and referenced by the validator-override memory.
 4. Read final INDEX.md, inline it in the report.
 5. **Distill completed marathons into summaries** (HARD WIRE per skill composition):
    - Invoke `Skill(skill: "distill")` with no args. Auto-detect mode picks up every just-completed marathon slug that has a `_(summary stub)_` placeholder in `<project-root>/research/_index.md`.

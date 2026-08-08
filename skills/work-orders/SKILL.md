@@ -49,7 +49,7 @@ Files: `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, `completed.md`
 ### Step 1: Read the Backlog
 
 Read all backlog list files (or the filtered category). Parse each item to extract:
-- ID, title, priority, details, context
+- ID, title, priority, details, context, acceptance
 - Date added (for age sorting)
 
 If the backlog is empty, report "No open work orders" and stop.
@@ -95,6 +95,7 @@ For each item in the approved run plan, spawn a short-lived Sonnet context agent
 ```
 Agent(
   model: "sonnet",
+  effort: "low",
   run_in_background: false,
   description: "CONTEXT: [ID] [title]",
   prompt: """
@@ -218,6 +219,7 @@ You are a Sonnet agent processing a work order.
 - **Priority**: [priority]
 - **Details**: [details]
 - **Context**: [context]
+- **Acceptance**: [acceptance — the verifiable done condition]
 
 ## Context Brief (from Sonnet pre-analysis — start here, do not ignore)
 [If context brief was returned, paste the full CONTEXT_BRIEF block here. If not available, write "No brief available — explore from CLAUDE.md."]
@@ -258,7 +260,8 @@ Every time `/work-orders` is invoked, automatically prune completed items older 
 
 ## Important Notes
 
-- Always use `model: "sonnet"` for cost efficiency -- these are execution tasks, not design decisions
+- Always use `model: "sonnet"` for cost efficiency -- these are execution tasks, not design decisions. Context-brief agents additionally run `effort: "low"` (read-and-summarize work; the default reasoning budget is wasted there).
+- **Escalation rule**: if an item fails on Sonnet (agent reports blocked, tests stay red, or the diff misses the acceptance criteria), do not re-spawn the same prompt on Sonnet — re-queue it once with `model: "opus"` and the failure summary prepended, or hand it to `/marathon-orders`. One Sonnet failure is signal, two is waste. (See docs/MODELS.md.)
 - Always use `isolation: "worktree"` so each agent works on an isolated copy
 - The user must approve the run plan before any agents are spawned
 - Failed items stay in the backlog -- they are never silently dropped
