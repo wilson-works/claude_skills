@@ -357,7 +357,7 @@ A bug is worth filing if:
 6. **Auth regression** — hitting a page forced an unexpected re-login.
 7. **404 on expected route** — a route that worked yesterday now 404s.
 
-For each detected bug, record category, severity, evidence (screenshot paths, message text, network details), route, and the recent commit that most likely caused it.
+For each detected bug, record category, severity, evidence (screenshot paths, message text, network details), route, the acceptance condition (the observable check that proves the bug is gone, e.g. "route /x loads with zero console errors at 375px"), and the recent commit that most likely caused it.
 
 **Severity heuristic:**
 - critical: console flood, auth regression, blank page, build crash visible in console
@@ -533,9 +533,21 @@ Each flow is a scripted multi-step journey. Examples below — replace with the 
 
 ```
 cron: "23,53 * * * *"
-durable: true
+durable: true               NO EFFECT — jobs are session-only (see note below)
 recurring: true
 ```
+
+**Session-only — read this before relying on the cron.** `CronCreate` jobs live only in this
+Claude session. Nothing is written to disk, and the job is gone when Claude exits. The
+`durable` param has **no effect**; there is no `.claude/scheduled_tasks.json` on disk.
+Recurring jobs also auto-expire after 7 days, and fire only while the REPL is idle — never
+mid-query.
+
+That lifetime is **correct for this skill**: the cron watches the session it lives in, so if
+that session dies there is nothing left for it to tick for. Full-crash recovery is a fresh
+`--continue` invocation, not a timer. What the cron is actually for is the **timeout
+watchdog** — a hung agent never completes and so never notifies, and that is the one thing
+only a timer can catch.
 
 30-minute interval gives breathing room for the browser to stabilize between hunts.
 

@@ -14,6 +14,18 @@ The org-aware sibling of `/marathon-orders`. Same state file, same cron cadence,
 
 For the same backlog, `/marathon-org` runs slower per WO but produces cleaner diffs and better cross-department coordination because everyone knows who's editing what via `comms claims`.
 
+## Execution model in this environment (READ FIRST — overrides the literal chain below)
+
+In this Claude Code environment a spawned sub-agent **cannot itself spawn sub-agents**. The relay chain described above and in Phase 2 (cto-james → Tim → head → junior → John) assumes recursive spawn and is **mechanically impossible here** — followed literally, every WO fails with "no spawn/Write tools" and the run produces nothing.
+
+So the **top-level orchestrator (this session) performs every spawn directly**. Read each "X spawns Y" step below as "the orchestrator spawns Y on behalf of X":
+
+- Spawn the **department head** agent (write-capable) to implement the WO in-territory.
+- Spawn **chief-engineer-john** (review-only) as the merge gate.
+- Optionally spawn **cto-james** / **Tim** first for advisory direction — they return judgment, they do not spawn. The junior tier collapses into the head.
+
+Preserve everything that matters — comms claims, path-guard territory, the verification gate, independent review — and drop only the spawn-chain theater. The org-routed marathon's value is the named accountability + review gates, which survive this flattening intact.
+
 ## Configure for your project
 
 Same placeholders as `/marathon-orders`. This skill reuses that infrastructure:
@@ -23,7 +35,7 @@ Same placeholders as `/marathon-orders`. This skill reuses that infrastructure:
 - `<project-root>` — repo root
 
 Plus the agent-org install must be complete (see `agent-org/INSTALL.md`):
-- `.claude/agents/cto-james.md` and the rest of the 18 agents present
+- the CTO-branch agents present (`cto-james`, `exec-assistant-tim`, the dept heads, `chief-engineer-john`, and the juniors) — this is the chain `/marathon-org` drives, regardless of how many advisory branches your org also installs
 - `.claude/comms/comms.py` present
 - `.claude/agents/org.config.json` configured for your repo
 - Path-guard hook registered
@@ -100,7 +112,7 @@ For each WO popped from `queue`:
 
 2. **Trace into state**: record the cron tick that James was launched on, the WO id, and the marathon branch (`marathon-org/{WO.id}`).
 
-3. **Tim spawns the dept head** via `subagent_type=head-{department}-{name}` (e.g., `head-backend-cindy`). Tim's prompt is:
+3. **The orchestrator spawns the dept head** (on Tim's behalf — per the Execution model above; Tim cannot spawn) via `subagent_type=head-{department}-{name}` (e.g., `head-backend-cindy`). The prompt is:
 
    ```
    {WO summary}
@@ -109,7 +121,7 @@ For each WO popped from `queue`:
    Take this through your team. Pre-review before passing back to me.
    ```
 
-4. **Dept head spawns the junior** via `subagent_type=junior-{department}-{name}`. Junior claims, implements, reports back on `dev-floor`.
+4. **The orchestrator spawns the junior** (on the head's behalf; or collapse the junior into the head and have the head implement directly) via `subagent_type=junior-{department}-{name}`. The implementer claims, implements, reports back on `dev-floor`.
 
 5. **Pre-review chain**: junior -> dept head -> Tim -> John. John's review IS the merge gate.
 
@@ -155,6 +167,14 @@ python .claude/comms/comms.py claims --active
 python .claude/comms/comms.py read c-suite james --limit 100 | grep BUG-141
 python .claude/comms/comms.py read dept-heads tim --limit 100 | grep BUG-141
 python .claude/comms/comms.py read dev-floor cindy --limit 100 | grep BUG-141
+```
+
+## Anti-stall guard (inject into every agent prompt)
+
+Add this block to every agent spawned during a marathon-org wave:
+
+```
+ANTI-STALL: If you have been reading/analyzing for 15+ minutes without writing code, START IMPLEMENTING NOW. If your approach fails twice, report status: partial. Do not loop. Do not write planning documents. Your only output is code changes + the result block.
 ```
 
 ## Hard rules during a marathon-org
