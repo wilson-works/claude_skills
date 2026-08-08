@@ -1,156 +1,152 @@
-# Claude Skills
+# Internal Claude Skills
 
-A collection of reusable [Claude Code](https://claude.com/claude-code) skills for browser QA, multi-agent coordination, long-running autonomous sessions, backlog management, marketing and growth, design intelligence, fundraising, business strategy, dev workflow, and architecture work. Project-agnostic -- drop them into any repo, swap a few placeholders, and go.
+**Private fork of [wilson-works/claude_skills](https://github.com/wilson-works/claude_skills).** Do not redistribute.
 
-## Skills (96)
+This is the internal WilsonWorks skill pack for [Claude Code](https://claude.com/claude-code). It's a strict superset of the public pack with two additions that we keep in-house:
+
+1. A **multi-branch organizational hierarchy** (the public pack ships the 18-agent CTO-only version). The internal pack adds five advisory branches alongside the engineering branch:
+   - **CFO branch** (14 agents) — Controller, Treasury, Tax, FP&A heads, each with two seniors, plus the CFO (Elle) and CFO-EA (Soph). Domain-fluent in accounting policy, monthly close, runway, §7216 / 6107(b) / Pub 4557 WISP compliance, ASC 606 / 740, budgets + variance + forecasts.
+   - **COO branch** (5 agents) — HR Director (Roz) + two HR seniors, plus the COO (Mara) and COO-EA (Jas). Domain-fluent in CPE compliance, §7216 training records, WISP §III attestation, onboarding gating.
+   - **EA-rep branch** (8 agents) — Director of Representation (Marisol) + EA (Anika) + Examinations head (Otto), Collections head (Kira), Notices/E-services head (Mateo), each with one senior. Domain-fluent in Circular 230 practice, IRS examinations + appeals, CDP / OIC / installment agreements / CNC, CP2000-through-NOD response, multi-state representation, Tax Court (USTCP) limits, IRC 6107(b) preparer-retention + §7216 boundary.
+   - **CPA-attest branch** (8 agents) — Engagement Partner (Everett) + EA (Juno) + Audit head (Priscilla), Attest head (Mason), Quality head (Saira), each with one senior. Domain-fluent in AICPA AU-C clarified standards, PCAOB AS (when applicable), SSAE/SSARS, SOC 1/2/3, FASB ASC pronouncements (606/740/805/842/326), GASB + Yellow Book, peer review, SQMS 1/2, independence + AICPA Code, audit committee comms (KAMs/CAMs).
+   - **CAO branch** (7 agents) — Chief Awareness Officer (Amelia) + VP-AI (Victor) + EA (Elena) + Claude-Ops head (Clay), Copy head (Camille), Coding-CAO head (Cole), Wellness Officer (Wren). Oversees the AI org itself — model selection, prompt structure, eval discipline, brand-voice for AI-generated copy, adversarial review of AI-generated diffs, wellness signals across the comms bus.
+   - **CMO branch** (10 agents) — Chief Marketing Officer (Margot) + EA (Rina) + Brand head (Sela), Demand head (Rocco), Content head (Yara), Analytics head (Arlo), each with one senior. Domain-fluent in positioning + STP, brand architecture + equity, demand generation, content + earned, paid acquisition, SEO/GEO + AI Overviews, MarOps/RevOps seam, attribution + incrementality.
+   - Cross-branch coordination via the `exec-eas` channel — the dev team's bridge to all advisory expertise, with the seven EAs (Tim / Soph / Jas / Anika / Juno / Elena / Rina) as the only members.
+
+2. A set of **SMB / firm-ops skills** for owner-operator workflows that aren't in the public pack: cash-flow forecasting, AR chasing, monthly close, payroll planning, quarterly-review decks, tax-season prep, and a daily / weekly briefing cadence.
+
+Everything else is identical to the public pack — same browser QA, same marathons, same councils, same backlog tooling. If a skill is in `wilson-works/claude_skills` it's in here too, at the same version, unless we've deliberately forked it.
+
+## Why two repos?
+
+The public pack is biased toward AI coding work — devs running marathons, councils for product decisions, browser QA for shipping. That's the audience we publish to.
+
+The internal pack carries the same engineering muscle PLUS the finance + ops + representation + attest + AI-oversight + marketing muscle for running an owner-operated services firm. Those agents (the CFO, COO, EA-rep, CPA-attest, CAO, and CMO branches) embed WilsonWorks-default policy choices that we've validated across client engagements — most notably CBFC, the accounting-system client this org was first shipped to. The SMB skills assume the WilsonWorks reference connector stack (QuickBooks live, the rest deferred). They aren't a fit for a public release.
+
+## Skills (109)
+
+Skills from the public pack are listed in their original sections. New additions are flagged **[internal]**.
 
 ### Browser / QA (Chrome DevTools MCP)
-- **[audit-page](skills/audit-page/)** -- Lighthouse audit (performance, a11y, best practices, SEO) on a running page. `/audit-page [url]`
+- **[audit-page](skills/audit-page/)** -- Lighthouse audit on a running page. `/audit-page [url]`
 - **[review-ui](skills/review-ui/)** -- Screenshot desktop + mobile, check console, report visual issues. `/review-ui [url]`
 - **[test-flow](skills/test-flow/)** -- Walk a user flow step-by-step with screenshots. `/test-flow [description]`
-- **[perf-trace](skills/perf-trace/)** -- Record a performance trace, analyze Core Web Vitals and bottlenecks. `/perf-trace [url]`
-- **[qa-sweep](skills/qa-sweep/)** -- Parameterized section audit: walks a section, verifies functionality, flags friction, returns severity-ranked findings. `/qa-sweep [section]`
-- **[smoke-check](skills/smoke-check/)** -- Fast post-implementation sanity check (build + secrets + key-page browser hit). Binary PASS/FAIL in ~2 minutes. `/smoke-check`
-- **[preflight](skills/preflight/)** -- Validates dev server, MCP, and auth state before other QA skills. `/preflight`
+- **[perf-trace](skills/perf-trace/)** -- Performance trace + Core Web Vitals analysis. `/perf-trace [url]`
+- **[qa-sweep](skills/qa-sweep/)** -- Parameterized section audit. `/qa-sweep [section]`
+- **[smoke-check](skills/smoke-check/)** -- Fast post-implementation sanity check. `/smoke-check`
+- **[preflight](skills/preflight/)** -- Validates dev server, MCP, auth state before QA skills. `/preflight`
 
 ### Multi-Agent / Council
-- **[llm-council](skills/llm-council/)** -- Run a question through 5 AI advisors who independently analyze, peer-review, and synthesize a verdict. Based on Karpathy's LLM Council methodology. `/llm-council [question]`
-- **[premortem](skills/premortem/)** -- Assume your plan already failed 6 months from now and work backward to find every reason why. Spawns one parallel agent per failure mode, then synthesizes a revised plan with blind spots exposed. Based on Klein's premortem methodology. `/premortem [plan]`
-- **[council-orders](skills/council-orders/)** -- Convene a 5-member product council that files 25-30 prioritized work orders to your backlog in one session. `/council-orders [focus]`
-- **[council-rd](skills/council-rd/)** -- Per-research-folder mini-councils that pick the top 2-3 work orders from each report and emit an HTML approval tool. `/council-rd [research-root]`
-- **[agent-org](skills/agent-org/)** -- 18-agent organizational hierarchy with hard-ACL Slack-style channels. C-suite (Opus) directs, exec assistant routes, department heads review, juniors ship. SQLite-backed comms bus + path-guard hook enforces dept ownership. `/agent-org`
+- **[llm-council](skills/llm-council/)** -- 5-advisor council with peer review + synthesis. `/llm-council [question]`
+- **[premortem](skills/premortem/)** -- Failure-mode parallel agents + revised plan. `/premortem [plan]`
+- **[council-orders](skills/council-orders/)** -- 5-member product council files 25-30 prioritized work orders. `/council-orders [focus]`
+- **[council-rd](skills/council-rd/)** -- Per-research-folder mini-councils. `/council-rd [research-root]`
+- **[agent-org](skills/agent-org/)** -- **[internal: 37-agent 3-branch version]** Engineering + finance + ops branches with hard-ACL channels. SQLite-backed comms bus + path-guard hook. `/agent-org`
 
-### Long-Running Marathons (walkaway sessions)
-- **[marathon-council](skills/marathon-council/)** -- Rotates through focus areas, researches the codebase, convenes councils, files work orders. The intake half. `/marathon-council`
-- **[marathon-orders](skills/marathon-orders/)** -- Spawns 1-2 sub-agents per wave, each completing one work order with a review-and-merge gate. The execution half. `/marathon-orders`
-- **[marathon-org](skills/marathon-org/)** -- Org-routed walkaway marathon. Same loop as marathon-orders but every wave routes CTO -> exec assistant -> dept head -> junior with the comms bus and path claims active. `/marathon-org`
-- **[marathon-research](skills/marathon-research/)** -- Processes a queue of research topics with WebSearch/WebFetch, produces cited markdown reports under 750 lines. `/marathon-research [topics]`
-- **[marathon-research-council](skills/marathon-research-council/)** -- Cross-cut council across N completed marathons. Produces a build-ready summary with per-marathon decision cards, dependency graph, first-PR spec, and ADR placeholders. The bridge from raw R&D to the backlog. `/marathon-research-council [slugs|--since|--all-pending]`
-- **[distill](skills/distill/)** -- Post-processor for `marathon-research`. Turns 5,000-line research dumps into <=200-line summary cards with surgical `@-references` back to source. Auto-fires at the end of every marathon, or invoke standalone. `/distill [slug]`
-- **[marathon-bughunter](skills/marathon-bughunter/)** -- Drives a Chrome DevTools browser through your app to hunt for new bugs introduced by recent work. `/marathon-bughunter`
-- **[marathon-condenser](skills/marathon-condenser/)** -- Condenses an oversized work order backlog: merges duplicates, closes already-completed items, rewrites vague entries, prunes stale ones. `/marathon-condenser`
-- **[bg-pipeline](skills/bg-pipeline/)** -- Run a sequence of skills as background sub-agents to keep your main session's context clean. `/bg-pipeline [pipeline]`
-- **[caveman](skills/caveman/)** -- Semantic text compression for long autonomous sessions. 40-58% token savings by stripping filler while preserving facts. `/caveman [on|off|compress]`
+### Long-Running Marathons
+- **[marathon-council](skills/marathon-council/)** — `/marathon-council`
+- **[marathon-orders](skills/marathon-orders/)** — `/marathon-orders`
+- **[marathon-org](skills/marathon-org/)** — `/marathon-org`
+- **[marathon-research](skills/marathon-research/)** — `/marathon-research [topics]`
+- **[marathon-research-council](skills/marathon-research-council/)** — `/marathon-research-council`
+- **[distill](skills/distill/)** — `/distill [slug]`
+- **[marathon-bughunter](skills/marathon-bughunter/)** — `/marathon-bughunter`
+- **[marathon-condenser](skills/marathon-condenser/)** — `/marathon-condenser`
+- **[bg-pipeline](skills/bg-pipeline/)** — `/bg-pipeline [pipeline]`
+- **[caveman](skills/caveman/)** — `/caveman [on|off|compress]`
 
 ### Backlog & Work Orders
-- **[backlog](skills/backlog/)** -- View, add, close, and manage work order backlog items across categories (bugs, design, features, tech debt). `/backlog [command]`
-- **[work-orders](skills/work-orders/)** -- Triage the backlog and spawn sub-agents to execute prioritized items with a Sonnet-first context-brief pattern. `/work-orders [category]`
-- **[work-orders-org](skills/work-orders-org/)** -- Single work order routed through the org (CTO -> exec assistant -> dept head -> junior) with full review gates and named accountability. `/work-orders-org [ID|pick]`
-- **[user-feedback](skills/user-feedback/)** -- Manage public user feedback in a dev review log; promote actionable items to the backlog. `/user-feedback [command]`
+- **[backlog](skills/backlog/)** — `/backlog [command]`
+- **[work-orders](skills/work-orders/)** — `/work-orders [category]`
+- **[work-orders-org](skills/work-orders-org/)** — `/work-orders-org [ID|pick]`
+- **[user-feedback](skills/user-feedback/)** — `/user-feedback [command]`
 
 ### Design & Decisions
-- **[quick-design](skills/quick-design/)** -- Lightweight spec for small feature/architecture changes that don't warrant a full council session. `/quick-design [change]`
-- **[gate-check](skills/gate-check/)** -- Formal milestone readiness validation (MVP, beta, GA, etc.) with multi-perspective review. PASS / CONCERNS / FAIL. `/gate-check [milestone]`
-- **[scope-check](skills/scope-check/)** -- Compares original work order or plan scope against actual git diff to detect scope creep. PASS / CONCERNS / FAIL. `/scope-check`
-- **[retro](skills/retro/)** -- Post-marathon or post-session retrospective from git log + backlog + plan files. Outputs 3-5 action items. `/retro`
+- **[quick-design](skills/quick-design/)** -- `/quick-design [change]`
+- **[gate-check](skills/gate-check/)** -- `/gate-check [milestone]`
+- **[scope-check](skills/scope-check/)** -- `/scope-check`
+- **[retro](skills/retro/)** -- `/retro`
 
 ### Design Intelligence
-- **[ui-ux-pro-max](skills/ui-ux-pro-max/)** -- Comprehensive UI/UX design intelligence: 50+ styles, 161 color palettes, 57 font pairings, 99 UX guidelines, 25 chart types, prioritized rules (accessibility/touch/performance/style/layout/typography/animation/forms/navigation/charts).
-- **[design](skills/design/)** -- Comprehensive design generation: brand identity, logos (55 styles), corporate identity programs (50 deliverables), HTML presentations (Chart.js), banner design (22 styles), icons (15 styles), social photos for every major platform.
-- **[design-system](skills/design-system/)** -- Token architecture, component specifications, slide generation. Three-layer tokens (primitive -> semantic -> component), CSS variables, spacing/typography scales.
-- **[ui-styling](skills/ui-styling/)** -- shadcn + Tailwind patterns with accessibility, theming, responsive design, and utility references.
-- **[brand](skills/brand/)** -- Brand voice, visual identity, messaging frameworks, asset management, brand consistency. Approval checklist, color-palette management, logo usage rules, typography specs.
-- **[banner-design](skills/banner-design/)** -- Design banners for social media, ads, website heroes, creative assets, and print. Multiple platforms, multiple art direction options.
-- **[slides](skills/slides/)** -- HTML slide templates, layout patterns, copywriting formulas, and slide strategies for decks and presentations.
+- **[ui-ux-pro-max](skills/ui-ux-pro-max/)**, **[design](skills/design/)**, **[design-system](skills/design-system/)**, **[ui-styling](skills/ui-styling/)**, **[brand](skills/brand/)**, **[banner-design](skills/banner-design/)**, **[slides](skills/slides/)**
 
 ### Marketing & Growth
+
 **Conversion Optimization**
-- **[page-cro](skills/page-cro/)** -- Optimize any marketing page (homepage, landing, pricing, feature, blog) for conversions. `/page-cro [url]`
-- **[signup-flow-cro](skills/signup-flow-cro/)** -- Optimize signup, registration, and trial activation flows.
-- **[onboarding-cro](skills/onboarding-cro/)** -- Optimize post-signup onboarding, activation, and time-to-value.
-- **[paywall-upgrade-cro](skills/paywall-upgrade-cro/)** -- In-app paywalls, upgrade screens, upsell modals, feature gates.
-- **[form-cro](skills/form-cro/)** -- Optimize non-signup forms (lead capture, contact, demo, application, checkout).
-- **[popup-cro](skills/popup-cro/)** -- Popups, modals, overlays, slide-ins, exit-intent, sticky bars.
-- **[ab-test-setup](skills/ab-test-setup/)** -- Plan, design, or implement A/B tests and growth experimentation programs.
+- **[page-cro](skills/page-cro/)**, **[signup-flow-cro](skills/signup-flow-cro/)**, **[onboarding-cro](skills/onboarding-cro/)**, **[paywall-upgrade-cro](skills/paywall-upgrade-cro/)**, **[form-cro](skills/form-cro/)**, **[popup-cro](skills/popup-cro/)**, **[ab-test-setup](skills/ab-test-setup/)**
 
 **Content & Copy**
-- **[copywriting](skills/copywriting/)** -- Write/rewrite marketing copy for any page (homepage, landing, pricing, feature, about).
-- **[copy-editing](skills/copy-editing/)** -- Edit, review, refresh existing marketing copy.
-- **[ad-creative](skills/ad-creative/)** -- Generate, iterate, or scale ad creative for any paid platform.
-- **[content-strategy](skills/content-strategy/)** -- Plan content strategy, topic clusters, editorial calendar.
-- **[content-engine](skills/content-engine/)** -- Platform-native content for X, LinkedIn, TikTok, YouTube, newsletters, plus repurposed multi-platform campaigns.
-- **[social-content](skills/social-content/)** -- Create, schedule, and optimize social media content.
-- **[brand-voice](skills/brand-voice/)** -- Build a source-derived writing style profile from real posts/essays/launch notes/docs, then reuse it across content, outreach, and social.
-- **[image](skills/image/)** -- Create, generate, edit, or optimize images for marketing (blog heroes, social, mockups, banners, OG images).
-- **[video](skills/video/)** -- Create, generate, or produce video content using AI tools.
+- **[copywriting](skills/copywriting/)**, **[copy-editing](skills/copy-editing/)**, **[ad-creative](skills/ad-creative/)**, **[content-strategy](skills/content-strategy/)**, **[content-engine](skills/content-engine/)**, **[social-content](skills/social-content/)**, **[brand-voice](skills/brand-voice/)**, **[image](skills/image/)**, **[video](skills/video/)**
 
 **SEO & Discovery**
-- **[seo-audit](skills/seo-audit/)** -- Audit, review, diagnose SEO issues on a website.
-- **[ai-seo](skills/ai-seo/)** -- Optimize content for AI search engines (ChatGPT, Perplexity, AI Overviews, etc.).
-- **[programmatic-seo](skills/programmatic-seo/)** -- Create SEO-driven pages at scale using templates and data.
-- **[schema-markup](skills/schema-markup/)** -- Add, fix, or optimize schema markup and structured data.
-- **[site-architecture](skills/site-architecture/)** -- Plan and restructure website hierarchy and URL structure.
-- **[directory-submissions](skills/directory-submissions/)** -- Submit products to startup, SaaS, AI, agent, MCP, no-code, and review directories for backlinks.
-- **[competitor-alternatives](skills/competitor-alternatives/)** -- Create competitor comparison and alternative pages for SEO and sales enablement.
-- **[aso-audit](skills/aso-audit/)** -- Audit or optimize App Store and Google Play listings.
+- **[seo-audit](skills/seo-audit/)**, **[ai-seo](skills/ai-seo/)**, **[programmatic-seo](skills/programmatic-seo/)**, **[schema-markup](skills/schema-markup/)**, **[site-architecture](skills/site-architecture/)**, **[directory-submissions](skills/directory-submissions/)**, **[competitor-alternatives](skills/competitor-alternatives/)**, **[aso-audit](skills/aso-audit/)**
 
 **Paid & Distribution**
-- **[paid-ads](skills/paid-ads/)** -- Campaigns on Google Ads, Meta, LinkedIn, Twitter/X, and other ad platforms.
-- **[cold-email](skills/cold-email/)** -- B2B cold emails and follow-up sequences that get replies.
-- **[email-sequence](skills/email-sequence/)** -- Drip campaigns, lifecycle emails, onboarding/welcome/re-engagement series.
-- **[co-marketing](skills/co-marketing/)** -- Find partners, plan joint campaigns, brainstorm partnership opportunities.
-- **[community-marketing](skills/community-marketing/)** -- Build and leverage online communities (Discord, Slack, forums).
+- **[paid-ads](skills/paid-ads/)**, **[cold-email](skills/cold-email/)**, **[email-sequence](skills/email-sequence/)**, **[co-marketing](skills/co-marketing/)**, **[community-marketing](skills/community-marketing/)**
 
 **Strategy & Monetization**
-- **[pricing-strategy](skills/pricing-strategy/)** -- Pricing decisions, packaging, monetization, freemium, value metrics, Van Westendorp.
-- **[launch-strategy](skills/launch-strategy/)** -- Plan product launches, feature announcements, Product Hunt drops, beta launches, waitlists.
-- **[lead-magnets](skills/lead-magnets/)** -- Plan and optimize lead magnets (gated content, downloadables, templates).
-- **[free-tool-strategy](skills/free-tool-strategy/)** -- Plan, evaluate, or build free tools for lead generation, SEO, or brand.
-- **[marketing-ideas](skills/marketing-ideas/)** -- Marketing ideas, inspiration, growth strategies when you're stuck.
-- **[marketing-psychology](skills/marketing-psychology/)** -- Apply psychological principles and behavioral science to marketing.
-- **[product-marketing-context](skills/product-marketing-context/)** -- Foundational product/audience/positioning context that all other marketing skills reference.
+- **[pricing-strategy](skills/pricing-strategy/)**, **[launch-strategy](skills/launch-strategy/)**, **[lead-magnets](skills/lead-magnets/)**, **[free-tool-strategy](skills/free-tool-strategy/)**, **[marketing-ideas](skills/marketing-ideas/)**, **[marketing-psychology](skills/marketing-psychology/)**, **[product-marketing-context](skills/product-marketing-context/)**
 
 **Research & Measurement**
-- **[customer-research](skills/customer-research/)** -- Conduct, analyze, synthesize customer research (interviews, transcripts, surveys, review mining, VOC).
-- **[competitor-profiling](skills/competitor-profiling/)** -- Research, profile, analyze competitors from URLs into structured profile markdown files.
-- **[analytics-tracking](skills/analytics-tracking/)** -- Set up, improve, or audit analytics tracking (GA4, GTM, Mixpanel, Segment, conversion tracking, UTM).
+- **[customer-research](skills/customer-research/)**, **[competitor-profiling](skills/competitor-profiling/)**, **[analytics-tracking](skills/analytics-tracking/)**
 
 **Retention & RevOps**
-- **[churn-prevention](skills/churn-prevention/)** -- Cancellation flows, save offers, payment recovery, win-back, exit surveys, dunning.
-- **[referral-program](skills/referral-program/)** -- Create, optimize, or analyze referral, affiliate, and word-of-mouth programs.
-- **[revops](skills/revops/)** -- Revenue operations and lead lifecycle management.
-- **[sales-enablement](skills/sales-enablement/)** -- Sales collateral, pitch decks, demo scripts, battle cards.
+- **[churn-prevention](skills/churn-prevention/)**, **[referral-program](skills/referral-program/)**, **[revops](skills/revops/)**, **[sales-enablement](skills/sales-enablement/)**
 
 ### Fundraising & Investor Communications
-- **[investor-materials](skills/investor-materials/)** -- Pitch decks, one-pagers, investor memos, accelerator applications, financial models. Keeps multiple fundraising assets internally consistent. `/investor-materials`
-- **[investor-outreach](skills/investor-outreach/)** -- Cold emails, warm intro blurbs, follow-ups, update emails, and investor communications for angels, VCs, strategic investors, accelerators. `/investor-outreach`
+- **[investor-materials](skills/investor-materials/)**, **[investor-outreach](skills/investor-outreach/)**
 
 ### Business / Strategy (BMC brain)
-- **[business-notes](skills/business-notes/)** -- Capture strategy notes (marketing, pricing, partnerships, customer hypotheses) and auto-file them into a Business Model Canvas brain. Builds the business plan in parallel with the product. `/business-notes [command]`
-- **[business-pass](skills/business-pass/)** -- Proactively grow the BMC brain. Two modes: `scan` (autonomous codebase/app sweep extracting BMC evidence) and `interview` (Q&A to fill gaps in any of the 9 BMC blocks). `/business-pass [scan|interview]`
-- **[business-roundtable](skills/business-roundtable/)** -- Send a business note through a 5-advisor council (Marketing, Pricing, Customer Discovery, Competitor Watcher, Operations), finalize, then lock the verdict into the BMC brain. `/business-roundtable [NOTE-ID]`
+- **[business-notes](skills/business-notes/)**, **[business-pass](skills/business-pass/)**, **[business-roundtable](skills/business-roundtable/)**
+
+### SMB / Firm Ops **[internal]**
+Skills for running an owner-operated firm (accounting/bookkeeping/tax) on top of QuickBooks + payment processors. Most fall back to a CSV upload when a connector is not live.
+
+**Daily / weekly cadence**
+- **[monday-brief](skills/monday-brief/)** -- One-page Monday morning briefing: cash, sales, pipeline, week ahead, top three to-dos. `/monday-brief`
+- **[friday-brief](skills/friday-brief/)** -- Friday end-of-week pulse: revenue vs prior week, top sellers, wins and watches. `/friday-brief`
+- **[business-pulse](skills/business-pulse/)** -- Cross-functional snapshot — cash, sales, pipeline, commitments, watch-list, the one thing that matters today. Scopes gracefully to whichever connectors are live.
+
+**Cash + AR**
+- **[cash-flow-snapshot](skills/cash-flow-snapshot/)** -- 30/60/90-day forecast with variance bands and named risks. Chat summary + XLSX workbook.
+- **[invoice-chase](skills/invoice-chase/)** -- Drafts overdue-invoice reminders matched to each customer's payment history. PayPal sends with approval, mail drafts otherwise.
+- **[call-list](skills/call-list/)** -- Ranks top-5 leads worth calling today with talking points + calendar blocks + follow-up drafts. `/call-list [count]`
+- **[plan-payroll](skills/plan-payroll/)** -- Forecast cash, rank overdue invoices, stage reminders so payroll runs confidently.
+
+**Close + reporting**
+- **[close-month](skills/close-month/)** -- Reconciles QuickBooks against processors, flags gaps, writes the P&L narrative, exports the close packet. `/close-month [month]`
+- **[month-end-prep](skills/month-end-prep/)** -- Same shape as close-month but framed as the lead-up rather than the close itself.
+- **[month-heads-up](skills/month-heads-up/)** -- Runs on the 25th — next-30-day cash outlook + everything needing attention before month-end.
+- **[quarterly-review](skills/quarterly-review/)** -- Full QBR narrative — revenue/margin trend, customer health, opportunities + risks — as a presentation-ready PDF or deck.
+
+**Tax**
+- **[tax-prep](skills/tax-prep/)** -- Quarterly estimated tax calc OR year-end 1099 prep. Produces an accountant handoff packet. `/tax-prep [mode] [year]`
+- **[tax-season-organizer](skills/tax-season-organizer/)** -- Owner-friendly tax-season organizer framed as deliverables for the accountant, not tax advice.
 
 ### Architecture & Documentation
-- **[arch-diagram](skills/arch-diagram/)** -- Generates dark-themed SVG architecture diagrams from a configurable arch-config file. `/arch-diagram [view]`
-- **[systems-map](skills/systems-map/)** -- Maps interlocking systems in your codebase, produces a Mermaid diagram and dependency matrix to visualize ripple effects. `/systems-map`
-- **[reverse-doc](skills/reverse-doc/)** -- Generates missing spec docs from existing code via an intent-clarification step. `/reverse-doc [system]`
-- **[spec-audit](skills/spec-audit/)** -- Compares spec documents against component implementations to detect drift (tokens, mechanics, principles). `/spec-audit`
+- **[arch-diagram](skills/arch-diagram/)**, **[systems-map](skills/systems-map/)**, **[reverse-doc](skills/reverse-doc/)**, **[spec-audit](skills/spec-audit/)**
 
 ### Research & Discovery
-- **[deep-research](skills/deep-research/)** -- Multi-source deep research using firecrawl and exa MCPs. Searches the web, synthesizes findings, delivers cited reports with source attribution. `/deep-research [topic]`
+- **[deep-research](skills/deep-research/)**
 
 ### Video & Media
-- **[create-onboarding-video](skills/create-onboarding-video/)** -- Short, punchy iOS app onboarding videos in Remotion that showcase a feature in action by animating isolated UI pieces (cropped components, not full screens). Useful for App Store previews, landing page demos, mission walkthroughs. `/create-onboarding-video`
+- **[create-onboarding-video](skills/create-onboarding-video/)**
 
 ### Workflow Utilities
-- **[handoff](skills/handoff/)** -- Compact the current conversation into a handoff document for another agent to pick up. `/handoff [what next session is for]`
-- **[skill-stocktake](skills/skill-stocktake/)** -- Audit Claude skills and commands for quality. Quick Scan (changed only) and Full Stocktake modes with sequential subagent batch evaluation. `/skill-stocktake`
-- **[eval-harness](skills/eval-harness/)** -- Formal evaluation framework for Claude Code sessions implementing eval-driven development (EDD) principles. `/eval-harness`
-- **[mcp-server-patterns](skills/mcp-server-patterns/)** -- Build MCP servers with Node/TypeScript SDK -- tools, resources, prompts, Zod validation, stdio vs Streamable HTTP. `/mcp-server-patterns`
+- **[handoff](skills/handoff/)**, **[skill-stocktake](skills/skill-stocktake/)**, **[eval-harness](skills/eval-harness/)**, **[mcp-server-patterns](skills/mcp-server-patterns/)**
 
 ### Dev Workflow
-- **[deploy](skills/deploy/)** -- Commit staged changes and push to GitHub to trigger a CI/CD deploy. `/deploy [message]`
+- **[deploy](skills/deploy/)** -- `/deploy [message]`
 
 ## Installation
 
-Skills live in `~/.claude/skills/`. To install one:
+Skills live in `~/.claude/skills/` (or `<repo>/.claude/skills/` for project-scoped). To install one:
 
 ```bash
-# macOS / Linux / Windows (bash)
-cp -r skills/llm-council ~/.claude/skills/
+cp -r skills/agent-org ~/.claude/skills/
 ```
 
-Or symlink the whole folder:
+Or symlink the whole folder for one-command updates:
 
 ```bash
 ln -s "$(pwd)/skills" ~/.claude/skills-shared
@@ -158,49 +154,64 @@ ln -s "$(pwd)/skills" ~/.claude/skills-shared
 
 Then restart Claude Code. Invoke via `/skill-name`.
 
+### agent-org installation (3-branch internal version)
+
+The agent-org skill is the biggest delta from the public pack. Full install steps are in [skills/agent-org/INSTALL.md](skills/agent-org/INSTALL.md). Quick recipe:
+
+```bash
+SKILL_SRC=path/to/internal_claude_skills/skills/agent-org
+REPO=$(git rev-parse --show-toplevel)
+
+mkdir -p "$REPO/.claude/agents" "$REPO/.claude/comms" "$REPO/.claude/hooks"
+
+cp "$SKILL_SRC"/agents/*.md       "$REPO/.claude/agents/"     # all 37 agents
+cp "$SKILL_SRC"/comms/comms.py    "$REPO/.claude/comms/"
+cp "$SKILL_SRC"/comms/schema.sql  "$REPO/.claude/comms/"
+cp "$SKILL_SRC"/hooks/path_guard.py "$REPO/.claude/hooks/"
+cp "$SKILL_SRC"/org.config.example.json "$REPO/.claude/agents/org.config.json"
+# then edit org.config.json to map your repo's paths
+# then add the path_guard hook to .claude/settings.json — see INSTALL.md
+```
+
+If a target repo is pure-engineering (no firm-ops use case), skip the `cfo-*`, `coo-*`, and `senior-*` files — comms.py knows about all 37 but un-installed agents simply never get spawned.
+
 ## Configuring for your project
 
-Most skills include a `## Configure for your project` section near the top of their `SKILL.md` listing the placeholders you need to swap in for your repo. Common placeholders:
+Most skills include a `## Configure for your project` section near the top of their `SKILL.md` listing the placeholders to swap. Common ones:
 
 - `<project-root>` -- your repo's absolute path
 - `<your-project-backlog-path>` -- where your backlog markdown files live
 - `<state-dir>` -- where long-running skill state files are written
 - `<src-path>` / `<core-path>` -- your source roots
 - `<design-spec>` / `<DESIGN-DOC>` -- your design documentation
-- `<PRODUCT_DESCRIPTION>` -- a one-paragraph description of what your project is (for council-style skills)
+- `<PRODUCT_DESCRIPTION>` -- a one-paragraph project description (council-style skills)
 - `<dev-server-url>` -- usually `http://localhost:5173` or similar
 
 Skills that need the most configuration: backlog, work-orders, marathon-*, council-*, gate-check, qa-sweep, spec-audit, systems-map, arch-diagram, agent-org. Open the SKILL.md and look for "EDIT THIS" callouts.
 
-Many of the marketing skills look for a `.agents/product-marketing-context.md` file in your repo. Run `/product-marketing-context` once to create it -- every other marketing skill then references it for product, audience, and positioning context.
-
 ## Prerequisites
 
-- **Browser skills** (`audit-page`, `review-ui`, `test-flow`, `perf-trace`, `qa-sweep`, `smoke-check`, `marathon-bughunter`, `preflight`) require the [Chrome DevTools MCP server](https://github.com/ChromeDevTools/chrome-devtools-mcp) to be connected.
-- **llm-council** requires API keys for the models it polls (see [skills/llm-council/INSTALL.md](skills/llm-council/INSTALL.md)).
-- **agent-org / marathon-org / work-orders-org** install a SQLite-backed comms bus + path-guard hook into your project (see [skills/agent-org/INSTALL.md](skills/agent-org/INSTALL.md)).
-- **marathon-research / deep-research** use WebSearch and WebFetch; both ship with Claude Code. `deep-research` additionally benefits from firecrawl and exa MCPs.
-- **deploy** assumes a CI/CD pipeline that triggers on push (Railway, Vercel, Netlify, GitHub Actions, etc.).
-- **Backlog-aware skills** (`backlog`, `work-orders`, `work-orders-org`, `council-orders`, `council-rd`, `marathon-council`, `marathon-orders`, `marathon-org`, `marathon-condenser`, `user-feedback`, `scope-check`) require a backlog directory with `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, and `completed.md` files (each with a `<!-- Next ID: 001 -->` header).
-- **Walkaway marathons** (`marathon-*`) require CronCreate support in your Claude Code build for self-scheduling.
-- **create-onboarding-video** requires Remotion installed in the target project (`npm i remotion @remotion/cli`) and a `remotion-best-practices` skill in scope.
-- **Design Intelligence skills** ship as SKILL.md + reference docs only -- the original `ui-ux-pro-max` python helper scripts and `ui-styling` canvas-fonts are not bundled here. Add them locally if you want the full tooling.
+- **Browser skills** require the [Chrome DevTools MCP server](https://github.com/ChromeDevTools/chrome-devtools-mcp).
+- **llm-council** requires API keys for the models it polls.
+- **agent-org / marathon-org / work-orders-org** install a SQLite-backed comms bus + path-guard hook into your project.
+- **marathon-research / deep-research** use WebSearch and WebFetch.
+- **deploy** assumes a CI/CD pipeline that triggers on push.
+- **Backlog-aware skills** require a backlog directory with `bugs.md`, `design.md`, `features.md`, `tech-debt.md`, and `completed.md`.
+- **Walkaway marathons** require CronCreate support.
+- **SMB / firm-ops skills** prefer live connectors (QuickBooks Online, PayPal, Stripe, Square) but fall back to CSV upload.
 
 ## Skill provenance
 
-Skills in this repo come from several sources, all MIT-licensed or equivalent:
+Public-pack skills come from the original [wilson-works/claude_skills](https://github.com/wilson-works/claude_skills) (MIT) which is itself sourced from:
 
-- **Original** -- Browser/QA, Multi-Agent/Council, Marathons, Backlog, Design & Decisions, Business/Strategy, Architecture, Dev Workflow.
-- **[coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills)** -- the 41-skill Marketing & Growth section.
-- **[nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)** -- the 7-skill Design Intelligence section.
-- **[affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code)** -- investor-materials, investor-outreach, deep-research, content-engine, brand-voice, skill-stocktake, eval-harness, mcp-server-patterns.
-- **[bidah/skill-set](https://github.com/bidah/skill-set)** -- create-onboarding-video.
-- **[mattpocock/skills](https://github.com/mattpocock/skills)** -- handoff.
+- coreyhaines31/marketingskills -- Marketing & Growth.
+- nextlevelbuilder/ui-ux-pro-max-skill -- Design Intelligence.
+- affaan-m/everything-claude-code -- investor-materials, investor-outreach, deep-research, content-engine, brand-voice, skill-stocktake, eval-harness, mcp-server-patterns.
+- bidah/skill-set -- create-onboarding-video.
+- mattpocock/skills -- handoff.
 
-## What's not included
-
-Some highly project-specific skills from the source library were intentionally not generalized because their value is tied to a specific game/business domain (game economy validators, cosmetic catalog generators, season planners, business-model-canvas notebooks, etc.). The patterns in `quick-design`, `systems-map`, `spec-audit`, and `reverse-doc` cover most of what those specialized skills did, generalized.
+Internal additions (the CFO + COO + EA-rep + CPA-attest + CAO + CMO branch agents, the multi-branch comms/hook updates, and the SMB firm-ops skill pack) are written for WilsonWorks use across client engagements (including CBFC, the accounting-system client this org was first shipped to) and are not redistributed.
 
 ## License
 
-MIT
+Internal use only. Public-pack components retain their original MIT license; internal additions are not licensed for redistribution.
