@@ -147,7 +147,7 @@ JSON sidecar mirrors the structure with one entry per file: `{path, size, mtime,
 
 ## Output conventions
 
-- Manifest paths: `.claude/cleanup-manifest-YYYY-MM-DD.{md,json}` in the project root (e.g., `d:\CBFC\grindquest\.claude\`).
+- Manifest paths: `.claude/cleanup-manifest-YYYY-MM-DD.{md,json}` in the project root (e.g., `C:\projects\your-app\.claude\`).
 - Apply log: `.claude/cleanup-applied-YYYY-MM-DD.md`.
 - Chat summary: a 6-row table (one row per area) + top-10-by-size + the path to the manifest. Under 25 lines. No restating the manifest body in chat.
 

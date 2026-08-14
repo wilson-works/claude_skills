@@ -182,14 +182,6 @@ python .claude/comms/comms.py read dept-heads tim --limit 100 | grep BUG-141
 python .claude/comms/comms.py read dev-floor cindy --limit 100 | grep BUG-141
 ```
 
-## Anti-stall guard (inject into every agent prompt)
-
-Add this block to every agent spawned during a marathon-org wave:
-
-```
-ANTI-STALL: If you have been reading/analyzing for 15+ minutes without writing code, START IMPLEMENTING NOW. If your approach fails twice, report status: partial. Do not loop. Do not write planning documents. Your only output is code changes + the result block.
-```
-
 ## Failure Modes
 
 1. **John rejects the same WO twice**: do not launch a third implement→review round — a rejection loop burns tokens without producing new information. Park the WO as `blocked` in the state file with John's last review verbatim as the reason, release its claims, and advance to the next WO. Blocked WOs surface in `--status` and the final James summary for the human to re-scope.
@@ -203,9 +195,3 @@ ANTI-STALL: If you have been reading/analyzing for 15+ minutes without writing c
 - Claims are mandatory. The path_guard hook will block any unauthorized edit anyway.
 - Review gates: confidence < 3 OR tests red = ask the human. No "best effort" merging in unattended mode.
 - `--stop` pauses cleanly: it lets in-flight juniors finish their current edit, then halts the cron. It does NOT yank a junior mid-edit.
-- **The cron is session-only.** `CronCreate` jobs live only in this Claude session; nothing is
-  written to disk and there is no `.claude/scheduled_tasks.json`. The `durable` param has **no
-  effect**, and recurring jobs auto-expire after 7 days. That lifetime is correct here — the cron
-  drives this session's own wave loop, so if the session dies there is nothing left to tick for.
-  Full-crash recovery is a fresh `/marathon-org --continue`, not a timer. What the cron is
-  genuinely for is the **timeout watchdog**: a hung agent never completes and so never notifies.

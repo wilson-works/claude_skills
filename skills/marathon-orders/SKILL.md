@@ -217,7 +217,7 @@ console.log('STATE_WRITTEN');
 
 Use CronCreate:
 - `cron`: `7/20 * * * *` (fires at :07, :27, :47 of every hour -- avoids fleet collision at :00/:30)
-- `durable`: `true` (accepted but has **no effect** — jobs are session-only; see "CronCreate Scheduling")
+- `durable`: `true` (survives Claude session restart; written to `.claude/scheduled_tasks.json`)
 - `recurring`: `true`
 - `prompt`:
 
@@ -635,51 +635,34 @@ Do not do this:
 
 Step 1: Read CLAUDE.md in full before touching any code.
 
-Step 2: Read the hotspot files from RECONNAISSANCE.
-- Start with the listed files. Read their callers to understand blast radius.
-- If the suggested approach is wrong after reading code, note why in `concerns` and implement the correct fix.
+Step 2: Read the hotspot files from RECONNAISSANCE before reading anything else.
+- Start with the files listed above -- they are the orchestrator's best guess at ground zero.
+- Then read their callers to understand the blast radius.
+- Expand outward from there only if needed.
+- If you read the hotspot files and find the suggested approach is wrong, note why in your `concerns` field and implement the correct fix instead.
 - For security bugs: read the affected data security rules file in full and the relevant server function in full.
 - For design changes: read the project's design system docs before touching components.
-- Do NOT read more than 10 files total. If you need more context, the work order is too vague — report `status: partial`.
+- Spend at least the first 20% of your effort reading. Do not start writing until you have a complete picture.
 
-Step 3: Plan your change (mentally, not in a file).
-- List which files you will modify and why.
-- If >6 files needed, report `status: partial`.
+Step 3: Plan your change explicitly (in your scratchpad, not a file).
+- List exactly which files you will modify and why.
+- If your plan touches more than 6 files, stop and re-scope. This is one focused work order.
 
 Step 4: Implement.
-- Follow CLAUDE.md rules strictly.
-- No `any` types, no `as any`.
-- No new files unless the WO requires them.
-- No refactoring beyond what the WO requires.
-- No client-side-only security enforcement -- data rules or server functions must enforce server-side.
-- Honor any style/terminology/formatting rules listed in the project's CLAUDE.md.
+Follow all CLAUDE.md rules strictly. Common rules to respect:
+- TypeScript-first -- no `any` types, no `as any`
+- No client-side-only security enforcement -- data rules or server functions must enforce server-side
+- No new files unless the work order explicitly requires them
+- No refactoring surrounding code beyond what the work order requires
+- Honor any style/terminology/formatting rules listed in the project's CLAUDE.md
 
 Step 5: Verify the build.
-Run the build command. If it fails, fix all errors before proceeding. Do not report done if the build is broken.
+Run the project's build command (e.g., `cd <project-root> && <build command> 2>&1 | tail -30`).
+If the build fails, fix all errors before proceeding. Do not report done if the build is broken.
 
-Step 5b: Verify the fix solves the ORIGINAL problem (not just that code compiles).
-For UI bugs: describe what a user would see if they navigated to the affected page now.
-For data-flow bugs: trace the full path (frontend → API → backend → DB) and confirm data flows correctly.
-For pricing bugs: compute an example result by hand and confirm it matches the code's output.
-Include this verification in your MARATHON_RESULT block under `verification`.
-
-Step 6: Write your result summary (MARATHON_RESULT block below).
+Step 6: Write your result summary.
+Your final message must be EXACTLY the structured result block below, filled in completely.
 The main session's review gate reads this block. Do not add commentary outside it.
-
-== ANTI-STALL GUARD ==
-
-- If you have been reading for more than 15 minutes without writing code: STOP READING. Start implementing with what you know. Imperfect progress beats perfect analysis.
-- If your first fix attempt fails and you cannot see why within 5 minutes: report `status: partial` with your best attempt committed. Do NOT loop.
-- If the build fails after your fix and you cannot resolve it in 2 attempts: report `status: failed`. Do NOT keep retrying.
-- Your entire session should take 20-60 minutes. If you are past 45 minutes, wrap up NOW.
-
-== NO SELF-BLOCKING ==
-
-You may NOT fully stop on a procedural concern. If you encounter any of these, mitigate and continue:
-- Concurrent commits on master: stage only your WO-specific files, verify HEAD before commit.
-- Ambiguous instructions: pick the interpretation that allows continued work, note it in concerns.
-- Missing context: implement with what you know, report status: partial if uncertain.
-Full stops are ONLY for: data loss risk, security breach, financial impact.
 
 == REQUIRED OUTPUT FORMAT ==
 
@@ -693,7 +676,6 @@ files_modified:
   - [relative path from repo root]
   - [relative path from repo root]
 resolution: [1-3 sentences. What exactly was changed and why. No filler.]
-verification: [How you confirmed the fix addresses the ORIGINAL user complaint. For UI: what the user would see. For data-flow: the full trace. For pricing: a hand-computed example vs code output. "Tests pass" alone is NOT sufficient.]
 concerns: [1-3 sentences of follow-up items, risks, or things the reviewer should check. Write "none" if there are no concerns.]
 MARATHON_RESULT_END
 
@@ -702,17 +684,15 @@ MARATHON_RESULT_END
 1 -- I made changes but am not confident they address the root cause. Fix may be incomplete.
 2 -- I believe this is correct but could not fully verify (e.g., a runtime path I cannot test statically).
 3 -- Reasonably confident. Logic is sound and build passes, but a reviewer should check the implementation.
-4 -- Confident. Root cause addressed, fix is clean, build passes. Normal review is sufficient. Verification field shows the fix addresses the user's complaint.
-5 -- Very confident. Traced the FULL system path (frontend → API → backend → DB), fix is minimal and correct, build passes, verification field proves end-to-end correctness, no follow-up concerns. (Do NOT claim 5 if you only fixed one layer of a multi-layer bug.)
+4 -- Confident. Root cause addressed, fix is clean, build passes. Normal review is sufficient.
+5 -- Very confident. Traced the full system path, fix is minimal and correct, build passes, no follow-up concerns.
 
 == SCOPE CONSTRAINTS ==
 
-- This is your only work order. Note other bugs in `concerns` but do NOT fix them.
-- Do not refactor beyond what the WO requires.
-- Do not add tests unless the WO explicitly asks for them.
-- If >6 files needed, report `status: partial`.
-- Do NOT write documentation files, planning docs, or analysis documents.
-- Your ONLY output artifacts are: code changes (committed) and the MARATHON_RESULT block.
+- This is your only work order. If you notice other bugs while reading, note them in `concerns` but do NOT fix them.
+- Do not refactor surrounding code beyond what the work order requires.
+- Do not add tests unless the work order explicitly asks for them.
+- If completing this work order requires changing more than 6 files, stop and explain the blocker in `concerns`. Report `status: partial`.
 ```
 
 ---
@@ -728,9 +708,6 @@ The main session runs this for every completed agent before merging. Quick refer
 | Build field | `passed` | Move to failed |
 | Git diff readable | `git diff master...marathon/[ID]` returns output | Flag, pause |
 | Files match | diff files match `files_modified` list | Note in completed |
-| Verification present | `verification` field has real evidence, not just "tests pass" or "committed the fix" | Flag, pause — ask agent to re-verify |
-| Verification plausible | Does the verification trace match the diff? (e.g., if verification says "backend now returns addon prices" but diff has no backend changes → FAIL) | Reject, re-queue |
-| Verification end-to-end | For data-flow/pricing bugs: does verification trace ALL layers (frontend→API→backend→DB)? A frontend-only trace for a multi-layer bug = FAIL | Reject, re-queue with trace requirement |
 | Project rule violations | None of the rules listed in CLAUDE.md are broken | Flag, pause for 1-2, note for 3-5 |
 | Confidence 4-5, no flags | All clear | Auto-approve, squash merge |
 | Confidence 3, minor flags | Style only | Auto-approve with note |
@@ -743,21 +720,9 @@ The main session runs this for every completed agent before merging. Quick refer
 
 ```
 cron: "7/20 * * * *"      Fires at :07, :27, :47 -- avoids :00/:30 fleet collision
-durable: true              NO EFFECT — jobs are session-only (see note below)
-recurring: true            Runs until deleted, session exit, or 7-day auto-expiry
+durable: true              Persists to .claude/scheduled_tasks.json, survives restart
+recurring: true            Runs until manually deleted or 7-day auto-expiry
 ```
-
-**Session-only — read this before relying on the cron.** `CronCreate` jobs live only in this
-Claude session. Nothing is written to disk, and the job is gone when Claude exits. The
-`durable` param has **no effect**; there is no `.claude/scheduled_tasks.json` on disk.
-Recurring jobs also auto-expire after 7 days, and fire only while the REPL is idle — never
-mid-query.
-
-That lifetime is **correct for this skill**: the cron watches the session it lives in, so if
-that session dies there is nothing left for it to tick for. Full-crash recovery is a fresh
-`--continue` invocation, not a timer. What the cron is actually for is the **timeout
-watchdog** — a hung agent never completes and so never notifies, and that is the one thing
-only a timer can catch.
 
 The 7-day auto-expiry is a hard CronCreate limit. Marathon sessions are designed for 4-8 hours, not week-long runs. If you need to run again the next day, start a fresh `/marathon-orders` session.
 

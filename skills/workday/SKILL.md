@@ -1,6 +1,6 @@
 ---
 name: workday
-description: "Standardized 4-lane parallel overnight engineering run. Plans 4 territory-disjoint lanes (A=schema/db, B=backend, C=frontend, D=api) + an automated Lane E merge, each lane an org-routed marathon in its own git worktree, with a John-authored completion goal per lane, an honest session-recovery table (crons are session-only and cannot recover a crashed lane), and keep-last-1 cleanup of old runs. Built for 8-hour unattended runs. Invoke with /workday [theme] [--lanes N] [--stop-at HH:MM] [--cleanup] [--status] [--dry-run]. Use whenever the user wants 'the overnight run', 'parallel lanes', 'plan tonight's lanes', or a big bite out of the backlog while they sleep. Optional companion: /workday-watch."
+description: "Standardized 4-lane parallel overnight engineering run. Plans 4 territory-disjoint lanes (A=schema/db, B=backend, C=frontend, D=api) + an automated Lane E merge, each lane an org-routed marathon in its own git worktree, with a John-authored completion goal per lane, staggered safety crons for long-session limits, and keep-last-1 cleanup of old runs. Built for 8-hour unattended runs. Invoke with /workday [theme] [--lanes N] [--stop-at HH:MM] [--cleanup] [--status] [--dry-run]. Use whenever the user wants 'the overnight run', 'parallel lanes', 'plan tonight's lanes', or a big bite out of the backlog while they sleep. Optional companion: /workday-watch."
 ---
 
 # Workday Skill
@@ -10,7 +10,7 @@ The standardized, repeatable form of a parallel overnight run: four worktree-iso
 hand-writing a fresh per-night prompt file every time. `/workday` plans the lanes, partitions
 the codebase so they cannot collide on writes, has the Chief Engineer set each lane's true
 definition-of-done, generates paste-ready prompts plus a plain-language launch card,
-states plainly what session recovery can and cannot do, and prunes old runs so future sessions never re-read a
+registers staggered safety crons, and prunes old runs so future sessions never re-read a
 stale plan.
 
 **One sentence:** `/workday` turns "let me re-explain the 4-lane process again" into one command.
@@ -24,7 +24,7 @@ stale plan.
    John authors a completion GOAL per lane            session 2 -> paste PROMPT-B  (Lane B: backend)
    provision 4 git worktrees (no shared tree)         session 3 -> paste PROMPT-C  (Lane C: frontend)
    write <runs-dir>/ prompt set + README              session 4 -> paste PROMPT-D  (Lane D: api)
-   write the honest session-recovery table              ... ~8 hours, unattended ...
+   register 4 staggered safety crons                      ... ~8 hours, unattended ...
    prune all but the last completed run               morning -> paste PROMPT-E  (Lane E: merge+cleanup)
 ```
 
@@ -44,7 +44,7 @@ itself does not run the lanes — it produces the artifacts and the launch card.
 | **`/workday`** | **4 org-routed lanes + auto Lane E, worktree-isolated, 8h unattended** | **big overnight bite across schema+backend+frontend+api with zero write collisions** |
 
 `/workday` reuses the per-lane internal loop of `/marathon-org`. The new parts are the 4-lane
-territory partition, John's per-lane goal, worktree provisioning, honest session recovery,
+territory partition, John's per-lane goal, worktree provisioning, staggered safety crons,
 the automated Lane E, and the keep-last-1 cleanup.
 
 ## Configure for your project
@@ -143,7 +143,7 @@ without editing any file.
    Stop.
 2. `--cleanup`: run **Cleanup (keep-last-1)** below, report what moved, stop.
 3. `--stop`: read newest run state; for each lane write `paused:true`; `CronDelete` every
-   any lane-registered cron id; print "Lanes halt after their current WO. Paste PROMPT-E when ready."
+   `safetyCronJobId`; print "Lanes halt after their current WO. Paste PROMPT-E when ready."
    Stop. (Does not yank a sub-agent mid-edit.)
 4. `--resume`: re-print the launch card from the existing `<runs-dir>`. Stop.
 5. Otherwise (fresh plan): run **Cleanup (keep-last-1)** first, then Phase 1.
@@ -276,33 +276,32 @@ Create `<runs-dir>` (append `-2`,`-3` for same-day reruns) containing: `PROMPT-A
 `PROMPT-B-backend.md`, `PROMPT-C-frontend.md`, `PROMPT-D-api.md` (from the **Lane Prompt
 Template**, fully filled), `PROMPT-E-merge.md` (from the **Lane E Template**),
 `state-{a,b,c,d}.json` (written via `node -e`; schema = `/marathon-org` state +
-`lane`,`goal`,`stopClock`), `README.md` (the plain-language launch card),
+`lane`,`goal`,`safetyCronJobId`,`stopClock`), `README.md` (the plain-language launch card),
 and empty `safety-wakeup-log.md` + `watch-log.md`.
 
-### Step 8 — (removed: staggered safety crons)
+### Step 8 — Register staggered safety crons
 
-**Earlier versions registered four `durable:true` safety crons here. They could not work, and
-they have been removed.** Two reasons. `CronCreate` jobs are **session-only** — nothing is written
-to disk and `durable` has no effect. And these were registered by the **planner** session, which
-exits as soon as it prints the launch card (see "`/workday` itself does not run the lanes"), so
-they died at plan time — not on lane crash. They never mitigated even the in-session API-limit
-pause they claimed to.
+A long-session limit can pause a lane mid-run. Each lane gets ONE durable safety cron,
+**staggered ~15 min apart** so a limits-reset wake-up does not have all lanes hammer the API
+at the same instant and immediately re-trip the limit. Example offsets: A `45 0 * * *`, B
+`0 1 * * *`, C `15 1 * * *`, D `30 1 * * *` (local). `CronCreate` each with
+`durable:true, recurring:true`. Prompt per cron:
 
-Honest recovery table (same shape `/plan-session` uses):
+```
+Workday safety wake-up — Lane {X}, run {date}.
+1. Read <runs-dir>/state-{x}.json. If status complete/failed: CronDelete self, stop.
+2. If wall-clock >= {stopClock}: ensure the lane reported final-status; if not, post a
+   final-status: partial for Lane {X}; CronDelete self; stop.
+3. Else (lane likely paused on a session limit, now reset): re-read PROMPT-{X} and fire ONE
+   internal marathon-org tick to resume the next WO. Do NOT idle-sleep. Append one line to
+   <runs-dir>/safety-wakeup-log.md.
+```
 
-| Failure mode | Cron recovery |
-|---|---|
-| Idle at context limit (session full, account has capacity) | **works** unaided — but only if the cron lives inside that lane's own session |
-| Wedged tooling | **cannot** — needs a NEW session, which a cron firing inside the existing one cannot create |
-| Usage limit (account capacity exhausted) | **cannot — self-defeating.** A cron fires by spending the capacity a usage limit has removed. What recovers the run is the limit window resetting: time, not design |
-| Full session crash / process death | **cannot** — the cron died with the session |
-
-**Recovery is the owner re-pasting that lane's prompt** — the state file resumes it from the next
-WO. Size expected wall-clock accordingly.
-
-If you want in-session insurance for the first row only, the **lane itself** (never the planner)
-may register its own cron after launch, and only in Mode B: a lane running as a Mode A subagent
-cannot, because `CronCreate` is not available to subagents.
+Store each returned id as `safetyCronJobId` in the lane state. **Honest limit:** when the
+harness reports a cron as "session-only" it dies with the session even if `durable:true` was
+requested — the safety cron mitigates *API-limit pauses within a live session*, not a full
+session crash. Full-crash recovery is the owner re-pasting the lane prompt (the README says
+so plainly).
 
 ### Step 9 — Kickoff posts + confirm
 
@@ -423,7 +422,7 @@ POST-MERGE CLEANUP (only after merges verify green):
 4. `git branch -d lane/a-db lane/b-backend lane/d-api lane/c-frontend`.
 5. Move `<runs-dir>` → `<archive>/{date}/` (the run is now closed).
 6. Leave the comms DB alone (durable shared log).
-7. CronDelete any cron a lane registered for itself (ids recorded in its state file).
+7. CronDelete every safetyCronJobId in the lane state files.
 
 CLOSING REPORT — post to c-suite for the owner: date; merge graph (branches, order, hashes);
 verify pass/fail per merge; total WOs landed + IDs; backlog delta; per-lane goal MET /
@@ -439,7 +438,7 @@ Write it so a non-technical owner never types git. State, in plain language: wha
 (N work orders, 4 isolated worktrees that "cannot collide", the run theme); that night, open
 4 new sessions in one window and for each set the working folder to the listed lane path and
 paste the matching PROMPT file as the first message, order-independent, then walk away (they
-checkpoint as they go; a stall or crash
+checkpoint and auto-resume after a session-limit pause via the safety crons; a full crash
 means re-paste that one prompt — the state file resumes it); each lane stops by `<stop-clock>`
 on its own; in the morning open one more session on the main folder and paste
 `PROMPT-E-merge.md` (it merges all four safely and cleans up, pausing for a yes/no only if it
@@ -448,43 +447,6 @@ pushed, the live app is untouched, the lane branches hold all the work until cle
 confirmed; and one verification line ("you should see four sessions each post a short status
 within ~20 min; a red error + stop means that lane is safely parked — tell me in the morning").
 
-## Mode A — single-orchestrator native (alternative topology)
-
-Everything above is **Mode B**: five separately-launched sessions (four lanes + Lane E), each
-pasted by the owner, coordinating through worktrees and the comms bus. Mode B is the default.
-
-**Mode A** runs the same lanes as **background subagents of one orchestrator session**. `/workday`
-is a natural fit because it is already worktree-isolated — Mode A just moves who owns the sessions.
-
-| Pick Mode B when | Pick Mode A when |
-|---|---|
-| You want to watch and steer five windows | The run is fully unattended |
-| A lane must outlive the orchestrator | You want one window and one git identity |
-| Lanes need independent context budgets | You want failure surfaced immediately, not at merge |
-| You are resuming an in-flight Mode B run | You are starting fresh |
-
-How it differs in practice:
-
-- **Spawn:** each lane is an `Agent` call with `run_in_background: true` and `isolation:
-  "worktree"`, replacing `git worktree add` + a pasted prompt. Lane E still runs last, on the trunk.
-- **Address:** capture each lane's `agentId` from its spawn result into the lane state file.
-  **Role names do not resolve** — `SendMessage` needs the real agentId.
-- **Route:** `SendMessage` carries cross-lane requests (the `[LANE-A]` contract-request protocol)
-  instead of a comms post the other lane has to poll for. **Keep `comms.py` anyway** for the ACL,
-  the durable audit trail and `work_order` tagging — `SendMessage` has no authenticated sender and
-  enforces nothing, so it is transport, not governance.
-- **Liveness + completion:** the harness notifies the orchestrator when a lane finishes *or errors*,
-  so no cron and no polling. A hung lane (never finishes, never errors) is the one case still
-  needing a timer, and that timer lives with the orchestrator — **subagents have no `CronCreate`**.
-- **Recovery:** strictly better than Mode B. The orchestrator sees a lane die and can re-dispatch;
-  it does not need the owner to re-paste anything.
-
-**Rule-70 still binds.** Mode A puts the implementer's report and John's review in one context and
-lets one author write both prompts. The orchestrator **routes; it never certifies** — only John's
-returned verdict may pass a WO, John must never receive the implementer's narrative as his input,
-and the verification modality is fixed on the WO before the implementer runs. See
-`/parallel-session` §"MANDATORY rule-70 guards" for the full four.
-
 ## Hard rules
 
 - **Disjoint territory is the safety guarantee.** A lane writing outside its globs can
@@ -492,11 +454,11 @@ and the verification modality is fixed on the WO before the implementer runs. Se
   Lane E assumes it.
 - **Lane E is never optional.** Even a 2-lane night gets an automated Lane E. Never leave the
   merge to bare human git.
-- **No idle waves.** Chain WOs back-to-back. No crons are registered at plan time — a
-  planner-registered cron dies with the planner. Any in-session timer is the lane's own and
+- **No idle waves.** Chain WOs back-to-back. Crons are for the long-session-limit reset and
   staggered to avoid re-tripping the API limit — not a pacing mechanism.
-- **No nested spawn.** The lane session does all spawning (head implements, John reviews).
-  Never write a prompt that asks a sub-agent to spawn a sub-agent.
+- **No nested spawn (by design).** The lane session does all spawning (head implements, John
+  reviews). Never write a prompt that asks a sub-agent to spawn a sub-agent — even on Claude
+  Code versions that allow it, unattended lanes flatten for cost and observability.
 - **Keep-last-1 cleanup runs on every fresh `/workday`** so no session re-reads a plan from
   days ago. The run dir is gitignored — archived/pruned freely.
 - **Never overwrite `org.config.json`** (project-customized). Never self-modify

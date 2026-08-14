@@ -59,19 +59,15 @@ cp "$SKILL_SRC"/agents/head-database-*.md     "$REPO/.claude/agents/"
 cp "$SKILL_SRC"/agents/head-qa-*.md           "$REPO/.claude/agents/"
 cp "$SKILL_SRC"/agents/head-api-*.md          "$REPO/.claude/agents/"
 cp "$SKILL_SRC"/agents/junior-*.md            "$REPO/.claude/agents/"
-# (skip cfo-*, coo-*, cao-*, vp-ai-*, head-claude-*, head-copy-*, head-coding-cole.md,
-#  wellness-officer-*, dor-*, head-exams-*, head-collections-*, head-notices-*,
-#  cap-*, head-audit-*, head-attest-*, head-quality-*, cmo-*, head-brand-*,
-#  head-demand-*, head-content-*, head-analytics-*, senior-*)
 ```
 
-The comms.py knows about all 70 agents — agents you don't install simply never get spawned. The ACL still works.
+The comms.py knows the full roster — agents you don't install simply never get spawned. The ACL still works.
 
 ### Common subset installs
 
-- **CTO + CFO + COO** (the previous 37-agent default for firms running their own books): drop the `cao-*`, `vp-ai-*`, `head-claude-*`, `head-copy-*`, `head-coding-cole.md`, `wellness-officer-*`, `dor-*`, `head-exams-*`, `head-collections-*`, `head-notices-*`, `cap-*`, `head-audit-*`, `head-attest-*`, `head-quality-*`, `cmo-*`, `head-brand-*`, `head-demand-*`, `head-content-*`, `head-analytics-*` files.
-- **CTO + CAO** (a dev shop that wants AI-oversight discipline but no finance/ops/marketing): keep CTO + CAO; skip CFO/COO/EA-rep/CPA-attest/CMO.
-- **Full WilsonWorks firm-ops** (70 agents): copy all.
+- **Minimal review loop** (5 agents): `cto-james`, `chief-engineer-john`, `exec-assistant-tim`, plus one department head and one junior for your stack.
+- **Single-department team** (~7 agents): the minimal loop plus both juniors and the head for the department that owns most of your codebase.
+- **Full engineering org** (18 agents): copy all.
 
 ## Step 2 - edit org.config.json
 
@@ -95,12 +91,9 @@ Open `<repo>/.claude/agents/org.config.json`. The roster is fixed. Only edit:
 
 - **`shared`** — paths any agent (or main session) can edit without dept-ownership enforcement: README, CLAUDE.md, docs, the backlog folder, package manifests.
 
-## Step 3 - register the hooks
+## Step 3 - register the hook
 
-Two PreToolUse hooks ship with the skill: **path_guard** (department path ownership) and
-**leak_guard** (blocks credential material — AWS/GitHub/Slack/Anthropic/Stripe/Google keys,
-PEM blocks — in written content; see the docstring in `hooks/leak_guard.py` for the optional
-config). Copy both into `<repo>/.claude/hooks/` and register:
+Edit `<repo>/.claude/settings.json` and add the path_guard hook to PreToolUse:
 
 ```json
 {
@@ -109,18 +102,13 @@ config). Copy both into `<repo>/.claude/hooks/` and register:
       {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
         "hooks": [
-          { "type": "command", "command": "python .claude/hooks/path_guard.py" },
-          { "type": "command", "command": "python .claude/hooks/leak_guard.py" }
+          { "type": "command", "command": "python .claude/hooks/path_guard.py" }
         ]
       }
     ]
   }
 }
 ```
-
-Verify leak_guard with its built-in suite: `python .claude/hooks/leak_guard.py --selftest`
-(expect 14/14). It fails safe — unparseable input is denied, `LEAK_GUARD_DISABLE=1`
-bypasses while debugging.
 
 If you already have PreToolUse hooks, ADD this command to the same matcher's `hooks` array — don't replace.
 

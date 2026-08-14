@@ -504,21 +504,9 @@ Replace `<PRODUCT_DESCRIPTION>` with a short paragraph describing your product: 
 
 ```
 cron: "3/45 * * * *"       Fires at :03, :48 -- offset from marathon-orders' :07/:27/:47
-durable: true               NO EFFECT — jobs are session-only (see note below)
-recurring: true              Runs until deleted, session exit, or 7-day auto-expiry
+durable: true               Persists to .claude/scheduled_tasks.json
+recurring: true              Runs until deleted or 7-day auto-expiry
 ```
-
-**Session-only — read this before relying on the cron.** `CronCreate` jobs live only in this
-Claude session. Nothing is written to disk, and the job is gone when Claude exits. The
-`durable` param has **no effect**; there is no `.claude/scheduled_tasks.json` on disk.
-Recurring jobs also auto-expire after 7 days, and fire only while the REPL is idle — never
-mid-query.
-
-That lifetime is **correct for this skill**: the cron watches the session it lives in, so if
-that session dies there is nothing left for it to tick for. Full-crash recovery is a fresh
-`--continue` invocation, not a timer. What the cron is actually for is the **timeout
-watchdog** — a hung agent never completes and so never notifies, and that is the one thing
-only a timer can catch.
 
 The 45-minute interval gives each council wave enough time to complete (research + 5 parallel advisors + chairman + filing typically takes 20-35 minutes).
 
