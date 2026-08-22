@@ -1,15 +1,8 @@
 -- agent-org communication database
--- 22 channels with hard ACL separation, across seven branches plus one
--- cross-branch channel. comms.py holds the authoritative list (CHANNELS) and
--- the per-agent ACL; this header is a summary, not the source of truth:
---   CTO          c-suite, dept-heads, dev-floor
---   CFO          cfo-suite, cfo-dept-heads, finance-floor
---   COO          coo-suite, coo-dept-heads, ops-floor
---   CAO          cao-suite, cao-dept-heads, cao-floor
---   EA-rep       ea-rep-suite, ea-rep-dept-heads, ea-rep-floor
---   CPA-attest   cpa-suite, cpa-dept-heads, cpa-floor
---   CMO          cmo-suite, cmo-dept-heads, cmo-floor
---   cross-branch exec-eas
+-- Three channels with hard ACL separation:
+--   c-suite     James (CTO), John (Chief Engineer), Tim (Exec Assistant)
+--   dept-heads  Tim + the 5 department heads
+--   dev-floor   Department heads + their juniors
 --
 -- ACL is enforced in comms.py, not at the SQL layer. The DB just stores facts.
 
@@ -46,24 +39,12 @@ CREATE TABLE IF NOT EXISTS claims (
     work_order  TEXT,
     claimed_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     released_at TEXT,
-    -- Nullable on purpose. NULL means "never expires", which is what every row
-    -- written before this column existed means. comms.py sets it on `claim`
-    -- and sweeps active rows past it to status='expired'.
-    expires_at  TEXT,
     status      TEXT NOT NULL DEFAULT 'active'
                 CHECK (status IN ('active', 'released', 'expired'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_claims_active ON claims(status, path);
 CREATE INDEX IF NOT EXISTS idx_claims_agent  ON claims(agent, status);
-
--- At most one ACTIVE claim per exact path. This is the DB-level backstop for
--- the BEGIN IMMEDIATE transaction in comms.py cmd_claim: the transaction makes
--- the read-then-insert atomic, this index makes a lost race impossible even if
--- some future code path forgets the transaction. Partial, so released/expired
--- rows accumulate freely.
-CREATE UNIQUE INDEX IF NOT EXISTS idx_claims_one_active_per_path
-    ON claims(path) WHERE status = 'active';
 
 -- Audit log for accountability (CTO / Chief Engineer can review who did what).
 CREATE TABLE IF NOT EXISTS audit (
