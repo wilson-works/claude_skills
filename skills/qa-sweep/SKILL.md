@@ -148,6 +148,7 @@ In addition to the section-specific checklist, ALWAYS check these friction indic
 - [ ] **Unclear CTAs**: every button and link clearly labeled. No "Click here" or unlabeled icon buttons.
 - [ ] **Slow loads**: no page or interaction takes >3 seconds without feedback.
 - [ ] **Mobile overflow**: no horizontal scrolling on mobile (375px).
+- [ ] **Keyboard dismiss**: check `keyboard-dismiss` (see `ui-ux-pro-max`) on every text field hit during the sweep.
 - [ ] **Copy clarity**: UI copy clear to a first-time user. Flag jargon without context.
 - [ ] **Form feedback**: forms show validation errors inline (not just after submit). Show success confirmation after submit.
 - [ ] **Navigation clarity**: user always knows where they are. Active tab highlighted. Breadcrumbs if nested.

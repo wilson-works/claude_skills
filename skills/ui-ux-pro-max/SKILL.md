@@ -217,6 +217,7 @@ This Skill is not needed in the following situations:
 - `progressive-disclosure` - Reveal complex options progressively; don't overwhelm users upfront (Apple HIG)
 - `inline-validation` - Validate on blur (not keystroke); show error only after user finishes input (MD)
 - `input-type-keyboard` - Use semantic input types (email, tel, number) to trigger the correct mobile keyboard (HIG, MD)
+- `keyboard-dismiss` - Dismiss the mobile soft keyboard on outside tap, scroll, or return/done key; no text field may leave it stuck open with no way to close it (HIG, MD)
 - `password-toggle` - Provide show/hide toggle for password fields (MD)
 - `autofill-support` - Use autocomplete / textContentType attributes so the system can autofill (HIG, MD)
 - `undo-support` - Allow undo for destructive or bulk actions (e.g. "Undo delete" toast) (Apple HIG)

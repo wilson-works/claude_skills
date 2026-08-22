@@ -1,13 +1,14 @@
 ---
 name: deploy
-description: Commit all staged/unstaged changes and push to GitHub to trigger a Railway deploy. Invoke with /deploy or /deploy [commit message].
+description: Stage this deploy's files by name, commit them, and push to GitHub to trigger a Railway deploy. Invoke with /deploy or /deploy [commit message].
 ---
 
 # Deploy to Railway via GitHub Push
 
 ## Purpose
 
-Commits current changes and pushes to GitHub, which triggers an automatic Railway deployment.
+Stages the files this deploy touches, commits them, and pushes to GitHub, which triggers an
+automatic Railway deployment. Staging is by name, never `git add -A` — see the staging step below.
 
 ## Invocation
 
@@ -27,7 +28,9 @@ Commits current changes and pushes to GitHub, which triggers an automatic Railwa
 
 - If the user provided a message, use it as the commit message
 - If not, analyze the diff and write a concise commit message
-- Stage all modified/added files relevant to the changes (prefer specific files over `git add -A`)
+- Stage the specific files this change touches, by name. Never `git add -A` or
+  `git add .` — in any clone more than one session writes, that publishes other
+  sessions' work under your name.
 - Commit with the message, appending `Co-Authored-By: Claude <noreply@anthropic.com>` (do not hardcode a model version — it goes stale)
 
 ### 3. Push
