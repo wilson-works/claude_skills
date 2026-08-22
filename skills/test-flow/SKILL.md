@@ -131,6 +131,7 @@ When `--friction` is provided, add these checks at EVERY step of the flow:
 | Copy clarity | Would someone new understand this page? Flag jargon without context. |
 | Form validation | Inline errors on invalid input, not just post-submit. Success confirmation after submit. |
 | Mobile fit | At 375px, no horizontal scrolling, no truncated critical text. |
+| Keyboard dismiss | Check `keyboard-dismiss` (see `ui-ux-pro-max`) on any text field this step touches. |
 | Navigation clarity | Active state visible, user knows where they are. |
 
 Add a **Friction Report** section at the end:

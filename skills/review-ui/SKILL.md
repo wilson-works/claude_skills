@@ -50,6 +50,7 @@ This skill uses the Chrome DevTools MCP server to visually review a running web 
 - Resize viewport to 375px width (standard mobile breakpoint)
 - Take a second screenshot
 - Note any layout issues (overflow, truncation, touch target sizing)
+- Check `keyboard-dismiss` (see `ui-ux-pro-max`) on any text field encountered
 
 ### 4. Report Findings
 
