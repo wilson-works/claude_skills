@@ -1,0 +1,53 @@
+# run-{NN} HANDOFF — {SHIFT} shift, {DATE}
+
+Written by the gate (lane {LAST}) at the final turn. The **next** run boots from this file.
+
+## Do NOT re-verify
+
+The gate verified these. The next run must not spend its shift re-proving them. If one is
+suspected stale, that is an `OWNER-QUESTIONS.md` entry — not a re-run.
+
+| Leg | Statement | How it was proven | Evidence path | Re-sampled by |
+|---|---|---|---|---|
+| L1 | {…} | {browser / suite / db-query} | `evidence/gate/{…}` | {modality, or "—"} |
+| L2 | {…} | … | … | … |
+
+## Verified state at close
+
+- Close tag: `run-{NN}-close` at `{CLOSE_SHA}`
+- Branch: `{BRANCH}` — **{N} commits ahead of {UPSTREAM}, UNPUSHED** *(re-derive this number;
+  never carry it forward from a prior HANDOFF)*
+- Suite baseline: `{BASELINE_SHA}` — summary line at close: `{SUMMARY_LINE}`
+- Migrations applied this run: {list, or "none"}. Next free migration number: {NNNN}
+- Deploy state: **not deployed.** Deploy is the owner's attended act.
+
+## Gotchas for the next lane
+
+Concrete, reproducible, with the path. "Be careful" is not a gotcha.
+
+- {…}
+
+## Open rows carried forward
+
+| Row | Lane | State at close | Why |
+|---|---|---|---|
+| {…} | {…} | not started / bounced / blocked | {…} |
+
+## Blockers ledgered, not resolved
+
+| Row | Evidence path | What it needs |
+|---|---|---|
+| {…} | `evidence/{x}/BLOCKED-{row}.md` | {an owner ruling / another lane / an upstream fix} |
+
+## Standing rulings touched this run
+
+Quote **verbatim from the source spine**. Never from a prior run's summary or a memo — a
+ruling paraphrased through two runs is how R3 got disregarded across six of them.
+
+> {verbatim quote}
+> — source: `{path}`, {date}
+
+## Next shift
+
+Proposed shape and theme are in `next-shift/RUN.md`; paste-ready prompts are in
+`next-shift/PROMPTS.md`. The owner may override the shape at the check-in.
