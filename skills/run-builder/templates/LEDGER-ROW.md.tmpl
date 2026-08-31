@@ -1,0 +1,17 @@
+| run-{NN} | {SHAPE} | {SHIFT} | {DATE} | {REPO_NAME} | {THEME} | OPEN | {PREP_SHA} | | | `runs/run-{NN}/` |
+
+<!--
+Column order matches D:\Hub\50-AI\fleet-ops\runs\LEDGER.md:
+
+| Run | Shape | Shift | Date | Repo | Theme | Status | Prep SHA | Close tag | Legs MET | Artifacts |
+
+Status vocabulary is binary against a written standard — never a percentage:
+  OPEN     appended by scripts\new-run.ps1 at prep-commit time. This row IS the
+           dispatcher-visible run-open marker, and it must live on the branch the run
+           starts from (run-54 duplicate-dispatch hazard).
+  CLOSED   flipped by scripts\close-run.ps1 at close. Close tag and Legs MET fill in then.
+  ABANDON  flipped by hand if the run never launched. Say why in Theme.
+
+Legs MET is written "n/m legs MET" using the named legs from RUN.md. It is a count of
+binary judgments, not a completion estimate.
+-->

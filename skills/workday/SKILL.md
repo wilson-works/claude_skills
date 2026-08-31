@@ -3,6 +3,8 @@ name: workday
 description: "Standardized 4-lane parallel overnight engineering run. Plans 4 territory-disjoint lanes (A=schema/db, B=backend, C=frontend, D=api) + an automated Lane E merge, each lane an org-routed marathon in its own git worktree, with a John-authored completion goal per lane, staggered safety crons for long-session limits, and keep-last-1 cleanup of old runs. Built for 8-hour unattended runs. Invoke with /workday [theme] [--lanes N] [--stop-at HH:MM] [--cleanup] [--status] [--dry-run]. Use whenever the user wants 'the overnight run', 'parallel lanes', 'plan tonight's lanes', or a big bite out of the backlog while they sleep. Optional companion: /workday-watch."
 ---
 
+> **DEPRECATED as a launch path (2026-08-31)** — superseded by `/run-builder <shape>`. Kept intact for reference and for in-flight runs; do not compose NEW runs with this skill.
+
 # Workday Skill
 
 The standardized, repeatable form of a parallel overnight run: four worktree-isolated lanes
