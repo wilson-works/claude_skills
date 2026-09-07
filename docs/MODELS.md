@@ -45,7 +45,7 @@ for what you carry.
 1. `CLAUDE_CODE_SUBAGENT_MODEL` env var — overrides every subagent's model. The budget
    lever: `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` turns any org run into an all-Sonnet night
    with zero file edits.
-2. The `model:` / `effort:` parameters on an individual Agent call (how the marathon
+2. The `model:` parameter on an individual Agent call (the Agent tool has no `effort` parameter; effort comes from the agent file or the session) (how the marathon
    skills route).
 3. The agent file's `model:` / `effort:` frontmatter (this pack's standing assignments).
 4. The main session model.
