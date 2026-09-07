@@ -72,6 +72,12 @@ python .claude/comms/comms.py post dev-floor josh --to zara --wo FEAT-091 \
 python .claude/comms/comms.py post dept-heads josh --to tim --wo FEAT-091 \
   --subject "FEAT-091 ready" \
   "felix+zara. spec passes lint, endpoint passes tests, contract examples runnable. cindy reviewed the impl side. ready for john."
+
+# claim a file before you edit it yourself
+python .claude/comms/comms.py claim <path> josh --wo <id>
+
+# release it when the work ships
+python .claude/comms/comms.py release --path <path> josh
 ```
 
 ## Hard rules

@@ -64,6 +64,12 @@ python .claude/comms/comms.py post dept-heads rachel --to gavin --wo FEAT-073 \
 python .claude/comms/comms.py post dept-heads rachel --to tim --wo REG-211 \
   --subject "REG-211 covered" \
   "owen+maya. four new test cases, all green. coverage on tax_mapping.loader at 96%. ready."
+
+# claim a file before you edit it yourself
+python .claude/comms/comms.py claim <path> rachel --wo <id>
+
+# release it when the work ships
+python .claude/comms/comms.py release --path <path> rachel
 ```
 
 ## Hard rules
