@@ -112,13 +112,17 @@ Most QA skills (qa-sweep, spec-audit, audit-page, perf-trace, review-ui) are rea
 - Collect results as they complete
 - Then proceed to any write or sequential steps serially
 
-**Agent prompt template:**
+**Agent prompt template.** Do not paste skill bodies into the prompt — preload them.
+Set the `skills:` frontmatter field on the Agent call (e.g. `skills: ["review-ui"]`) so
+the skill body is loaded once at spawn instead of being re-sent, uncached, in every
+concurrent agent's prompt.
+
 ```
 You are running step [N] of a background QA pipeline.
 
 Your task: Run the equivalent of [skill invocation] against the running app.
 
-[Paste the full SKILL.md content here]
+Invoke the [skill-name] skill (preloaded via the `skills:` field on this Agent call).
 
 Arguments: [flags, target, etc.]
 
