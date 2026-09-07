@@ -1,10 +1,9 @@
 ---
 name: workday
-description: "Standardized 4-lane parallel overnight engineering run. Plans 4 territory-disjoint lanes (A=schema/db, B=backend, C=frontend, D=api) + an automated Lane E merge, each lane an org-routed marathon in its own git worktree, with a John-authored completion goal per lane, staggered safety crons for long-session limits, and keep-last-1 cleanup of old runs. Built for 8-hour unattended runs. Invoke with /workday [theme] [--lanes N] [--stop-at HH:MM] [--cleanup] [--status] [--dry-run]. DEPRECATED as a launch path - superseded by /run-builder, which owns the overnight-run, parallel-lanes and compose-tonight's-run triggers. Reach for /workday only to read or resume an in-flight run that was already composed with it; never to compose a new one. Optional companion: /workday-watch."
+description: "Standardized 4-lane parallel overnight engineering run. Plans 4 territory-disjoint lanes (A=schema/db, B=backend, C=frontend, D=api) + an automated Lane E merge, each lane an org-routed marathon in its own git worktree, with a John-authored completion goal per lane, staggered safety crons for long-session limits, and keep-last-1 cleanup of old runs. Built for 8-hour unattended runs. Invoke with /workday [theme] [--lanes N] [--stop-at HH:MM] [--cleanup] [--status] [--dry-run]. Use whenever the user wants 'the overnight run', 'parallel lanes', 'plan tonight's lanes', or a big bite out of the backlog while they sleep. Optional companion: /workday-watch."
 ---
 
-> **DEPRECATED as a launch path (2026-08-31) — superseded by `/run-builder <shape>`.**
-> Kept intact for reference and for in-flight runs; do not compose NEW runs with this skill.
+> **DEPRECATED as a launch path (2026-08-31)** — superseded by `/run-builder <shape>`. Kept intact for reference and for in-flight runs; do not compose NEW runs with this skill.
 
 # Workday Skill
 
@@ -120,7 +119,7 @@ versions; the lane prompt template encodes it.
 implementer runs its frontmatter model (Sonnet 5 — 1M native context, so a long lane no
 longer thins out mid-night); `chief-engineer-john` reviews on Opus at `effort: xhigh` (his
 frontmatter) — one cranked review per WO is the cheapest quality you can buy. For a budget
-night, launch lanes with `CLAUDE_CODE_SUBAGENT_MODEL=sonnet CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` (both; the model var alone is inert against agent frontmatter, measured 2026-09-07 — use `/budget-mode on`) to force all-Sonnet spawns
+night, launch lanes with `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` to force all-Sonnet spawns
 without editing any file.
 
 ## Invocation

@@ -1,0 +1,68 @@
+# run-{NEXT_NN} — paste-ready prompts ({NEXT_SHIFT} shift)
+
+Written by the run-{NN} gate at its final turn, before close. **This is the third and last file
+of the owner's check-in ritual:** `REPORT.md` -> `OWNER-QUESTIONS.md` -> this file.
+
+- **Proposed shape:** {NEXT_SHAPE} — rationale: {one line, tied to the queue and the shift}
+- **Proposed theme:** {NEXT_THEME}
+- **Suggested stop-at:** {NEXT_STOP_AT}
+- **Boots from:** `runs/run-{NN}/HANDOFF.md` — the do-not-re-verify list is already folded into
+  each prompt below.
+
+## Owner: how to use this file
+
+1. Read `REPORT.md` and `OWNER-QUESTIONS.md` first; write your rulings into the `## RULINGS`
+   section there.
+2. If you accept the shape: run `/run-builder {NEXT_SHAPE} "{NEXT_THEME}" --shift {NEXT_SHIFT}`.
+   It scaffolds `runs/run-{NEXT_NN}/`, makes the prep commit, and writes the real prompt files.
+   The sections below are the *content* it will use.
+3. If you want a different shape, say so — the builder re-decomposes; do not hand-edit lanes
+   into these sections.
+4. Then open one session per lane and paste that lane's section as the first message.
+
+**Recovery:** if a lane dies, re-paste that lane's file from
+`runs/run-{NEXT_NN}/prompts/PROMPT-<X>.md`. Nothing recovers a lane automatically — crons die
+with their session and there are zero recorded successful automated recoveries.
+
+---
+
+## LANE A — {ROLE}
+
+Working dir: `{WORKTREE_PATH}` · branch `{BRANCH}`
+
+```
+{full PROMPT-BUILDER body for lane A, rendered — identical to prompts/PROMPT-A.md}
+```
+
+---
+
+## LANE B — {ROLE}
+
+Working dir: `{WORKTREE_PATH}` · branch `{BRANCH}`
+
+```
+{full PROMPT-BUILDER body for lane B}
+```
+
+---
+
+<!-- repeat one section per building lane, per the shape -->
+
+---
+
+## LANE {NEXT_LAST} — GATE (non-building)
+
+Working dir: the MAIN checkout `{REPO_PATH}` — read-only on product code.
+
+```
+{full PROMPT-GATE body}
+```
+
+---
+
+## Carried into every prompt above
+
+- The 7 MANDATORY lines verbatim (gate: 1-6 + the gate checklist).
+- The `{NEXT_SHIFT}` shift block from `reference\SHIFTS.md`.
+- The do-not-re-verify list from `runs/run-{NN}/HANDOFF.md`.
+- The fixed row queue for that lane. **No lane invents work.**

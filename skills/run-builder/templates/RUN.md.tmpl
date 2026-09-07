@@ -1,0 +1,79 @@
+# run-{NN} — {THEME}
+
+- **Shape:** {SHAPE} ({LANE_COUNT} lanes; last lane is the non-building GATE)
+- **Shift:** {SHIFT}
+- **Repo:** {REPO_NAME} @ `{REPO_PATH}`
+- **Built:** {BUILD_TS} by `/run-builder`
+- **Stop-at:** {STOP_AT} (gate begins its final turn at {FINAL_TURN_AT} = stop-at minus 20 min)
+- **Isolation:** {ISOLATION}   <!-- worktrees | shared-tree (AB/ABC single-service exception only) -->
+- **Comms channel:** `run-{NN}` — agents `lane-a` … `lane-{LAST}`
+- **Booted from:** {HANDOFF_SOURCE}   <!-- prior run HANDOFF.md path, or "cold start" -->
+
+## MUST-MEET goal
+
+{ONE SENTENCE. The provable end-state of this run.}
+
+### Named judged legs
+
+Each leg is judged independently by the gate. A leg is MET or it is not; there is no percentage.
+
+| Leg | Statement (provable) | Modality | Judged by |
+|---|---|---|---|
+| L1 | {…} | browser \| suite \| db-query \| artifact | gate |
+| L2 | {…} | … | gate |
+| L3 | {…} | … | gate |
+
+**Rule-70 different-modality sampling:** at least two legs are re-sampled by a *different*
+modality than the one that proved them (browser-proven leg re-checked by DB/query, and vice
+versa). Name which two here at build time: **{L?, L?}**.
+
+## Gate modality — decided now, at build time
+
+- [ ] **Browser gate** — required if ANY leg is user-facing / visual / portal-session.
+      `new_page` with `isolatedContext: "lane-{LAST}-gate"` from the FIRST navigation.
+      Re-mint magic links after any backend restart. Read input **values**, not `innerText`.
+- [ ] **Suite-only gate** — legal only if every leg is API/schema/logic. Independent **serial
+      full-suite sweep against a frozen baseline**, not targeted sampling.
+
+Chosen: **{GATE_MODALITY}**. Frozen baseline commit (suite-only): `{BASELINE_SHA}`.
+
+## Lanes
+
+| Lane | Role | Territory (exclusive write) | Worktree / branch | Queue |
+|---|---|---|---|---|
+| A | {…} | {globs} | `{path}` / `{branch}` | `queue/a.md` ({n} rows) |
+| B | {…} | {globs} | `{path}` / `{branch}` | `queue/b.md` ({n} rows) |
+| {LAST} | **GATE (non-building)** | `runs/run-{NN}/**` + backlog files only | main checkout, read-only on product code | `queue/{last}.md` |
+
+The gate never edits product code. Builders mark `AWAITING_VERIFICATION`; only the gate marks
+`VERIFIED`.
+
+## Shift rules in force ({SHIFT})
+
+{PASTE the matching row of reference\SHIFTS.md: pings, blocker handling, scope, owner acts.}
+
+- Deploy: **not authorized by this run.** Deploy is always the owner's attended act.
+- Findings are not authorization, in any shift.
+
+## Do-not-re-verify (from HANDOFF)
+
+{Bulleted list carried from the prior run's HANDOFF.md. The gate MUST NOT spend the shift
+re-verifying these. If one is suspected stale, that is an OWNER-QUESTIONS entry, not a re-run.}
+
+## Recovery — honest table
+
+| Failure mode | What recovers it |
+|---|---|
+| Idle at context limit (session full, account has capacity) | a cron **inside that lane's own session** works |
+| Wedged tooling | **nothing automated** — needs a NEW session |
+| Usage limit (account capacity exhausted) | **nothing automated** — a cron spends the capacity the limit removed; time resets it |
+| Full session crash / process death | **nothing automated** — the cron died with the session |
+
+**Recovery is the owner re-pasting `runs/run-{NN}/prompts/PROMPT-<X>.md`.** That is why the
+prompts are files and not chat scrollback. No planner-registered crons exist in this run.
+
+## Close-out (gate, at {FINAL_TURN_AT})
+
+`next-shift/PROMPTS.md`, `next-shift/RUN.md`, `HANDOFF.md`, `REPORT.md`,
+`OWNER-QUESTIONS.md` -> then `scripts\close-run.ps1`: tag `run-{NN}-close`, flip the LEDGER
+row, delete scratch + verify, emit `evidence/gate/CONFORMANCE.json`.
