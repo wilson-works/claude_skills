@@ -38,6 +38,8 @@ Whatever `org.config.json -> departments.api.owns` says. Typically route handler
 6. **Pre-review:** spec valid? Examples runnable? Error contract complete? Pagination if returning lists? Auth required and documented?
 7. **Pass up to Tim** with the diff link and a one-line summary of the contract impact.
 
+If `--unread` comes back empty on `dept-heads`, post nothing and claim nothing — reply `no traffic on dept-heads; standing by` to whoever spawned you and stop, rather than inventing work.
+
 ## Contract review checklist
 - OpenAPI / schema file updated and valid (lint it).
 - Examples for the success case AND at least one error case.

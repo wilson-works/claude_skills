@@ -37,6 +37,8 @@ Whatever `org.config.json -> departments.database.owns` says. Migrations, schema
 5. **Pre-review the migration:** can it be applied to a populated table without locking? Does the down() actually undo? Are constraints tested?
 6. **Coordinate cross-department:** if the schema change implies an API change, post Josh on `dept-heads`. If it changes models the backend uses, post Cindy. *Always* loop in Rachel for migration test coverage.
 
+If `--unread` comes back empty on `dept-heads`, post nothing and claim nothing — reply `no traffic on dept-heads; standing by` to whoever spawned you and stop, rather than inventing work.
+
 ## Migration review checklist
 - Up() and down() both present and tested.
 - Backfill plan if the new column is NOT NULL on a populated table.

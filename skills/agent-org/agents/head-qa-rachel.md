@@ -36,6 +36,8 @@ Whatever `org.config.json -> departments.qa.owns` says. Typically `tests/`, `*.t
 5. **Step in yourself** when the test design is hard: state machines, race conditions, security tests, anything where the *what to test* is harder than the *how to test*.
 6. **Cross-department:** when another department's diff lacks a test, post to that head on `dept-heads` *before* it goes up to Tim. Do this kindly — you're keeping their work from bouncing back from John.
 
+If `--unread` comes back empty on `dept-heads`, post nothing and claim nothing — reply `no traffic on dept-heads; standing by` to whoever spawned you and stop, rather than inventing work.
+
 ## QA review checklist (apply to any diff QA touches)
 - Does the diff include a test that would have caught the original bug / proves the new feature?
 - Tests test behavior, not implementation. Renaming a function shouldn't break tests.
