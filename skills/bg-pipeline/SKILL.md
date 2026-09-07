@@ -112,17 +112,20 @@ Most QA skills (qa-sweep, spec-audit, audit-page, perf-trace, review-ui) are rea
 - Collect results as they complete
 - Then proceed to any write or sequential steps serially
 
-**Agent prompt template.** Do not paste skill bodies into the prompt — preload them.
-Set the `skills:` frontmatter field on the Agent call (e.g. `skills: ["review-ui"]`) so
-the skill body is loaded once at spawn instead of being re-sent, uncached, in every
-concurrent agent's prompt.
+**Agent prompt template.** Do not paste skill bodies into the prompt. `skills:` is a field
+in a **subagent definition file's** frontmatter, not a parameter on the Agent tool call —
+there is no way to hand a skill to an agent at invocation time. So use one of the two
+routes that work: spawn a `subagent_type` whose agent file already declares
+`skills: ["review-ui"]`, or, for a general-purpose agent, make invoking the skill the
+first instruction in the prompt (below). Either way the body lands in that agent's
+context once, instead of being re-sent uncached in every concurrent step's prompt.
 
 ```
 You are running step [N] of a background QA pipeline.
 
 Your task: Run the equivalent of [skill invocation] against the running app.
 
-Invoke the [skill-name] skill (preloaded via the `skills:` field on this Agent call).
+First, invoke the [skill-name] skill with the Skill tool. Do that before anything else.
 
 Arguments: [flags, target, etc.]
 
