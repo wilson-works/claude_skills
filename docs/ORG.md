@@ -118,7 +118,7 @@ two agents never silently fight over the same file.
 ## 3. How a work order actually runs (the loop)
 
 The nominal chain is CEO → James → Tim → head → junior → head → Tim → **John gate** → merge.
-But here is the part most people miss:
+That chain is an accountability model, not a call stack:
 
 > **Execution model:** in this Claude Code environment a sub-agent **cannot spawn another
 > sub-agent**. So the top-level session (the orchestrator) does *all* the spawning. The

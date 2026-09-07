@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Stage this deploy's files by name, commit them, and push to GitHub to trigger a Railway deploy. Invoke with /deploy or /deploy [commit message].
+description: Stage this deploy's files by name, commit them, and push to GitHub to trigger a CI/CD deploy (Railway, Vercel, Netlify, GitHub Actions). Invoke with /deploy or /deploy [commit message].
 ---
 
 # Deploy to Railway via GitHub Push
