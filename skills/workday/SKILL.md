@@ -120,7 +120,7 @@ versions; the lane prompt template encodes it.
 implementer runs its frontmatter model (Sonnet 5 — 1M native context, so a long lane no
 longer thins out mid-night); `chief-engineer-john` reviews on Opus at `effort: xhigh` (his
 frontmatter) — one cranked review per WO is the cheapest quality you can buy. For a budget
-night, launch lanes with `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` to force all-Sonnet spawns
+night, launch lanes with `CLAUDE_CODE_SUBAGENT_MODEL=sonnet CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` (both; the model var alone is inert against agent frontmatter, measured 2026-09-07 — use `/budget-mode on`) to force all-Sonnet spawns
 without editing any file.
 
 ## Invocation
