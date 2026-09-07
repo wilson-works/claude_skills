@@ -42,13 +42,23 @@ for what you carry.
 
 ## Where routing lives (precedence — highest wins)
 
-1. `CLAUDE_CODE_SUBAGENT_MODEL` env var — overrides every subagent's model. The budget
-   lever: `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` turns any org run into an all-Sonnet night
-   with zero file edits.
+1. `CLAUDE_CODE_SUBAGENT_MODEL` **paired with `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1`** —
+   together they override every subagent's model, frontmatter included. The budget lever,
+   and it needs both vars (v2.1.257+).
 2. The `model:` parameter on an individual Agent call (the Agent tool has no `effort` parameter; effort comes from the agent file or the session) (how the marathon
    skills route).
 3. The agent file's `model:` / `effort:` frontmatter (this pack's standing assignments).
-4. The main session model.
+4. `CLAUDE_CODE_SUBAGENT_MODEL` **without FORCE** — it sits here, *below* frontmatter, as
+   of Claude Code v2.1.251. So on its own it does nothing to any agent that declares a
+   `model:`, which in this pack is all of them.
+5. The main session model.
+
+Measured 2026-09-07 on Claude Code 2.1.263: three headless runs spawning
+`head-claude-clay` (frontmatter `model: opus`) and asking it to report its own model
+ID. With `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` alone Clay ran `claude-opus-5[1m]` —
+**identical to the control run with the var unset**. Only with
+`CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` added did Clay run `claude-sonnet-5`. Set the model var
+alone and nothing errors — you simply pay full rates for a night you believe is cheap.
 
 Skills can also pin `model:`/`effort:` in SKILL.md frontmatter — a one-turn override.
 
