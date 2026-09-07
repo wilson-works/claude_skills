@@ -20,8 +20,8 @@ A collection of reusable [Claude Code](https://claude.com/claude-code) skills fo
 - **[council-rd](skills/council-rd/)** -- Per-research-folder mini-councils that pick the top 2-3 work orders from each report and emit an HTML approval tool. `/council-rd [research-root]`
 - **[agent-org](skills/agent-org/)** -- 18-agent organizational hierarchy with hard-ACL Slack-style channels. C-suite (Opus) directs, exec assistant routes, department heads review, juniors ship. SQLite-backed comms bus + path-guard hook enforces dept ownership. `/agent-org`
 - **[team-conduct](skills/team-conduct/)** -- Research-derived conduct pack for human + AI teams: ownership language, honest status format, blameless escalation (9-field artifact, reversibility gate), S0-S8 session handoffs, and human-AI trust calibration — every rule shipped with the forcing function that keeps it from becoming a poster. `/team-conduct [artifact to audit]`
-- **[org-knowledge-audit](skills/org-knowledge-audit/)** -- Knowledge-integrity audit for an agent organization: reads every agent definition, extracts the domain claims embedded in them, classifies each by volatility risk (annually-changing figures down to pure workflow), flags...
-- **[org-reference-packs](skills/org-reference-packs/)** -- The refresh mechanism for an agent organization's factual knowledge: per-department reference packs where every fact carries its source URL and as-of date, grouped by volatility tier with a named refresh trigger per...
+- **[org-knowledge-audit](skills/org-knowledge-audit/)** -- Reads every agent definition, extracts the factual claims inside, and ranks each by how fast it goes stale. `/org-knowledge-audit [agent|dept] [scope]`
+- **[org-reference-packs](skills/org-reference-packs/)** -- Builds the per-department fact sheets those agents read from, where every fact carries a source URL, an as-of date, and the event that should trigger its next refresh. `/org-reference-packs [build|refresh|slim]`
 
 ### Long-Running Marathons (walkaway sessions)
 - **[marathon-council](skills/marathon-council/)** -- Rotates through focus areas, researches the codebase, convenes councils, files work orders. The intake half. `/marathon-council`
@@ -49,11 +49,11 @@ A collection of reusable [Claude Code](https://claude.com/claude-code) skills fo
 - **[scope-check](skills/scope-check/)** -- Compares original work order or plan scope against actual git diff to detect scope creep. PASS / CONCERNS / FAIL. `/scope-check`
 - **[retro](skills/retro/)** -- Post-marathon or post-session retrospective from git log + backlog + plan files. Outputs 3-5 action items. `/retro`
 - **[brainstorm](skills/brainstorm/)** -- A structured two-phase ideation session.
-- **[decision-policy](skills/decision-policy/)** -- Stops recurring decisions from being re-litigated: mines your notes, backlog, and session history for decisions made repeatedly, surfaces the latent rule behind each, triages by reversibility x stakes (one-way-door...
+- **[decision-policy](skills/decision-policy/)** -- Finds the decisions you keep making over and over, names the rule you were already following, and writes it down so the argument stops. `/decision-policy [file|consult|review]`
 
 ### Design Intelligence
-- **[ui-ux-pro-max](skills/ui-ux-pro-max/)** -- Comprehensive UI/UX design intelligence: 50+ styles, 161 color palettes, 57 font pairings, 99 UX guidelines, 25 chart types, prioritized rules (accessibility/touch/performance/style/layout/typography/animation/forms/navigation/charts).
-- **[design](skills/design/)** -- Comprehensive design generation: brand identity, logos (55 styles), corporate identity programs (50 deliverables), HTML presentations (Chart.js), banner design (22 styles), icons (15 styles), social photos for every major platform.
+- **[ui-ux-pro-max](skills/ui-ux-pro-max/)** -- UI/UX design intelligence: 50+ styles, 161 color palettes, 57 font pairings, 99 UX guidelines, 25 chart types, prioritized rules (accessibility/touch/performance/style/layout/typography/animation/forms/navigation/charts).
+- **[design](skills/design/)** -- Design generation: brand identity, logos (55 styles), corporate identity programs (50 deliverables), HTML presentations (Chart.js), banner design (22 styles), icons (15 styles), social photos for every major platform.
 - **[design-system](skills/design-system/)** -- Token architecture, component specifications, slide generation. Three-layer tokens (primitive -> semantic -> component), CSS variables, spacing/typography scales.
 - **[ui-styling](skills/ui-styling/)** -- shadcn + Tailwind patterns with accessibility, theming, responsive design, and utility references.
 - **[brand](skills/brand/)** -- Brand voice, visual identity, messaging frameworks, asset management, brand consistency. Approval checklist, color-palette management, logo usage rules, typography specs.
@@ -145,26 +145,26 @@ A collection of reusable [Claude Code](https://claude.com/claude-code) skills fo
 - **[skill-stocktake](skills/skill-stocktake/)** -- Audit Claude skills and commands for quality. Quick Scan (changed only) and Full Stocktake modes with sequential subagent batch evaluation. `/skill-stocktake`
 - **[eval-harness](skills/eval-harness/)** -- Formal evaluation framework for Claude Code sessions implementing eval-driven development (EDD) principles. `/eval-harness`
 - **[mcp-server-patterns](skills/mcp-server-patterns/)** -- Build MCP servers with Node/TypeScript SDK -- tools, resources, prompts, Zod validation, stdio vs Streamable HTTP. `/mcp-server-patterns`
-- **[file-organizer](skills/file-organizer/)** -- Bring order to a messy folder -- Downloads, Desktop, a shared-drive dump -- with a plan-first, never-destructive discipline: SCAN inventories the folder read-only, PROPOSE presents a fitted taxonomy plus a complete...
-- **[meeting-digest](skills/meeting-digest/)** -- Turn raw meeting material -- pasted notes, a transcript file, a voice-memo transcription, or your from-memory recap right after a call -- into a structured digest: TL;DR, decisions, action items, open questions,...
+- **[file-organizer](skills/file-organizer/)** -- Sorts a messy folder (Downloads, Desktop, a shared drive) plan-first: scan read-only, propose a taxonomy, move nothing until you approve it. `/file-organizer [folder]`
+- **[meeting-digest](skills/meeting-digest/)** -- Turns notes, a transcript, or your from-memory recap right after a call into a digest with the decisions and action items pulled out. `/meeting-digest [source]`
 - **[notetaker](skills/notetaker/)** -- Persistent personal notes system -- like the backlog, but for your work and thinking instead of work orders.
-- **[journal](skills/journal/)** -- A method-true journaling companion: at setup you pick a named practice -- plain reflection, gratitude (weekly counting-blessings or nightly three-good-things), expressive-writing deep dives, or a morning-pages-style...
+- **[journal](skills/journal/)** -- Journaling that follows one named practice instead of a generic prompt: reflection, gratitude, expressive writing, or morning pages. You pick at setup. `/journal [prompt|synthesize|setup]`
 - **[sop-writer](skills/sop-writer/)** -- Turn any process into a Standard Operating Procedure that someone else could execute cold -- via a gap-hunting interview, a confirmed workflow map you already have, or revision of an existing SOP after a process change.
-- **[spreadsheet-doctor](skills/spreadsheet-doctor/)** -- Diagnose and clean messy CSV/XLSX files with a three-phase medical-triage discipline: EXAMINE profiles the file read-only and presents a diagnosis report, PRESCRIBE proposes an explicit numbered cleaning plan that...
+- **[spreadsheet-doctor](skills/spreadsheet-doctor/)** -- Diagnoses a messy CSV or XLSX read-only, hands you a numbered cleaning plan, and cleans it only after you say yes. `/spreadsheet-doctor [file]`
 - **[weekly-review](skills/weekly-review/)** -- A guided 15--20 minute weekly review ritual -- GTD-flavored but tool-agnostic -- that closes the loop on the week and produces next week's focus.
-- **[life-loop](skills/life-loop/)** -- Captures a recurring personal mental loop -- what's for dinner, packing, gifts, workouts, weekend plans, chores -- through a zero-jargon interview, converts it into a stored personal loop file with your actual decision...
-- **[meal-prep](skills/meal-prep/)** -- Profile-driven weekly meal planning: a one-time interview captures your household size, user-supplied dietary rules, budget shape, cooking time and skill, equipment, and dislikes into a stored profile; each weekly run...
-- **[travel-plan](skills/travel-plan/)** -- Plans a trip end to end without pretending to know the world: a capture interview for dates, party, budget, pace, and constraints; a day-by-day itinerary skeleton with one anchor per day; a run-time research discipline...
+- **[life-loop](skills/life-loop/)** -- Takes a decision you re-make every week (dinner, packing, gifts, workouts) and turns it into a stored loop that already knows how you decide. `/life-loop [run|list|promote] [name]`
+- **[meal-prep](skills/meal-prep/)** -- Weekly meal planning against a profile you fill in once: household size, your dietary rules, budget, cooking time, equipment, and what you won't eat. `/meal-prep [setup|correct]`
+- **[travel-plan](skills/travel-plan/)** -- Plans a trip end to end without pretending to know the world: one anchor per day, and every fact looked up at run time rather than recalled. `/travel-plan [pack|checklist] [trip]`
 - **[prompt-coach](skills/prompt-coach/)** -- Interactive coaching that improves how you ask Claude for things.
-- **[extract-approach](skills/extract-approach/)** -- Captures how a non-trivial engineering problem was solved, at the moment it is solved, as an atomic claim-titled approach note -- recurrence trigger, failure symptom, checkable rule, counter-example -- filed in a...
-- **[power-chains](skills/power-chains/)** -- A library of named, versioned multi-skill playbook chains with a gated runner: each chain file declares its steps as skill invocations, the explicit artifact handoff between every step (what gets written where, and how...
+- **[extract-approach](skills/extract-approach/)** -- Writes down how you solved a hard problem at the moment you solve it, as one checkable rule with the failure that prompted it. `/extract-approach [find|review]`
+- **[power-chains](skills/power-chains/)** -- Named multi-skill playbooks with a runner that gates each step: every chain declares its steps and exactly what each one hands the next. `/power-chains [run|author|report] [chain]`
 - **[cleanup-stale](skills/cleanup-stale/)** -- Survey-and-prune stale scratch artifacts from the project root, the `.claude/` orchestration directory, and the shared `d:\tmp` scratch dir.
 
 ### Dev Workflow
 - **[deploy](skills/deploy/)** -- Commit staged changes and push to GitHub to trigger a CI/CD deploy. `/deploy [message]`
-- **[harness-audit](skills/harness-audit/)** -- Audits your entire Claude Code harness against its purpose: enumerates every configurable surface (settings scopes, permission rules and modes, sandboxing, hooks, CLAUDE.md/rules hierarchy, auto memory, skills,...
-- **[claude-md-doctor](skills/claude-md-doctor/)** -- Audits and rewrites a project's instruction files -- CLAUDE.md, folder-scoped files, path-scoped rules, AGENTS.md bridging -- into an operating manual a weaker model can execute: a scored audit across seven dimensions...
-- **[attack-surface](skills/attack-surface/)** -- Builds and maintains a living attacksurface.md inventory of everything you have deployed -- per system: platform class, provider, auth method, exposure tier, criticality, matching CIS Benchmark checklist, and a...
+- **[harness-audit](skills/harness-audit/)** -- Audits your whole Claude Code setup against what you actually use it for: settings, permissions, hooks, instruction files, memory, skills, and agents. `/harness-audit [lens|surfaces]`
+- **[claude-md-doctor](skills/claude-md-doctor/)** -- Rewrites CLAUDE.md and its folder- and path-scoped siblings into an operating manual a weaker model can follow, with a scored audit first. `/claude-md-doctor [rewrite|<path>]`
+- **[attack-surface](skills/attack-surface/)** -- Keeps a living inventory of everything you have deployed: what it runs on, how it authenticates, who can reach it, and which CIS checklist applies. `/attack-surface [review|harness]`
 - **[skill-graph](skills/skill-graph/)** -- Builds and queries a machine-readable graph of your skill pack: every skill becomes a node with its invocation, triggers, and the artifacts it produces and consumes; Pairs-with lines and workflow text become edges.
 
 ## Installation

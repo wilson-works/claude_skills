@@ -129,7 +129,13 @@ Bonus: `/comms-stats` and inspecting `<repo>/.claude/comms.db` directly with `sq
 
 - Each agent only reads channels they're on. James never sees `dev-floor` chatter.
 - `comms read` returns single-line headers by default; `--verbose` adds bodies.
-- Bodies are capped at 2000 chars on post (truncated, not rejected).
+- Bodies over 2000 chars are **auto-split into a numbered thread** on post — the parts
+  carry `(i/n)` subjects and share a thread id. Nothing is truncated and nothing is
+  dropped, so a long handoff keeps its tail. Read the whole thread, not just part 1.
+- **Pin `AGENT_ORG_DB`** to the main checkout's `comms.db` on every call. The database
+  path otherwise resolves from the process cwd, so a call made from a git worktree or a
+  run subdirectory silently creates a private database — the post succeeds, prints an
+  id, and nobody ever reads it.
 - `--unread` uses a per-agent read cursor — no rescanning history.
 - Dept heads pre-review before passing up, so John doesn't waste tokens on broken diffs.
 

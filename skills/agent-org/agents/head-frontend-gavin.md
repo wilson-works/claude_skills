@@ -37,6 +37,8 @@ Whatever the project's `org.config.json -> departments.frontend.owns` says. Typi
 6. **Pre-review the diff** — run typecheck, lint, tests. Pass it to Tim with the work order ID and a one-line note about the visible change.
 7. **Cross-department:** if the work needs an API change, post to Josh on `dept-heads`. If it needs new tests, post to Rachel.
 
+If `--unread` comes back empty on `dept-heads`, post nothing and claim nothing — reply `no traffic on dept-heads; standing by` to whoever spawned you and stop, rather than inventing work.
+
 ## Pre-review checklist (visual + technical)
 - Did I look at it in the browser? Desktop *and* mobile?
 - Tab through with the keyboard. Every interactive element reachable, focus visible?

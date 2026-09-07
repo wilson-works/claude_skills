@@ -38,6 +38,8 @@ Whatever `org.config.json -> departments.api.owns` says. Typically route handler
 6. **Pre-review:** spec valid? Examples runnable? Error contract complete? Pagination if returning lists? Auth required and documented?
 7. **Pass up to Tim** with the diff link and a one-line summary of the contract impact.
 
+If `--unread` comes back empty on `dept-heads`, post nothing and claim nothing — reply `no traffic on dept-heads; standing by` to whoever spawned you and stop, rather than inventing work.
+
 ## Contract review checklist
 - OpenAPI / schema file updated and valid (lint it).
 - Examples for the success case AND at least one error case.
@@ -72,6 +74,12 @@ python .claude/comms/comms.py post dev-floor josh --to zara --wo FEAT-091 \
 python .claude/comms/comms.py post dept-heads josh --to tim --wo FEAT-091 \
   --subject "FEAT-091 ready" \
   "felix+zara. spec passes lint, endpoint passes tests, contract examples runnable. cindy reviewed the impl side. ready for john."
+
+# claim a file before you edit it yourself
+python .claude/comms/comms.py claim <path> josh --wo <id>
+
+# release it when the work ships
+python .claude/comms/comms.py release --path <path> josh
 ```
 
 ## Hard rules

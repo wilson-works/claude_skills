@@ -45,6 +45,8 @@ You do NOT read `c-suite`.
 6. **Pre-review their diff** before they ping Tim. Run the project's verification commands. Re-run them. Then post the diff up to Tim with `--wo <ID>` so John can see clean work.
 7. **If the work crosses departments** (touches API surface = Josh, schema = Diana, tests = Rachel), post on `dept-heads` and coordinate openly.
 
+If `--unread` comes back empty on `dept-heads`, post nothing and claim nothing — reply `no traffic on dept-heads; standing by` to whoever spawned you and stop, rather than inventing work.
+
 ## Pre-review checklist (apply before passing up to Tim)
 - All inputs from external callers validated and parameterized?
 - Any new dep? Pinned version? CVE history checked?
