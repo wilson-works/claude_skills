@@ -33,7 +33,7 @@ for what you carry.
 | Role in a run | Model |
 |---|---|
 | Review / merge gate (John) | `opus` (at `effort: xhigh` — one cranked review per WO is the cheapest quality you can buy) |
-| Orchestrator on a Fable lane; the compose and close gates of a run | `fable` — the highest output price in the lineup, so spend it where one call decides the shape of many, never per work order |
+| Orchestrator on a Fable lane; the compose and close gates of a run | `fable` — the highest output price in the lineup ($50/MTok out against Opus 5's $25, per [pricing](https://platform.claude.com/docs/en/about-claude/pricing)), so spend it where one call decides the shape of many, never per work order |
 | Implementers (juniors, work-order agents) | `sonnet` — escalate a task to Opus only after it fails on Sonnet |
 | Deep research synthesis (marathon-research) | `opus` |
 | Scope checks, context briefs, distill/split passes | `sonnet` at `effort: low`/`medium` |
@@ -52,14 +52,24 @@ for what you carry.
 
 Skills can also pin `model:`/`effort:` in SKILL.md frontmatter — a one-turn override.
 
-**Effort has its own ladder**, separate from the model one. Highest wins:
-`CLAUDE_CODE_EFFORT_LEVEL` → `claude --effort <level>` → `/effort <level>` in-session →
-per-model `"modelSettings"` in settings.json → top-level `"effortLevel"` → the model's
-default (`high`). The levels are `low` `medium` `high` `xhigh` `max` `ultracode`;
-`ultracode` is `xhigh` plus dynamic workflows and is worth it only when the agent has to
-decide its own steps, not merely think harder about steps you already specified. The
-per-model `modelSettings` block is the only way to pin effort per tier without editing
-every agent file.
+**Effort has its own ladder**, separate from the model one. The levels are `low` `medium`
+`high` `xhigh` `max`, defaulting to `high` on every model that supports effort except Opus
+4.7 (`xhigh`). With `ultracode` off, Claude Code takes the first of these that applies:
+(1) an explicit choice — `CLAUDE_CODE_EFFORT_LEVEL`, `--effort` at launch, or `/effort`
+in-session; (2) **a held model default on Fable 5, Opus 4.8 and Opus 4.7 only** — from the
+first run of one of those, that model's default effort holds across sessions *even when
+your settings resolve a different level*, until you change effort once interactively
+(Opus 5 and Fable 5.1 have no such hold, and this rung is why a settings pin can look
+ignored); (3) your settings — the level saved for that model, or an `effortLevel` key,
+with `modelSettings` stating the precedence between them; (4) the model's own default.
+The per-model `modelSettings` block is still the only way to pin effort per tier without
+editing every agent file.
+
+`ultracode` is **not** an effort level — the docs call it "a Claude Code setting rather
+than a model effort level". It sends `xhigh` and additionally has Claude orchestrate
+dynamic workflows. Set it with `/effort ultracode`, `--effort ultracode` (v2.1.203+),
+`"ultracode": true`, or the `/model` picker; the persisted `effortLevel` setting and
+`CLAUDE_CODE_EFFORT_LEVEL` do not accept it.
 
 ## Two rules of thumb
 
