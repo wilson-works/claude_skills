@@ -12,13 +12,19 @@ Channels:
 Token discipline:
     Default `read` output is one line per message: "#42 14:23 cindy->john (subj)".
     Bodies only print under --verbose. Default --limit is 20.
-    Bodies are capped at MAX_BODY_CHARS on post (truncated, not rejected).
+    A body over MAX_BODY_CHARS (2000) is auto-split into a numbered thread on post.
+    Nothing is dropped and nothing is rejected; the parts carry "(i/n)" subjects
+    and share a thread_id.
 
 Database location:
     Resolved in this order:
       1) AGENT_ORG_DB env var
       2) <repo>/.claude/comms.db where <repo> is the nearest ancestor with .git
       3) ./.claude/comms.db relative to cwd
+    Steps 2 and 3 are BOTH relative to the process cwd, so a call made from a git
+    worktree or a run subdirectory silently creates and writes to a private comms.db --
+    the post succeeds and nobody ever reads it. Pin AGENT_ORG_DB to the main checkout's
+    comms.db on every call.
 
 CLI:
     comms.py post <channel> <from> --subject TEXT [--to A] [--thread ID] [--wo WO] BODY
@@ -238,20 +244,39 @@ def cmd_post(args: argparse.Namespace) -> int:
     body = args.body
     if body == "-":
         body = sys.stdin.read()
-    if len(body) > MAX_BODY_CHARS:
-        body = body[:MAX_BODY_CHARS] + "\n…[truncated]"
+    # LC-25 repair (walter session 6, upstreamed by
+    # WO-20260815-org-pack-drift-corrections): never truncate. An oversize body
+    # auto-splits into a numbered thread instead of losing its tail. The old
+    # warn-and-truncate path cost session 6's lanes ~20 message tails, and the
+    # loss was silent at the point it mattered -- the end of a message is where
+    # the handoff lives.
+    chunks = [body[i : i + MAX_BODY_CHARS] for i in range(0, len(body), MAX_BODY_CHARS)] or [""]
 
     db = resolve_db_path()
     conn = connect(db)
-    cur = conn.execute(
-        """INSERT INTO messages
-              (channel, from_agent, to_agent, thread_id, subject, body, work_order)
-           VALUES (?, ?, ?, ?, ?, ?, ?)""",
-        (args.channel, args.from_agent, args.to, args.thread, args.subject, body, args.wo),
-    )
-    audit(conn, args.from_agent, "post", f"#{cur.lastrowid} {args.channel} -> {args.to or '*'}")
+    thread = args.thread
+    first_id = None
+    total = len(chunks)
+    for i, chunk in enumerate(chunks, start=1):
+        subject = args.subject if total == 1 else f"{args.subject} ({i}/{total})"
+        cur = conn.execute(
+            """INSERT INTO messages
+                  (channel, from_agent, to_agent, thread_id, subject, body, work_order)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (args.channel, args.from_agent, args.to, thread, subject, chunk, args.wo),
+        )
+        audit(conn, args.from_agent, "post", f"#{cur.lastrowid} {args.channel} -> {args.to or '*'}")
+        if first_id is None:
+            first_id = cur.lastrowid
+            if thread is None and total > 1:
+                thread = first_id
     conn.commit()
-    print(f"posted #{cur.lastrowid} on {args.channel}")
+    if total > 1:
+        print(
+            f"posted #{first_id} on {args.channel} (auto-split into {total} parts, thread #{thread})"
+        )
+    else:
+        print(f"posted #{first_id} on {args.channel}")
     return 0
 
 
