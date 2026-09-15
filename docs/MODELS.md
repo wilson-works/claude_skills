@@ -60,6 +60,8 @@ ID. With `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` alone Clay ran `claude-opus-5[1m]` 
 `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` added did Clay run `claude-sonnet-5`. Set the model var
 alone and nothing errors — you simply pay full rates for a night you believe is cheap.
 
+Rung 5 is where the built-in agent types land: `general-purpose`, `Explore`, `Plan` and any untyped Agent call carry no frontmatter model, so they inherit the parent. On a Fable session that means Fable subagents at Fable prices. Measured 2026-09-15 on Claude Code 2.1.269 (headless runs, `claude-fable-5-1` parent): `general-purpose` reported `claude-fable-5-1` with the var unset and `claude-opus-5` with `CLAUDE_CODE_SUBAGENT_MODEL=opus` in user settings, while a `model: sonnet` junior stayed `claude-sonnet-5` in both runs. Pin `CLAUDE_CODE_SUBAGENT_MODEL=opus` in `~/.claude/settings.json` `env` on any machine that runs Fable sessions; a settings `env` block shadows a shell export of the same var, and project settings (where `/budget-mode` writes) still win over it.
+
 Skills can also pin `model:`/`effort:` in SKILL.md frontmatter — a one-turn override.
 
 **Effort has its own ladder**, separate from the model one. The levels are `low` `medium`
