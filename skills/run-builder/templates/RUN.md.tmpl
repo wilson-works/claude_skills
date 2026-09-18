@@ -19,7 +19,7 @@ Each leg is judged independently by the gate. A leg is MET or it is not; there i
 
 | Leg | Statement (provable) | Modality | Judged by |
 |---|---|---|---|
-| L1 | {…} | browser \| suite \| db-query \| artifact | gate |
+| L1 | {…} | browser \| db-query \| artifact | gate |
 | L2 | {…} | … | gate |
 | L3 | {…} | … | gate |
 
@@ -30,12 +30,11 @@ versa). Name which two here at build time: **{L?, L?}**.
 ## Gate modality — decided now, at build time
 
 - [ ] **Browser gate** — required if ANY leg is user-facing / visual / portal-session.
-      `new_page` with `isolatedContext: "lane-{LAST}-gate"` from the FIRST navigation.
       Re-mint magic links after any backend restart. Read input **values**, not `innerText`.
-- [ ] **Suite-only gate** — legal only if every leg is API/schema/logic. Independent **serial
-      full-suite sweep against a frozen baseline**, not targeted sampling.
+- [ ] **Artifact / query gate** — when no leg is user-facing: file, query, curl at the exact sha.
+      **No suite** — the HQ merge gate runs tests (fleet-ops rule 10).
 
-Chosen: **{GATE_MODALITY}**. Frozen baseline commit (suite-only): `{BASELINE_SHA}`.
+Chosen: **{GATE_MODALITY}**. No lane runs a suite (rule 10).
 
 ## Lanes
 
@@ -44,6 +43,10 @@ Chosen: **{GATE_MODALITY}**. Frozen baseline commit (suite-only): `{BASELINE_SHA
 | A | {…} | {globs} | `{path}` / `{branch}` | `queue/a.md` ({n} rows) |
 | B | {…} | {globs} | `{path}` / `{branch}` | `queue/b.md` ({n} rows) |
 | {LAST} | **GATE (non-building)** | `runs/run-{NN}/**` + backlog files only | main checkout, read-only on product code | `queue/{last}.md` |
+
+**Model per lane (owner directive 2026-09-17, charter Article 17):** builder lanes `model: opus`, the gate lane
+`model: fable`. Two named exceptions, each written into the Role cell above when used: Fable on a builder when the
+work needs it; Opus on the gate when Fable is out.
 
 The gate never edits product code. Builders mark `AWAITING_VERIFICATION`; only the gate marks
 `VERIFIED`.
