@@ -9,7 +9,7 @@ suspected stale, that is an `OWNER-QUESTIONS.md` entry — not a re-run.
 
 | Leg | Statement | How it was proven | Evidence path | Re-sampled by |
 |---|---|---|---|---|
-| L1 | {…} | {browser / suite / db-query} | `evidence/gate/{…}` | {modality, or "—"} |
+| L1 | {…} | {browser / artifact / db-query} | `evidence/gate/{…}` | {modality, or "—"} |
 | L2 | {…} | … | … | … |
 
 ## Verified state at close
@@ -17,7 +17,7 @@ suspected stale, that is an `OWNER-QUESTIONS.md` entry — not a re-run.
 - Close tag: `run-{NN}-close` at `{CLOSE_SHA}`
 - Branch: `{BRANCH}` — **{N} commits ahead of {UPSTREAM}, UNPUSHED** *(re-derive this number;
   never carry it forward from a prior HANDOFF)*
-- Suite baseline: `{BASELINE_SHA}` — summary line at close: `{SUMMARY_LINE}`
+- Tests: none run by any lane (rule 10); the HQ merge gate runs the suites at PR time.
 - Migrations applied this run: {list, or "none"}. Next free migration number: {NNNN}
 - Deploy state: **not deployed.** Deploy is the owner's attended act.
 

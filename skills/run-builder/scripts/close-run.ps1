@@ -89,8 +89,8 @@ foreach ($pf in $promptFiles) {
   $body = Get-Content -LiteralPath $pf.FullName -Raw
   $isGate = $false
   if ($body -match 'sole terminal authority') { $isGate = $true }
-  $need = 7
-  if ($isGate) { $need = 6 }
+  $need = 6
+  if ($isGate) { $need = 5 }
   $i = 1
   while ($i -le $need) {
     if (-not ($body -match ('(?m)^' + $i + '\. '))) { $c4 = $false }

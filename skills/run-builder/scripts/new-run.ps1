@@ -190,6 +190,27 @@ if ($isolation -eq 'worktrees') {
   Write-Host "worktree  : skipped (shared-tree; lanes coordinate via comms.py path claims)"
 }
 
+# ---------------------------------------------------------------- gate seat file
+# CAO ruling 2026-09-18 (run-26h): the gate seat is a FILE in the gate lane's working tree, not a
+# launch-line env var (the owner launches every lane from the VS Code extension). The guard
+# (no_test_run_guard.py) honours FLEET_GATE_SEAT=1 OR a valid, unexpired .walkaway\GATE_SEAT whose
+# tree= names the directory it sits in. Builder trees never get one. Expiry = stop-at + 24 h.
+# Owner directive 2026-09-18: every lane is a VS Code chat opened on the HUB ROOT, never on this tree.
+# The gate binds this file to its chat with `no_test_run_guard.py --claim-seat <tree>` as its first
+# command (the hook writes session=); its T1 then reaches the tree by `cd` inside the command.
+$gateTree = $RepoPath   # the gate's tree per PROMPT-GATE.md.tmpl (reached by cd, never by reopening the chat)
+$seatDir  = $gateTree + '\.walkaway'
+if (-not (Test-Path -LiteralPath $seatDir)) { New-Item -ItemType Directory -Path $seatDir | Out-Null }
+$seatExp  = (Get-Date).AddHours(24).ToString('yyyy-MM-ddTHH:mm:sszzz')
+$seatBody = @(
+  ('run=' + $runName),
+  ('tree=' + $gateTree),
+  ('expires=' + $seatExp),
+  ('# written by new-run.ps1 at compose; gate lane ' + $gateLane.ToUpper() + '; stop-at ' + $StopAt + '. Delete at close.')
+) -join "`n"
+Set-Content -LiteralPath ($seatDir + '\GATE_SEAT') -Value $seatBody -Encoding UTF8
+Write-Host ("gate seat : " + $seatDir + '\GATE_SEAT  (expires ' + $seatExp + ')')
+
 # ---------------------------------------------------------------- comms channel
 
 $comms = $RepoPath + '\.claude\comms\comms.py'
@@ -266,4 +287,7 @@ Set-Content -LiteralPath $Ledger -Value $ledgerText -Encoding UTF8
 Write-Host ("prep      : committed " + $prepSha + " " + $marker)
 Write-Host ""
 Write-Host "NEXT: the skill fills RUN.md + queue/*.md + prompts/, then the OWNER pastes."
+Write-Host ("LAUNCH: open VS Code on the Hub folder (" + $HubRoot + "); paste each prompts\PROMPT-<X>.md into its own")
+Write-Host "        Claude extension chat there. No other folder, no worktree window, no terminal, no launcher script"
+Write-Host "        is required (owner directive 2026-09-18). Lanes reach their trees by cd inside each command."
 Write-Host "This script does not launch lanes."
