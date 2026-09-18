@@ -40,8 +40,8 @@ one run object, one gate, one message bus, and seven mandatory lines.
 ```
 <repo>/runs/run-NN/                 # committed, NOT gitignored
   RUN.md                 shape, theme, shift, stop-at, MUST-MEET goal in named judged legs
-  PROMPTS.md             every lane prompt in one file (the owner pastes from here)
-  prompts/PROMPT-<X>.md  one per lane, content identical to its PROMPTS.md section
+  PROMPTS.md             paste order + pointers only (bodies live under prompts/ — a duplicate was 100% redundant)
+  prompts/PROMPT-<X>.md  one per lane; the owner pastes from here
   queue/<x>.md           that lane's FIXED row queue - no lane invents work
   LEDGER-ROW.md          the row appended to the fleet-ops runs ledger
   evidence/<lane>/       created empty; lanes write proof here
@@ -64,8 +64,8 @@ dispatch.
   `run-NN` channel matching). If a repo's `.claude/comms/comms.py` predates it, lane agents die
   with `unknown agent 'lane-a'` on the first post — re-copy it from the agent-org skill
   (`C:\Users\patri\.claude\skills\agent-org\comms\comms.py`).
-- `scratch-run.ps1` present under `<hub>\50-AI\fleet-ops\policy\` — `new-run.ps1` refuses to
-  build a run that cannot test cleanly.
+- `scratch-run.ps1` present under `<hub>\50-AI\fleet-ops\policy\` — `new-run.ps1` still checks for it
+  (legacy; lanes no longer render it — rule 10). Its absence is a warning to HQ, not a lane concern.
 
 ## Phase order
 
@@ -74,7 +74,7 @@ dispatch.
 1  resolve hub root + code zone + repo (runtime probe, never hardcoded)
 2  read --from-handoff if given; extract the do-not-re-verify list
 3  decompose the theme into the MUST-MEET goal and its NAMED JUDGED LEGS
-4  decide gate modality from the legs (browser vs suite-only) + name the 2 rule-70 re-samples
+4  decide gate modality from the legs (browser vs artifact/query — never a suite) + name the 2 rule-70 re-samples
 5  build one FIXED row queue per building lane, territory-disjoint
 6  run scripts\new-run.ps1  -> scaffold, worktrees, comms channel, ledger OPEN row, prep commit
 7  render RUN.md, prompts/PROMPT-<X>.md, PROMPTS.md from the templates
@@ -100,6 +100,10 @@ The **last lane is ALWAYS the non-building GATE** with sole terminal authority. 
 
 The gate never edits product code. It may write only under `runs/run-NN/` and backlog files.
 
+**Model per lane (owner directive 2026-09-17, charter Article 17):** the composer writes `model: opus` on every
+builder lane and `model: fable` on the gate lane by default. Two named exceptions, recorded in RUN.md's Role cell:
+Fable on a builder when the work needs it; Opus on the gate when Fable is out.
+
 ### Why no new shapes
 
 The run evidence supports exactly **one axis of variation** — how many builders feed one gate.
@@ -113,12 +117,11 @@ Decided by the run's MUST-MEET legs, **before** any builder runs. Never chosen a
 whoever just read the builders' reports.
 
 - **Browser gate** — required if ANY leg is user-facing / visual / portal-session.
-  Mandatory: `new_page` with `isolatedContext: "lane-<X>-gate"` from the **first** navigation.
   Also mandatory: re-mint magic links after any backend restart (a restart kills portal
   sessions and reads as a 404 data bug); read input **values**, not `innerText` (a grid of
   `<input>` cells reads as empty to a text probe — it cost a false P1).
-- **Suite-only gate** — legal only when every leg is API / schema / logic. The gate runs an
-  **independent serial full-suite sweep against a frozen baseline**, not targeted sampling.
+- **Artifact / query gate** — when no leg is user-facing. The gate opens the file, runs the query,
+  curls the endpoint at the exact sha. **No suite** (rule 10, 2026-09-17): the HQ merge gate runs tests.
   Sweeps have caught what sampling missed.
 - **Both modalities additionally run rule-70 different-modality sampling on at least 2 legs:**
   a leg proven by browser is re-sampled by DB/query, and vice versa. Name the two in RUN.md.
@@ -165,24 +168,32 @@ zone, **failing loudly if neither exists**. A silent fall-through is how a runne
 resolving nothing. Reference implementation: `scripts\new-run.ps1` -> `Resolve-HubRoot` /
 `Resolve-CodeZone`.
 
-### Scratch policy — the skill wires it, the lane cannot forget it
+### Tests — no lane runs them (owner ruling 2026-09-17, fleet-ops rule 10)
 
-`D:\Hub\50-AI\fleet-ops\policy\hq-scratch-policy.md` is canonical and is **never duplicated
-into a prompt**. Any lane that runs tests gets this line rendered into its prompt, with the
-wrapper path resolved from the live hub root:
-
-```powershell
-<hub>\50-AI\fleet-ops\policy\scratch-run.ps1 -Command 'python -m pytest --basetemp=$env:SCRATCH_RUN_DIR\pytest <roots>'
-```
-
-**Single quotes are required** — `$env:SCRATCH_RUN_DIR` must reach the wrapper unexpanded; the
-wrapper sets it, the caller cannot. Never pass a `--basetemp` or `PYTEST_DEBUG_TEMPROOT` that
-already exists, never reuse a `run-*` dir, never set either outside the wrapper. A rotted
-basetemp measured 250x slower on identical work. `new-run.ps1` refuses to build a run if
-`scratch-run.ps1` is missing.
+No builder and no gate runs a suite. MANDATORY line 3 now says so, `guards/no_test_run_guard.py`
+enforces it as a global `PreToolUse` hook, and the HQ merge gate is the only place a suite runs.
+The scratch wrapper (`policy/scratch-run.ps1`) stays on disk for HQ's own use; it is no longer
+rendered into any prompt, and `{TEST_ROOTS}` / `{BASELINE_SHA}` render empty. Gate modality is
+browser, artifact or query — never `suite-only`.
 
 Also carried: `npx <tool>` is forbidden if `<tool>` appears anywhere in `package.json` — grep
 first, and treat an unreadable `package.json` as a hit.
+
+**Amendment 2026-09-18 (charter Part II, rule 10 as amended; owner rulings S2-01/S2-02, F1):** the ban is
+now **tiers**. T0 — a builder may run `tools/smoke.sh` (60 s) on its own row. T1 — the **gate lane only**
+(`FLEET_GATE_SEAT=1` in its launch env) runs ≤ 8 named files for ≤ 300 s through `policy/scratch-run.ps1`,
+clocked by `policy/t1_run.py`, list derived by `policy/t1_select.py`. T2 — the full suite, the HQ merge gate
+only. So the wrapper IS rendered for the gate lane; `{TEST_ROOTS}` renders for the gate lane only and stays
+empty for builders. MANDATORY line 3 carries the tier text. Nothing else in this section changes.
+
+**Amendment 2026-09-18 (CAO ruling, run-26h; owner: "We only use VSCode extension"):** the gate seat is granted
+by a **file**, not by a launch line. `new-run.ps1` writes `<gate working tree>\.walkaway\GATE_SEAT` at compose
+(`run=run-NN`, `tree=<that directory>`, `expires=<stop-at + 24 h, ISO-8601>`); `no_test_run_guard.py` honours
+`FLEET_GATE_SEAT=1` **or** a valid, unexpired seat file whose `tree=` names the directory it sits in, found by
+walking up from the hook's cwd. Builder trees never get the file. `PROMPT-GATE.md.tmpl` line 1 is the seat
+CHECK (both readings blank → BLOCKED, end the session), never an assertion. `PROMPTS.md`'s walkaway launch
+line is optional convenience, not the grant path. Why: run-26h closed 0/17 VERIFIED because the gate, launched
+from the VS Code extension, had no env var and the guard read env only.
 
 ---
 
@@ -298,8 +309,8 @@ scratch and **verify the deletion**, emit `evidence/gate/CONFORMANCE.json`.
 ## The seven MANDATORY lines
 
 Every lane prompt carries these **verbatim**. Single source of truth:
-`reference\MANDATORY-LINES.md`. Builders carry 1-7; the gate carries 1-6 plus the gate
-checklist. Each line has a recorded failure behind it and none can be enforced mechanically at
+`reference\MANDATORY-LINES.md`. Builders carry 1-6; the gate carries 1-5 plus the gate
+checklist; line 7 (browser isolation) renders on HQ-composed runs only, until HQ's MCP runs `--isolated`. Each line has a recorded failure behind it and none can be enforced mechanically at
 prompt time — which is exactly why they are in the prompt.
 
 ```
@@ -308,27 +319,29 @@ prompt time — which is exactly why they are in the prompt.
    `index.lock`.
 2. Every git command is prefixed `cd <target-repo> &&`. A bare git command from the run dir
    steers the MAIN tree.
-3. Name every test root explicitly (including `tests/ppn`). Judge pytest by the summary line,
-   not the exit code. Never reuse a basetemp — the wrapper mints a fresh one; you pass
-   `--basetemp=$env:SCRATCH_RUN_DIR\pytest` and nothing else.
-4. Browser work: `new_page` with `isolatedContext: "lane-<X>-<role>"` from the first
-   navigation. One debug shortcut; never invent a user-data-dir.
-5. Quote rulings verbatim from the source spine, never from a prior run summary or memo.
+3. Tests run in tiers; nobody judges their own work. T0: you may run `tools/smoke.sh` (60 s)
+   on your row and nothing else — no pytest, vitest, jest, playwright, `npm test` or any suite.
+   T1 (≤ 8 named files, 300 s, through `policy/scratch-run.ps1`) is the gate seat's alone; T2
+   (the full suite) is the HQ merge gate's alone. Prove a row by the artifact: the page, the
+   query, the curl, the diff. A test an order asks for is written and committed, never run by
+   you (rule 10 as amended 2026-09-18; `guards/no_test_run_guard.py` enforces the shape).
+4. Quote rulings verbatim from the source spine, never from a prior run summary or memo.
    A green suite can defend the wrong contract.
-6. Every number you write is re-read from the artifact at the moment of writing.
+5. Every number you write is re-read from the artifact at the moment of writing.
    Unpushed-commit counts are re-derived, never carried.
-7. You are a builder: you mark `AWAITING_VERIFICATION`, never `VERIFIED`. A `BLOCKED` post
+6. You are a builder: you mark `AWAITING_VERIFICATION`, never `VERIFIED`. A `BLOCKED` post
    without evidence is not a blocker. A `WATCH` from the gate is obeyed.
+7. HQ-composed runs only (until HQ's chrome-devtools MCP is registered with `--isolated`):
+   browser work is `new_page` with `isolatedContext: "lane-<X>-<role>"` from the first
+   navigation. One debug shortcut; never invent a user-data-dir. (ENGINE/FIELD: omit.)
 ```
 
 **Lives in the skill mechanics, NOT in prompts** (the skill does it, so a lane cannot forget):
-worktree provisioning, `--basetemp` wiring, scratch-policy caps, run-dir scaffold, ledger row,
-prep commit, comms channel creation, concurrency cap.
+worktree provisioning, run-dir scaffold, ledger row, prep commit, comms channel creation,
+concurrency cap.
 
-**Lives in the GATE checklist, NOT in builder prompts:** zombie-process enumeration by
-`--basetemp` via `Win32_Process` with an **ownership check before any kill**; the
-clean-worktree discriminator for suspicious reds; rule-70 different-modality sampling; the
-frozen-baseline serial sweep; verified scratch deletion; the conformance JSON. Full text in
+**Lives in the GATE checklist, NOT in builder prompts:** rule-70 different-modality sampling; the
+gate's own browser / artifact / query checks; verified scratch deletion; the conformance JSON. Full text in
 `templates\PROMPT-GATE.md.tmpl`.
 
 ---
