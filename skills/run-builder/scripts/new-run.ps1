@@ -190,6 +190,24 @@ if ($isolation -eq 'worktrees') {
   Write-Host "worktree  : skipped (shared-tree; lanes coordinate via comms.py path claims)"
 }
 
+# ---------------------------------------------------------------- gate seat file
+# CAO ruling 2026-09-18 (run-26h): the gate seat is a FILE in the gate lane's working tree, not a
+# launch-line env var (the owner launches every lane from the VS Code extension). The guard
+# (no_test_run_guard.py) honours FLEET_GATE_SEAT=1 OR a valid, unexpired .walkaway\GATE_SEAT whose
+# tree= names the directory it sits in. Builder trees never get one. Expiry = stop-at + 24 h.
+$gateTree = $RepoPath   # the gate's working directory per PROMPT-GATE.md.tmpl; override by hand for a judge worktree
+$seatDir  = $gateTree + '\.walkaway'
+if (-not (Test-Path -LiteralPath $seatDir)) { New-Item -ItemType Directory -Path $seatDir | Out-Null }
+$seatExp  = (Get-Date).AddHours(24).ToString('yyyy-MM-ddTHH:mm:sszzz')
+$seatBody = @(
+  ('run=' + $runName),
+  ('tree=' + $gateTree),
+  ('expires=' + $seatExp),
+  ('# written by new-run.ps1 at compose; gate lane ' + $gateLane.ToUpper() + '; stop-at ' + $StopAt + '. Delete at close.')
+) -join "`n"
+Set-Content -LiteralPath ($seatDir + '\GATE_SEAT') -Value $seatBody -Encoding UTF8
+Write-Host ("gate seat : " + $seatDir + '\GATE_SEAT  (expires ' + $seatExp + ')')
+
 # ---------------------------------------------------------------- comms channel
 
 $comms = $RepoPath + '\.claude\comms\comms.py'
