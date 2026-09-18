@@ -18,7 +18,7 @@ of the owner's check-in ritual:** `REPORT.md` -> `OWNER-QUESTIONS.md` -> this fi
    The sections below are the *content* it will use.
 3. If you want a different shape, say so — the builder re-decomposes; do not hand-edit lanes
    into these sections.
-4. Then open one session per lane and paste that lane's section as the first message.
+4. Then open one VS Code Claude extension chat per lane on the Hub folder (`D:\Hub` on HQ, `C:\Hub` on ENGINE/FIELD) and paste that lane's section as the first message. No other folder, worktree window, terminal or launcher is required.
 
 **Recovery:** if a lane dies, re-paste that lane's file from
 `runs/run-{NEXT_NN}/prompts/PROMPT-<X>.md`. Nothing recovers a lane automatically — crons die
@@ -28,7 +28,7 @@ with their session and there are zero recorded successful automated recoveries.
 
 ## LANE A — {ROLE}
 
-Working dir: `{WORKTREE_PATH}` · branch `{BRANCH}`
+Tree, reached by `cd` inside each command (never by opening the chat there): `{WORKTREE_PATH}` · branch `{BRANCH}`
 
 ```
 {full PROMPT-BUILDER body for lane A, rendered — identical to prompts/PROMPT-A.md}
@@ -38,7 +38,7 @@ Working dir: `{WORKTREE_PATH}` · branch `{BRANCH}`
 
 ## LANE B — {ROLE}
 
-Working dir: `{WORKTREE_PATH}` · branch `{BRANCH}`
+Tree, reached by `cd` inside each command (never by opening the chat there): `{WORKTREE_PATH}` · branch `{BRANCH}`
 
 ```
 {full PROMPT-BUILDER body for lane B}
@@ -52,7 +52,7 @@ Working dir: `{WORKTREE_PATH}` · branch `{BRANCH}`
 
 ## LANE {NEXT_LAST} — GATE (non-building)
 
-Working dir: the MAIN checkout `{REPO_PATH}` — read-only on product code.
+Tree, reached by `cd` inside each command (never by opening the chat there): the MAIN checkout `{REPO_PATH}` — read-only on product code.
 
 ```
 {full PROMPT-GATE body}
