@@ -3,11 +3,14 @@
   Close a /run-builder run. Windows PowerShell 5.1 safe (no &&, no ternary).
 
 .DESCRIPTION
-  Run by the GATE lane at the final turn, AFTER next-shift/PROMPTS.md, next-shift/RUN.md,
-  HANDOFF.md, REPORT.md and OWNER-QUESTIONS.md are written.
+  BENCHED by charter Article 33 until the rig-lifecycle drill passes: the gate closes by hand
+  (templates\PROMPT-GATE.md.tmpl, "The final turn"). Kept, and kept correct, for the day the bench lifts.
 
-  Tags run-NN-close at a named commit, flips the LEDGER row OPEN -> CLOSED, deletes scratch and
-  VERIFIES the deletion, and emits evidence/gate/CONFORMANCE.json.
+  Run by the GATE lane at the final turn, AFTER next-shift/PROMPTS.md, next-shift/RUN.md,
+  HANDOFF.md, REPORT.md and OWNER-QUESTIONS.md (the office question ids asked) are written.
+
+  Tags run-NN-close at a named commit, flips the LEDGER row OPEN -> CLOSED, removes this run's own
+  run-* scratch dirs and VERIFIES the removal, and emits evidence/gate/CONFORMANCE.json.
 
   It does not deploy. It does not push. Deploy is always the owner's attended act.
 
@@ -46,9 +49,13 @@ $tag     = $runName + '-close'
 # ---------------------------------------------------------------- conformance checks
 
 # Check 1 - run object committed pre-launch: the prep commit exists and precedes every lane commit.
-$prepLine = git -C $RepoPath log --pretty='%H %s' --grep=([regex]::Escape($runName) + ' prep:')
+# Every --grep is ONE argument: Windows PowerShell 5.1 hands `--grep=(expr)` to git as two, so git read
+# the pattern as a revision ("invalid object name 'run-6 prep'") and the check failed (run-6, 2026-10-07).
+$prepLine = git -C $RepoPath log --pretty='%H %s' ('--grep=' + [regex]::Escape($runName) + ' prep:')
 $c1 = $false
-if (-not [string]::IsNullOrWhiteSpace($prepLine)) { $c1 = $true }
+if ($LASTEXITCODE -eq 0) {
+  if (-not [string]::IsNullOrWhiteSpace($prepLine)) { $c1 = $true }
+}
 
 # Check 2 - lane count == shape. Read the shape from RUN.md; count the prompt files.
 $runMd  = Get-Content -LiteralPath ($RunDir + '\RUN.md') -Raw
@@ -60,12 +67,17 @@ $c2 = $false
 if ($shape.Length -gt 0) { if ($promptCount -eq $shape.Length) { $c2 = $true } }
 
 # Check 3 - gate lane non-building: zero product-code commits authored by the gate lane.
-# Determined by inspecting commits carrying the gate marker that touch paths outside runs/.
+# Determined by inspecting THIS run's gate commits ("[run-N][lane-<gate>]", a fixed string) that touch
+# paths outside runs/ and backlog/. Every "[lane-<gate>]" in history also caught older runs whose lane of
+# that letter was a builder (run-6: 75 such commits). A git error or an unread shape is a FAIL, never a
+# pass that checked nothing.
 $gateLetter = ''
 if ($shape.Length -gt 0) { $gateLetter = $shape.Substring($shape.Length - 1, 1).ToLower() }
-$c3 = $true
+$c3 = $false
 if ($gateLetter.Length -gt 0) {
-  $gateCommits = git -C $RepoPath log --pretty=%H --grep=('\[lane-' + $gateLetter + '\]') -E
+  $gateMarker  = '[' + $runName + '][lane-' + $gateLetter + ']'
+  $gateCommits = git -C $RepoPath log --pretty=%H --fixed-strings ('--grep=' + $gateMarker)
+  if ($LASTEXITCODE -eq 0) { $c3 = $true }
   foreach ($sha in $gateCommits) {
     if (-not [string]::IsNullOrWhiteSpace($sha)) {
       $touched = git -C $RepoPath show --name-only --pretty=format: $sha
@@ -148,26 +160,37 @@ if (Test-Path -LiteralPath $Ledger) {
 # ---------------------------------------------------------------- scratch delete + VERIFY
 
 $scratchRoot = $env:LOCALAPPDATA + '\HubScratch'
+# The machine named by fleet-ops scratch-config.json (hubRoot) sweeps its own workspace instead (HQ: D:\tmp\scratch).
+$scratchCfg = $HubRoot + '\50-AI\fleet-ops\policy\scratch-config.json'
+if (Test-Path -LiteralPath $scratchCfg) {
+  $sc = Get-Content -LiteralPath $scratchCfg -Raw | ConvertFrom-Json
+  if (-not $sc -or -not $sc.hubRoot) { throw ("scratch-config.json is empty or has no hubRoot: " + $scratchCfg) }
+  if ($sc.hubRoot -eq $HubRoot -and $sc.workspace) { $scratchRoot = $sc.workspace }
+}
+# Only THIS run's own dirs: the one named for the run (run-N) or run-N-*. Never the whole workspace and
+# never another run's run-* dir: scratch-sweep.ps1 emptied every top-level entry, and on 2026-10-07 another
+# live session's folder sat in the workspace at a close (charter Article 33: closing never sweeps another
+# run's scratch). T1 dirs (run-<stamp>-<pid>) are cleaned by scratch-run.ps1 itself and are left alone.
+function Get-OwnScratchDirs {
+  param([string]$Root, [string]$Run)
+  Get-ChildItem -LiteralPath $Root -Directory -Filter 'run-*' -ErrorAction SilentlyContinue | Where-Object {
+    ($_.Name -eq $Run) -or $_.Name.StartsWith($Run + '-', [StringComparison]::OrdinalIgnoreCase)
+  }
+}
 $scratchDeleted = $true
 $scratchNote = 'no scratch workspace present'
 if (Test-Path -LiteralPath $scratchRoot) {
-  $before = (Get-ChildItem -LiteralPath $scratchRoot -Directory -Filter 'run-*' -ErrorAction SilentlyContinue | Measure-Object).Count
-  $sweeper = $HubRoot + '\50-AI\fleet-ops\policy\scratch-sweep.ps1'
-  if (Test-Path -LiteralPath $sweeper) {
-    & $sweeper
-  } else {
-    Write-Warning ("scratch-sweep.ps1 not found at " + $sweeper + "; removing run-* dirs directly.")
-    Get-ChildItem -LiteralPath $scratchRoot -Directory -Filter 'run-*' -ErrorAction SilentlyContinue | ForEach-Object {
-      Remove-Item -LiteralPath $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
-    }
-  }
-  # Re-stat. Deletion is load-bearing; "I ran the sweeper" is not evidence.
-  $after = (Get-ChildItem -LiteralPath $scratchRoot -Directory -Filter 'run-*' -ErrorAction SilentlyContinue | Measure-Object).Count
-  if ($after -eq 0) {
-    $scratchNote = ('swept ' + $before + ' run-* dirs; re-stat confirms 0 remain')
+  $allRunDirs = @(Get-ChildItem -LiteralPath $scratchRoot -Directory -Filter 'run-*' -ErrorAction SilentlyContinue)
+  $own = @(Get-OwnScratchDirs -Root $scratchRoot -Run $runName)
+  foreach ($d in $own) { Remove-Item -LiteralPath $d.FullName -Recurse -Force -ErrorAction SilentlyContinue }
+  # Re-stat. Removal is load-bearing; "I ran the removal" is not evidence.
+  $left   = @(Get-OwnScratchDirs -Root $scratchRoot -Run $runName)
+  $others = $allRunDirs.Count - $own.Count
+  if ($left.Count -eq 0) {
+    $scratchNote = ('removed ' + $own.Count + ' dir(s) named for ' + $runName + '; re-stat confirms 0 remain; ' + $others + ' other run-* dir(s) left alone')
   } else {
     $scratchDeleted = $false
-    $scratchNote = ('SWEEP INCOMPLETE: ' + $after + ' run-* dirs remain of ' + $before)
+    $scratchNote = ('REMOVAL INCOMPLETE: ' + $left.Count + ' of ' + $own.Count + ' dir(s) named for ' + $runName + ' remain')
     Write-Warning $scratchNote
   }
   Write-Host ("scratch   : " + $scratchNote)
@@ -207,6 +230,25 @@ $checks = [ordered]@{
 $passed = 0
 foreach ($k in $checks.Keys) { if ($checks[$k]) { $passed = $passed + 1 } }
 
+# "deployed" is this run's own state, read from the "- Deploy state:" line the gate writes in HANDOFF.md;
+# never assumed. A fixed false was wrong for run-6 (2026-10-07), whose owner-authorized merges each
+# deployed to production. No line, or a line still holding the template's {placeholder}: "unknown".
+$deployed   = 'unknown'
+$deployNote = 'HANDOFF.md has no filled "- Deploy state:" line, so the deploy state is unknown.'
+$handoffMd  = $RunDir + '\HANDOFF.md'
+if (Test-Path -LiteralPath $handoffMd) {
+  $dm = [regex]::Match((Get-Content -LiteralPath $handoffMd -Raw), '(?m)^\s*-\s*Deploy state:\s*(.+?)\s*$')
+  if ($dm.Success) {
+    $deployText = $dm.Groups[1].Value
+    $plain = $deployText -replace '[*_`]', ''
+    if (-not ($plain -match '\{')) {
+      $deployNote = 'HANDOFF.md: ' + $deployText
+      if ($plain -match '(?i)\b(not|never|nothing|no)\b[^.;]*\bdeployed\b') { $deployed = $false }
+      elseif ($plain -match '(?i)\bdeployed\b') { $deployed = $true }
+    }
+  }
+}
+
 $conf = [ordered]@{
   'run'             = $runName
   'shape'           = $shape
@@ -218,8 +260,8 @@ $conf = [ordered]@{
   'pass'            = ($passed -eq 6)
   'scratch_deleted_and_verified' = $scratchDeleted
   'scratch_note'    = $scratchNote
-  'deployed'        = $false
-  'deploy_note'     = 'Deploy is always the owner attended act. A green gate is a finding, not an authorization.'
+  'deployed'        = $deployed
+  'deploy_note'     = $deployNote
 }
 $conf | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath ($gateDir + '\CONFORMANCE.json') -Encoding UTF8
 
@@ -232,5 +274,5 @@ foreach ($k in $checks.Keys) {
 }
 Write-Host ("written   : " + $gateDir + "\CONFORMANCE.json")
 Write-Host ""
-Write-Host "Owner check-in reads: REPORT.md -> OWNER-QUESTIONS.md -> next-shift/PROMPTS.md"
+Write-Host "Owner check-in reads: REPORT.md -> his questions on the office -> next-shift/PROMPTS.md"
 Write-Host "Nothing was pushed. Nothing was deployed."

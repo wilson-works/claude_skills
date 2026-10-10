@@ -10,10 +10,16 @@ sameness is the point of the skill.
 | | **Night** 22:00 -> morning | **Afternoon** 11:00 -> 17:00 | **Evening** 18:00 -> 22:00 | **Morning** ~10:00 |
 |---|---|---|---|---|
 | Pings | **none** | ntfy allowed; informational only, never permission-blocking | none (owner present) | n/a |
-| Blockers | ledger the blocker, **reroute** to the next row, never stop | ping ntfy once, **continue** | ask the owner in-channel | attended |
+| Blockers | ledger the blocker, **reroute** to the next row, never stop | ping ntfy once, **continue** | post it, **continue** | attended |
 | Scope | full queue, up to 4 builders | full queue | **short work** — 1-2 rows per lane, gate-heavy | no build |
 | Typical shape | ABCD / ABCDE | ABC / ABCD | AB / ABC | runs `/run-builder --shift afternoon` |
 | Owner acts | pastes at 22:00 | pops in if free; 17:00 check-in | 22:00 launches Night | reviews Night, preps Afternoon |
+
+**Owner questions are the same in every shift** (Rule #6; owner, 2026-09-22 and 2026-10-07). Anything that waits on
+the owner is asked on the fleet office as soon as it comes up: one plain question with your recommendation, through
+`ask-owner.js` (the exact command is in each lane prompt). Then carry on; nothing waits for the answer. Never a list
+for later, and never a question asked only in a chat, a post or a PR body. A technical question is the org's (John
+for engineering), not his; the tool refuses it. `OWNER-QUESTIONS.md` is only the record of the office ids asked.
 
 ## Night (22:00 -> morning)
 
@@ -26,16 +32,18 @@ Owner is **completely unavailable**. The run must never need him.
 - **Forbidden in Night, absolutely:** anything requiring an owner ruling, and any deploy.
   Deploy is always the owner's attended act. Findings are not authorization — in any shift, but
   Night is where that rule gets tested.
-- A row that turns out to need a ruling is written into `OWNER-QUESTIONS.md` and abandoned for
-  the run. It is not guessed at.
-- A Night lane never addresses the owner, in any channel, by any mechanism.
+- A row that turns out to need his ruling is asked on the office at once and set aside for the
+  run. It is not guessed at, and nothing waits for the answer.
+- Apart from that office question, a Night lane never addresses the owner: no ping, no chat
+  message, nothing that waits on him.
 
 ## Morning (~10:00, attended)
 
 Not a build shift. The owner's ritual, in this exact order:
 
 1. `runs/run-NN/REPORT.md`
-2. `runs/run-NN/OWNER-QUESTIONS.md` — he writes into the blank `## RULINGS` section
+2. the run's questions on the office, asked as they came up — he answers there or on his phone
+   (`runs/run-NN/OWNER-QUESTIONS.md` lists their ids)
 3. `runs/run-NN/next-shift/PROMPTS.md` — he pastes
 
 Then he runs `/run-builder <shape> "<theme>" --shift afternoon` (or accepts the shape the Night
@@ -56,14 +64,14 @@ Owner is around but not watching. This is the only shift where a ping is legal.
 - Body rules: **one line**, lead with the outcome, name the artifact path. **No secrets, no
   client PII, no money figures** — the topic is an unauthenticated credential and it appears in
   no tracked file. Never embed server or topic values in a prompt, a run object, or this skill.
-- 17:00 is a check-in, same three-file ritual as Morning.
+- 17:00 is a check-in, same ritual as Morning.
 
 ## Evening (18:00 -> 22:00)
 
 Owner present. Short work, gate-heavy.
 
 - **1-2 rows per lane.** `AB` or `ABC`. The gate does proportionally more.
-- No pings — ask the owner in-channel; he is there.
+- No pings. He is there, but a question for him still goes on the office, not only in the chat.
 - Its real job is to leave the Night run composed: the final turn writes
   `next-shift/PROMPTS.md` for the 22:00 Night launch.
 - At 22:00 the owner launches Night.
@@ -77,11 +85,13 @@ runs/run-NN/next-shift/PROMPTS.md   paste-ready prompts for the next shift run
 runs/run-NN/next-shift/RUN.md       proposed shape + theme + MUST-MEET legs
 runs/run-NN/HANDOFF.md              gotchas + what was verified (next run MUST NOT re-verify it)
 runs/run-NN/REPORT.md               what shipped; numbers re-read from artifacts at write time
-runs/run-NN/OWNER-QUESTIONS.md      decisions needed, with a blank ## RULINGS section
+runs/run-NN/OWNER-QUESTIONS.md      the office question ids asked this run (the record, not the ask)
 ```
 
-Then `close-run.ps1`: tag `run-NN-close` at a named commit, flip the LEDGER row, delete scratch
-and **verify the deletion**, emit `evidence/gate/CONFORMANCE.json`.
+Then the gate closes by hand; `close-run.ps1` is benched (charter Article 33). It tags
+`run-NN-close` at a named commit, flips the LEDGER row, confirms its own T1 scratch dirs are gone
+(never sweeping the workspace), writes `evidence/gate/CONFORMANCE.json`, and posts
+`STATUS run-NN CLOSED` on the run channel with comms.py. Rigs stay for the rig gate.
 
 **Shift succession:** Night -> Morning -> Afternoon -> Evening -> Night. The gate proposes the
 next shift's shape in `next-shift/RUN.md`; the owner may override it at the check-in.

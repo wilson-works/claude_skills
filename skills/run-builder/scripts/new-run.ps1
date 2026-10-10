@@ -4,7 +4,9 @@
 
 .DESCRIPTION
   Resolves the Hub root and the code zone AT RUNTIME (never hardcoded), scaffolds
-  <repo>/runs/run-NN/, provisions one git worktree per building lane, creates the run-NN comms
+  <repo>/runs/run-NN/, provisions one git worktree per building lane under
+  the rig root (charter Article 22, with .rig-meta.json and RIGS.md) -- scratch-config.json's rigRoot on
+  the machine it names, else %LOCALAPPDATA%\HubScratch -- creates the run-NN comms
   channel, appends the OPEN ledger row, and makes the prep commit.
 
   It does NOT launch lanes. The owner pastes.
@@ -53,6 +55,19 @@ $HubRoot  = Resolve-HubRoot
 $CodeZone = Resolve-CodeZone -HubRoot $HubRoot
 Write-Host ("hub root  : " + $HubRoot)
 Write-Host ("code zone : " + $CodeZone)
+
+# Owner questions go to the fleet office as they come up (Rule #6). Every lane prompt renders this
+# path as {ASK_OWNER_JS}; the composer copies it from this line and never reconstructs it.
+$AskOwner = $CodeZone + '\fleet-office\bin\ask-owner.js'
+if (Test-Path -LiteralPath $AskOwner) {
+  Write-Host ("ask-owner : " + $AskOwner)
+} else {
+  Write-Host ("ask-owner : " + $AskOwner + "  (NOT FOUND)")
+  if (-not $DryRun) {
+    throw ("ask-owner.js not found at " + $AskOwner + ". Lanes cannot ask the owner on the office (Rule #6); install fleet-office before composing a run.")
+  }
+  Write-Warning ("ask-owner.js not found at " + $AskOwner + ": lanes on this machine cannot ask the owner on the office. Install fleet-office before launch.")
+}
 
 $FleetOps  = $HubRoot + '\50-AI\fleet-ops'
 $Ledger    = $FleetOps + '\runs\LEDGER.md'
@@ -174,18 +189,74 @@ Write-Host "scaffold  : written"
 
 # ---------------------------------------------------------------- worktrees
 
+# Charter Article 22: a lane rig is born attributable, on the fast disk, under
+# %LOCALAPPDATA%\HubScratch\ -- never beside the main clone in the code zone, which holds main
+# clones and nothing else (rig-census exit 3). The name keeps '<run>-lane-<x>' so close-run.ps1
+# still finds it, carries the repo so two repos' run-NN never collide, and never starts with
+# 'run-' (close-run's scratch sweep deletes HubScratch\run-* recursively).
 if ($isolation -eq 'worktrees') {
+  # A machine whose fleet-ops scratch-config.json names it (hubRoot) sets its own rigRoot -- HQ puts
+  # rigs on the D: SSD since 2026-09-25. Every other machine keeps %LOCALAPPDATA%\HubScratch.
+  $rigRoot = $null
+  $scratchCfg = $HubRoot + '\50-AI\fleet-ops\policy\scratch-config.json'
+  if (Test-Path -LiteralPath $scratchCfg) {
+    $sc = Get-Content -LiteralPath $scratchCfg -Raw | ConvertFrom-Json
+    if (-not $sc -or -not $sc.hubRoot) { throw ("scratch-config.json is empty or has no hubRoot: " + $scratchCfg) }
+    if ($sc.hubRoot -eq $HubRoot -and $sc.rigRoot) { $rigRoot = $sc.rigRoot }
+    if ($rigRoot -and $sc.workspace -and ($rigRoot.TrimEnd('\') + '\').StartsWith($sc.workspace.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
+      throw ("scratch-config.json puts rigRoot (" + $rigRoot + ") inside the swept workspace (" + $sc.workspace + ").")
+    }
+  }
+  if (-not $rigRoot) {
+    if ([string]::IsNullOrWhiteSpace($env:LOCALAPPDATA)) { throw "LOCALAPPDATA is not set; cannot place lane rigs under HubScratch." }
+    $rigRoot = $env:LOCALAPPDATA + '\HubScratch'
+  }
+  Write-Host ("rig root  : " + $rigRoot)
+  if (-not (Test-Path -LiteralPath $rigRoot)) { New-Item -ItemType Directory -Path $rigRoot | Out-Null }
+  $repoLeaf = Split-Path -Leaf $RepoPath
+
+  # .rig-meta.json is excluded in the COMMON git dir (a worktree's own info/exclude is never read),
+  # so the meta never shows as dirt, never rides a lane's `git add`, and `git worktree remove`
+  # takes it with the tree at close.
+  $commonDir = (git -C $RepoPath rev-parse --path-format=absolute --git-common-dir)
+  if ($LASTEXITCODE -ne 0) { throw ("cannot resolve the git common dir of " + $RepoPath) }
+  $excludeFile = $commonDir + '/info/exclude'
+  $excludeDir  = Split-Path -Parent $excludeFile
+  if (-not (Test-Path -LiteralPath $excludeDir)) { New-Item -ItemType Directory -Path $excludeDir | Out-Null }
+  $hasLine = $false
+  if (Test-Path -LiteralPath $excludeFile) {
+    $hasLine = [bool](Select-String -LiteralPath $excludeFile -SimpleMatch -Pattern '.rig-meta.json' -Quiet)
+  }
+  if (-not $hasLine) { Add-Content -LiteralPath $excludeFile -Value '.rig-meta.json' -Encoding ASCII }
+
+  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)   # the meta is JSON; a BOM breaks json.load
+  $rigRows   = @()
   foreach ($l in $builders) {
     $branch = 'run-' + $NN + '/lane-' + $l
-    $wt     = $RepoPath + '-' + $runName + '-lane-' + $l
+    $wt     = $rigRoot + '\wt-' + $repoLeaf + '-' + $runName + '-lane-' + $l
     if (Test-Path -LiteralPath $wt) {
       Write-Warning ("worktree already exists, skipping: " + $wt)
+      $rigRows += ('| ' + $l.ToUpper() + ' | `' + $wt + '` | (pre-existing; not created by this run) |  |')
     } else {
       git -C $RepoPath worktree add -b $branch $wt
       if ($LASTEXITCODE -ne 0) { throw ("worktree add failed for lane " + $l) }
+      $created = (Get-Date).ToString('yyyy-MM-ddTHH:mm:sszzz')
+      $meta = [ordered]@{
+        run_id     = ($repoLeaf + '/' + $runName)
+        repo       = $repoLeaf
+        branch     = $branch
+        created_at = $created
+        created_by = ('run-builder new-run.ps1 (' + $env:USERNAME + '@' + $env:COMPUTERNAME + ')')
+      }
+      [System.IO.File]::WriteAllText(($wt + '\.rig-meta.json'), ($meta | ConvertTo-Json), $utf8NoBom)
+      $rigRows += ('| ' + $l.ToUpper() + ' | `' + $wt + '` | `' + $branch + '` | ' + $created + ' |')
       Write-Host ("worktree  : " + $wt + "  (" + $branch + ")")
     }
   }
+
+  # RIGS.md rides the prep commit (it sits under runs\run-NN\): the attribution outlives the rigs.
+  $rigsMd = @(('# Rigs - ' + $runName), '', '| Lane | Rig | Branch | Created |', '|---|---|---|---|') + $rigRows
+  Set-Content -LiteralPath ($runDir + '\RIGS.md') -Value $rigsMd -Encoding UTF8
 } else {
   Write-Host "worktree  : skipped (shared-tree; lanes coordinate via comms.py path claims)"
 }
