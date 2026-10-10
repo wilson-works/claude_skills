@@ -1,6 +1,6 @@
 ---
 name: claude-md-doctor
-description: "Audits and rewrites a project's instruction files — CLAUDE.md, folder-scoped files, path-scoped rules, AGENTS.md bridging — into an operating manual a weaker model can execute: a scored audit across seven dimensions (size budget, checkability, necessity, red-line mechanism fit, constraint concreteness, scoping hygiene, structure), then a rewrite that deletes the derivable, converts adjectives into checkable conditions, moves area rules to scoped files, and routes real red lines to hooks — because instructions are advisory and decay within a session, while hooks hold. Invoke with /claude-md-doctor [rewrite|<path>]."
+description: "Audits, rewrites, and initializes a project's instruction files — CLAUDE.md, folder-scoped files, path-scoped rules, AGENTS.md bridging — into an operating manual a weaker model can execute: a scored audit across seven dimensions (size budget, checkability, necessity, red-line mechanism fit, constraint concreteness, scoping hygiene, structure), a rewrite that deletes the derivable, converts adjectives into checkable conditions, moves area rules to scoped files, and routes real red lines to hooks, and an init mode that interviews for a greenfield project and runs the draft through the same audit before anything is saved — because instructions are advisory and decay within a session, while hooks hold. Invoke with /claude-md-doctor [rewrite|init|<path>]."
 ---
 
 # CLAUDE.md Doctor
@@ -17,11 +17,14 @@ decays *within* a session as generated output accumulates, regardless of how wel
 shaped at the start. A rule that must hold on function #40 as reliably as on function #1 cannot
 live in prose; it needs a deterministic gate.
 
-So this skill does two jobs. **Audit mode** scores the full instruction-file surface against a
+So this skill does three jobs. **Audit mode** scores the full instruction-file surface against a
 seven-dimension rubric. **Rewrite mode** turns the file into an operating manual a weaker model
 can execute: every kept rule checkable, every red line routed to the mechanism that actually
 holds, every area rule scoped to load only when relevant — which is also what makes
-downgrading routine work to smaller models safe.
+downgrading routine work to smaller models safe. **Init mode** builds a CLAUDE.md from a blank page for
+a project with no instruction file yet — an interview stands in for the observed failures a
+rewrite would normally ground in, so the interview's draft runs through the same audit rubric
+before anything is saved.
 
 ## Configure for your project
 
@@ -37,6 +40,7 @@ Before using this skill, set this placeholder:
 /claude-md-doctor              -- audit: score the full load path against the rubric
 /claude-md-doctor <path>       -- audit one instruction file
 /claude-md-doctor rewrite      -- audit, then produce the full rewrite as a reviewable diff
+/claude-md-doctor init         -- greenfield: interview, draft, audit the draft, fix, then write
 ```
 
 ## The mechanics the doctor must get right
@@ -121,6 +125,49 @@ Full line-by-line classification: <doctor-output-path>/2026-07-06-audit.md
    actually shifts. A rule still ignored after the rewrite is either buried (reorder/prune) or a
    red line that needed a hook — first drafts fall apart, and instruction files are code.
 
+## Init mode: the procedure
+
+There's no existing file to audit and, because the project has no history yet, no observed
+failures to ground a rewrite in per step 2 above. The interview substitutes for that missing
+evidence — treat its output accordingly, and see the disclosure requirement in step 6.
+
+**Precondition — confirm greenfield first.** Init is only for a project with *no* CLAUDE.md yet.
+Before anything else, check for one at the target; if it already exists, **stop and switch to
+audit or rewrite mode** — init never overwrites an existing instruction file. Every write in this
+mode is a fresh create. If a file is somehow present at write time, copy it to a dated backup and
+verify the copy before writing (copy → verify → then write).
+
+1. **Interview.** Reuse the house interview pattern from `/sop-writer`:
+   one question at a time, a coverage checklist so nothing is silently skipped, confirm the map
+   before proceeding. Cover at minimum: what the project is and who else works in it; stack and
+   conventions a fresh agent couldn't infer from the tree; real red lines (destructive or
+   unrecoverable actions) and whether any already have a hook, vs. need one; house rules the
+   owner currently repeats by hand; which rules are project-wide vs. area-specific (root vs.
+   folder file); and the target audience — the same "weaker model" bar the rubric uses
+   everywhere else.
+2. **Draft.** Write a first-pass file from the confirmed answers, structured per Rewrite mode
+   step 6 (Always-do / Ask-first / Never-do, each Never naming a specific action) and step 7
+   (killer rules first, budget toward the ~80–100-line core).
+3. **Audit the draft before saving anything.** Run it through the Audit mode rubric above, in
+   full — all seven dimensions, gating on A/B/D. A fresh draft gets no discount: an interview
+   produces assertions of intent, not verified behavior, and the rubric is what turns those
+   assertions into a file that holds up.
+4. **Fix what the audit flags**, using Rewrite mode's step 3 classification and step 5
+   mechanism-routing (delete / keep-as-concrete-imperative / move-to-scoped-file /
+   convert-to-hook / promote-to-skill; weakest sufficient mechanism per rule).
+5. **Write only after the draft passes — no exceptions.** A draft that fails any gated dimension
+   (A/B/D) goes back to step 4, never to disk. There is no override in this mode: a failing file
+   does not ship, full stop — the whole point of init is that a greenfield CLAUDE.md is born
+   audited. **When the draft passes, write it** — to the project's CLAUDE.md and any scoped files
+   the audit routed rules to. (If you find yourself wanting to ship a file that failed a check,
+   that is a signal the check or the draft is wrong — fix one of them, don't route around the gate.)
+6. **Disclose the evidence gap.** An interview-built file is grounded in what the owner
+   *believes* the rules are — self-report, weaker evidence than the observed failures a rewrite
+   normally uses. Say so, and schedule the follow-up: once the project has a few weeks of real
+   sessions, run `/claude-md-doctor rewrite` to re-ground the file in `/extract-approach` notes,
+   `/decision-policy` records, and `/harness-audit` findings — the same evidence Rewrite mode
+   step 2 pulls from.
+
 ## Handoffs
 
 - **Rewritten rules re-arm any rules-acknowledgment gate** your harness uses, if present.
@@ -130,6 +177,8 @@ Full line-by-line classification: <doctor-output-path>/2026-07-06-audit.md
   edits instruction files (on approval), never permission/hook config.
 - **Procedures promoted to skills** move into your skill-authoring workflow with the extracted
   steps as intake.
+- **Post-init → first real rewrite:** an init-mode file is due for `rewrite` once the project has
+  a few weeks of history to ground it in — see Init mode step 6.
 
 ## Failure Modes
 
@@ -148,6 +197,10 @@ Full line-by-line classification: <doctor-output-path>/2026-07-06-audit.md
 - **One-shot doctoring.** Behavior drift and new failure modes accumulate; the audit is cheap —
   re-run it on a cadence (officially: review instruction files periodically; no official
   interval exists, so set one and keep it).
+- **Init skipping its own audit gate.** Writing the interview's draft straight to disk without
+  running it through the Audit mode rubric first recreates exactly the unaudited-file problem
+  this skill exists to fix — a new file with no history is not a reason to trust it more than an
+  old one with history.
 
 ## Important Notes
 
@@ -167,4 +220,5 @@ Full line-by-line classification: <doctor-output-path>/2026-07-06-audit.md
   rule — that's an adjudication, not a rewrite.
 - Pairs with: `/extract-approach` (approach notes are rewrite evidence), `/decision-policy`
   (accepted behavior-binding policies graduate into rules here), `/harness-audit` (its
-  instruction-file findings are audit-mode input).
+  instruction-file findings are audit-mode input), `/sop-writer` (source of the init-mode
+  interview pattern).
