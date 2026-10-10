@@ -104,7 +104,7 @@ the JSON to `/arch-diagram`.
       "category": "meta",
       "produces": [{ "artifact": "claude-md-rewrite", "where": "CLAUDE.md" }],
       "consumes": ["learnings-note", "decision-record", "harness-audit-findings"],
-      "pairs_with": ["extract-approach", "decision-policy", "harness-audit", "rules-gate", "budget-mode", "skill-builder"]
+      "pairs_with": ["extract-approach", "decision-policy", "harness-audit", "sop-writer"]
     }
   ],
   "edges": [
