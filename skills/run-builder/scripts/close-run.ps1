@@ -12,7 +12,7 @@
   It does not deploy. It does not push. Deploy is always the owner's attended act.
 
 .EXAMPLE
-  .\close-run.ps1 -RunDir 'D:\Hub\20-Coding\Projects\barkey\runs\run-70' -RepoPath 'D:\Hub\20-Coding\Projects\barkey' -CloseSha abc1234
+  .\close-run.ps1 -RunDir 'D:\Hub\20-Coding\Projects\my-app\runs\run-70' -RepoPath 'D:\Hub\20-Coding\Projects\my-app' -CloseSha abc1234
 #>
 [CmdletBinding()]
 param(
