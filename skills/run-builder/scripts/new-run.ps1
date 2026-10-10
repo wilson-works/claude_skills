@@ -10,7 +10,7 @@
   It does NOT launch lanes. The owner pastes.
 
 .EXAMPLE
-  .\new-run.ps1 -Shape ABC -Theme 'portal polish' -Shift night -Repo barkey-command-center
+  .\new-run.ps1 -Shape ABC -Theme 'portal polish' -Shift night -Repo my-app
 #>
 [CmdletBinding()]
 param(

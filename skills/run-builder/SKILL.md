@@ -63,7 +63,7 @@ dispatch.
 - **Requires agent-org `comms.py` >= the 2026-08-31 lane-roster patch** (`LANE_AGENTS` +
   `run-NN` channel matching). If a repo's `.claude/comms/comms.py` predates it, lane agents die
   with `unknown agent 'lane-a'` on the first post — re-copy it from the agent-org skill
-  (`C:\Users\patri\.claude\skills\agent-org\comms\comms.py`).
+  (`~/.claude/skills/agent-org/comms/comms.py`).
 - `scratch-run.ps1` present under `<hub>\50-AI\fleet-ops\policy\` — `new-run.ps1` still checks for it
   (legacy; lanes no longer render it — rule 10). Its absence is a warning to HQ, not a lane concern.
 
@@ -412,7 +412,7 @@ one, change the other in the same commit.
 | Skill | Disposition | Migration |
 |---|---|---|
 | `workday` | **SUPERSEDED as a launch path** | `/workday [theme]` -> `/run-builder ABCDE [theme] --shift night`. Worktree provisioning and the honest-recovery table are absorbed; the Lane E merge becomes the gate close-out. |
-| `parallel-session` | **SUPERSEDED as a launch path** | `/parallel-session [theme]` -> `/run-builder ABCD [theme] --shift night --repo barkey`. The Lane A council role is **deleted** — an orchestrator lane is neither a builder nor a gate. Lane B's browser-verify role becomes the gate. Its five Universal Rules survive as MANDATORY lines 1-7. |
+| `parallel-session` | **SUPERSEDED as a launch path** | `/parallel-session [theme]` -> `/run-builder ABCD [theme] --shift night --repo my-app`. The Lane A council role is **deleted** — an orchestrator lane is neither a builder nor a gate. Lane B's browser-verify role becomes the gate. Its five Universal Rules survive as MANDATORY lines 1-7. |
 | `fable-marathon` | **SUPERSEDED, hard** | Markdown comms and lane-recovery crons are both retired. -> `/run-builder ABC --shift night`. **Do not port its cron schedule.** |
 | `marathon-org` / `marathon-orders` / `work-orders` | **STAY** | the per-lane inner loop; `/run-builder` composes them. Unchanged. |
 | `workday-watch` and the watch skills | **STAY** | attended-window tooling, orthogonal to run construction. Repoint at `runs/run-NN/` instead of `.tmp/workday-<date>/`. |
