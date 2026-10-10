@@ -106,12 +106,12 @@ do not choose it now, after reading their reports.
 - You never run a suite (line 3). Pytest zombie enumeration, the clean-tree discriminator for a
   suspicious red and the frozen-baseline serial sweep were retired 2026-09-17 with the suites.
 
-**3. Verified scratch deletion.** Delete, then **re-stat and confirm it is gone**. A lane
-basetemp hit 9.5 GB in one night; deletion is load-bearing, and `close-run.ps1` checks it.
+**3. Verified scratch deletion.** Your T1 runs clean their own `SCRATCH_RUN_DIR`; re-stat each
+one they printed and **confirm it is gone**. Remove only those. Never sweep the scratch workspace:
+another live session's folder sat in it at a close on 2026-10-07.
 
-**4. The conformance JSON.** `close-run.ps1` emits
-`runs/run-{NN}/evidence/gate/CONFORMANCE.json`. You supply the honest answers to its six binary
-checks. See "Conformance eval" below.
+**4. The conformance JSON.** You write `runs/run-{NN}/evidence/gate/CONFORMANCE.json` at close,
+with honest answers to the checks in "Conformance eval" below.
 
 ---
 
@@ -123,22 +123,26 @@ trade the handoff for one more check. Write, in this order:
 | File | Contents |
 |---|---|
 | `runs/run-{NN}/REPORT.md` | what shipped. **Every number re-read from the artifact right now.** Unpushed-commit counts re-derived, never carried. |
-| `runs/run-{NN}/OWNER-QUESTIONS.md` | decisions needed, each with the options and your recommendation, ending in a blank `## RULINGS` section for the owner |
+| `runs/run-{NN}/OWNER-QUESTIONS.md` | the record of what you and the builders asked on the office this run: one line per question with its office id (`ASKED <id>`), the question, and his answer if it came back. Nothing goes here that was not asked there. |
 | `runs/run-{NN}/HANDOFF.md` | gotchas + **what was verified** — the next run MUST NOT re-verify it |
 | `runs/run-{NN}/next-shift/RUN.md` | proposed shape + theme + MUST-MEET legs for the **{NEXT_SHIFT}** run |
 | `runs/run-{NN}/next-shift/PROMPTS.md` | paste-ready prompts for that run, one section per lane |
 
-The owner's check-in reads `REPORT.md` -> `OWNER-QUESTIONS.md` -> `next-shift/PROMPTS.md`.
-Review, feedback, paste. Write for that ritual and nothing else.
+The owner's check-in reads `REPORT.md` -> the run's questions on the office -> `next-shift/PROMPTS.md`.
+Review, answer, paste. Write for that ritual and nothing else.
 
-Then run the closer (PS 5.1-safe, no `&&`):
+**Owner questions, any time in the run:** anything that waits on him is asked on the office as soon as it
+comes up, never saved for this file: `node {ASK_OWNER_JS} "<one plain question?>" --recommend "<what you
+would do>"` (at most 300 characters, plain words; technical questions go to the org, John for engineering).
 
-```powershell
-{CLOSE_RUN_PS1} -RunDir '{RUN_DIR}' -RepoPath '{REPO_PATH}' -CloseSha '<the named commit>'
-```
+Then close **by hand**. `close-run.ps1` is benched (charter Article 33); do not run it. PS 5.1-safe, no `&&`:
 
-It tags `run-{NN}-close`, flips the LEDGER row, deletes scratch and verifies the deletion, and
-emits `CONFORMANCE.json`.
+1. `cd {REPO_PATH}; git tag -a run-{NN}-close <close-sha> -m "run-{NN} close"` (the commit your REPORT names)
+2. In `{LEDGER_PATH}`, edit only this run's row: Status `CLOSED`, Close tag `run-{NN}-close`, Legs MET `n/m legs MET`.
+3. Checklist item 3 (your T1 scratch dirs are gone). Remove nothing else; rigs leave through the rig gate.
+4. Write `evidence/gate/CONFORMANCE.json`: run, close_tag, close_sha, each check below as true or false,
+   score, and `deployed` as this run's real state (`"unknown"` if you cannot tell). Commit it with your marker.
+5. Post `STATUS run-{NN} CLOSED` on the run channel (comms.py) with the tag and the REPORT path.
 
 ---
 
@@ -163,5 +167,5 @@ The named eval for this system. Score honestly; a false green here defeats the p
 {SHIFT_BLOCK}
 
 **Deploy is never yours.** Deploy is always the owner's attended act. A green gate is a
-finding, not an authorization. If the run reaches a deployable state, that goes in
-`OWNER-QUESTIONS.md` as a question, and the answer arrives at a check-in.
+finding, not an authorization. If the run reaches a deployable state, ask him on the office
+right away and keep working; his answer comes back as a note.

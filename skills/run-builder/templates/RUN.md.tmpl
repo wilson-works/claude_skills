@@ -57,11 +57,14 @@ The gate never edits product code. Builders mark `AWAITING_VERIFICATION`; only t
 
 - Deploy: **not authorized by this run.** Deploy is always the owner's attended act.
 - Findings are not authorization, in any shift.
+- Owner questions, every shift: asked on the office as soon as they come up, never saved for a list:
+  `node {ASK_OWNER_JS} "<one plain question?>" --recommend "<what we would do>"`. Technical ones go to the org.
 
 ## Do-not-re-verify (from HANDOFF)
 
 {Bulleted list carried from the prior run's HANDOFF.md. The gate MUST NOT spend the shift
-re-verifying these. If one is suspected stale, that is an OWNER-QUESTIONS entry, not a re-run.}
+re-verifying these. If one is suspected stale, raise it at once (the org if it is technical, the
+office if it is the owner's call), never a re-run.}
 
 ## Recovery — honest table
 
@@ -77,6 +80,8 @@ prompts are files and not chat scrollback. No planner-registered crons exist in 
 
 ## Close-out (gate, at {FINAL_TURN_AT})
 
-`next-shift/PROMPTS.md`, `next-shift/RUN.md`, `HANDOFF.md`, `REPORT.md`,
-`OWNER-QUESTIONS.md` -> then `scripts\close-run.ps1`: tag `run-{NN}-close`, flip the LEDGER
-row, delete scratch + verify, emit `evidence/gate/CONFORMANCE.json`.
+`next-shift/PROMPTS.md`, `next-shift/RUN.md`, `HANDOFF.md`, `REPORT.md`, and `OWNER-QUESTIONS.md`
+(the record of the office question ids asked) -> then the gate closes by hand, because
+`scripts\close-run.ps1` is benched (charter Article 33): tag `run-{NN}-close`, flip this run's row
+in `{LEDGER_PATH}`, confirm its own T1 scratch dirs are gone (never sweep the workspace), write
+`evidence/gate/CONFORMANCE.json`, post `STATUS run-{NN} CLOSED` on the run channel. Rigs stay.

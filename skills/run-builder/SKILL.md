@@ -135,6 +135,16 @@ read-only on product code. The evidence is unambiguous: shared-tree partitions b
 shared-index hazard, and we paid for them repeatedly — pathspec commits, `index.lock`
 contention, commits that reported exit 0 without landing.
 
+**Where the rigs live (charter Article 22).** `new-run.ps1` creates each lane rig as
+`<rig root>\wt-<repo>-run-NN-lane-<x>` — `%LOCALAPPDATA%\HubScratch` unless the machine's
+`fleet-ops/policy/scratch-config.json` names it (`hubRoot`) with a `rigRoot` (HQ: `D:\tmp\rigs` since
+2026-09-25) — never beside the main clone: the code zone
+holds main clones and nothing else. Each rig is born with `.rig-meta.json`
+`{run_id, repo, branch, created_at, created_by}`, excluded in the clone's common `info/exclude`
+so it is never dirt and never committed. It also gets a row in `runs/run-NN/RIGS.md`, which rides
+the prep commit. The `{WORKTREE_PATH}` you render into each prompt is the path the script printed
+on its `worktree  :` line. Copy it; never reconstruct it.
+
 **The one exception:** `AB` and `ABC` on a single-repo run **where the lanes share one running
 dev service** (e.g. a backend on :5001) may run shared-tree with `comms.py` path claims. A
 shared service dies with its host lane, so worktree separation buys little when one process is
@@ -282,13 +292,21 @@ Full detail in `reference\SHIFTS.md`; the skill renders the matching block into 
 | | **Night** 22:00->morning | **Afternoon** 11:00->17:00 | **Evening** 18:00->22:00 | **Morning** ~10:00 |
 |---|---|---|---|---|
 | Pings | **none** | ntfy allowed; informational only, never permission-blocking | none (owner present) | n/a |
-| Blockers | ledger the blocker, **reroute** to the next row, never stop | ping ntfy once, **continue** | ask the owner in-channel | attended |
+| Blockers | ledger the blocker, **reroute** to the next row, never stop | ping ntfy once, **continue** | post it, **continue** | attended |
 | Scope | full queue, up to 4 builders | full queue | **short work** — 1-2 rows per lane, gate-heavy | no build |
 | Typical shape | ABCD / ABCDE | ABC / ABCD | AB / ABC | runs `/run-builder --shift afternoon` |
 | Owner acts | pastes at 22:00 | pops in if free; 17:00 check-in | 22:00 launches Night | reviews Night, preps Afternoon |
 
 **Night additionally forbids anything requiring an owner ruling, and any deploy.** Deploy is
 always the owner's attended act, in every shift. **Findings are not authorization.**
+
+**Owner questions do not change by shift** (Rule #6; owner feedback 2026-09-22, and a repeat miss
+on 2026-10-07 that these prompts caused). Anything that waits on the owner is asked on the fleet
+office as soon as it comes up, one plain question with a recommendation, and the lane carries on.
+Every lane prompt renders the command as `node {ASK_OWNER_JS} "<question?>" --recommend "<what we
+would do>"`; `{ASK_OWNER_JS}` is the path `new-run.ps1` prints on its `ask-owner :` line (the Hub
+root and code zone it resolved). Copy it; never reconstruct it. Never a list for later and never a
+question asked only in-channel. `OWNER-QUESTIONS.md` is only the record of the office ids asked.
 
 ### The ntfy ping (Afternoon only)
 
@@ -311,14 +329,18 @@ runs/run-NN/next-shift/PROMPTS.md   paste-ready prompts for the next shift run
 runs/run-NN/next-shift/RUN.md       proposed shape + theme + MUST-MEET legs
 runs/run-NN/HANDOFF.md              gotchas + what was verified (next run MUST NOT re-verify it)
 runs/run-NN/REPORT.md               what shipped; numbers re-read from artifacts at write time
-runs/run-NN/OWNER-QUESTIONS.md      decisions needed, with a blank ## RULINGS section
+runs/run-NN/OWNER-QUESTIONS.md      the office question ids asked this run (the record, not the ask)
 ```
 
-Then `scripts\close-run.ps1`: tag `run-NN-close` at a named commit, flip the LEDGER row, delete
-scratch and **verify the deletion**, emit `evidence/gate/CONFORMANCE.json`.
+Then the gate closes **by hand**: `scripts\close-run.ps1` is benched by charter Article 33 until
+the rig-lifecycle drill passes. The gate tags `run-NN-close` at a named commit, flips the LEDGER
+row (the file `new-run.ps1` printed on its `ledger :` line, rendered as `{LEDGER_PATH}`), confirms
+the scratch dirs its own T1 runs printed are gone (never sweeping the workspace), writes
+`evidence/gate/CONFORMANCE.json`, and posts `STATUS run-NN CLOSED` on the run channel with
+comms.py. It removes nothing else; rigs leave through the rig gate.
 
-**The owner's check-in reads, in this order:** `REPORT.md` -> `OWNER-QUESTIONS.md` ->
-`next-shift/PROMPTS.md`. That is the entire ritual: review, feedback, paste.
+**The owner's check-in reads, in this order:** `REPORT.md` -> the run's questions on the office
+(already on his phone) -> `next-shift/PROMPTS.md`. That is the entire ritual: review, answer, paste.
 
 ---
 
@@ -378,7 +400,8 @@ For the first 5 runs built by this skill, the gate lane emits
 | 5 | next-shift prompts written before close |
 | 6 | ledger row flipped at close |
 
-**Pass bar: 6/6 on 5 consecutive runs.** `close-run.ps1` computes and writes it.
+**Pass bar: 6/6 on 5 consecutive runs.** The gate writes it at close; `close-run.ps1`, which
+computes it, is benched (charter Article 33).
 
 **The failure mode it prevents:** the builder drifting back into hand-written per-night prompts
 — exactly the divergence that produced three incompatible 4-lane dialects.
@@ -401,7 +424,7 @@ Status is binary against a written standard. Never report conformance as a perce
 | `templates\HANDOFF.md.tmpl` | close-out handoff; the do-not-re-verify list |
 | `templates\NEXT-SHIFT-PROMPTS.md.tmpl` | `next-shift/PROMPTS.md` shape |
 | `scripts\new-run.ps1` | scaffold, hub/code-zone resolution, worktrees, comms channel, ledger row, prep commit |
-| `scripts\close-run.ps1` | tag, ledger flip, scratch delete + verify, CONFORMANCE.json |
+| `scripts\close-run.ps1` | BENCHED (charter Article 33): tag, ledger flip, this run's own scratch dirs + verify, CONFORMANCE.json |
 
 Mirror (so ENGINE and FIELD pick it up):
 `D:\Hub\50-AI\fleet-ops\templates\run-builder\`. **Both copies ship together.** If you change

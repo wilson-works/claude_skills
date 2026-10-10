@@ -140,9 +140,15 @@ Deploy is not yours in any shift. Findings are not authorization.
 ## If you are blocked
 
 Post `BLOCKED` **with evidence** (the command and its output excerpt), write the same into
-`runs/run-{NN}/evidence/{x}/BLOCKED-<row>.md`, then follow the shift rule above — Night and
-Afternoon both mean **continue to the next row**. A blocker never stops the lane. The only stop
-conditions in this prompt are the wrong-branch check at the top and `.walkaway/EXIT` on an empty queue.
+`runs/run-{NN}/evidence/{x}/BLOCKED-<row>.md`, then **continue to the next row**, in every shift.
+A blocker never stops the lane. The only stop conditions in this prompt are the wrong-branch check
+at the top and `.walkaway/EXIT` on an empty queue.
+
+**If the row waits on the owner** (his decision, his number, his click), ask him on the office right away:
+`node {ASK_OWNER_JS} "<one plain question?>" --recommend "<what you would do>"`. One question, at most 300
+characters, plain words with no paths or code words. A technical question is the org's (John for engineering),
+not his; the tool refuses it. Put the `ASKED <id>` it prints in your next `STATUS`, then carry on. Never save a
+question for a list, a PR body or a closing post.
 
 ## If your session dies
 

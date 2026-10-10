@@ -5,7 +5,8 @@ Written by the gate (lane {LAST}) at the final turn. The **next** run boots from
 ## Do NOT re-verify
 
 The gate verified these. The next run must not spend its shift re-proving them. If one is
-suspected stale, that is an `OWNER-QUESTIONS.md` entry — not a re-run.
+suspected stale, raise it at once (the org if it is technical, the office if it is the owner's
+call), never a re-run.
 
 | Leg | Statement | How it was proven | Evidence path | Re-sampled by |
 |---|---|---|---|---|
@@ -19,7 +20,7 @@ suspected stale, that is an `OWNER-QUESTIONS.md` entry — not a re-run.
   never carry it forward from a prior HANDOFF)*
 - Tests: none run by any lane (rule 10); the HQ merge gate runs the suites at PR time.
 - Migrations applied this run: {list, or "none"}. Next free migration number: {NNNN}
-- Deploy state: **not deployed.** Deploy is the owner's attended act.
+- Deploy state: {not deployed | deployed: what, where, and on whose word}. Deploy is the owner's attended act.
 
 ## Gotchas for the next lane
 
@@ -37,7 +38,7 @@ Concrete, reproducible, with the path. "Be careful" is not a gotcha.
 
 | Row | Evidence path | What it needs |
 |---|---|---|
-| {…} | `evidence/{x}/BLOCKED-{row}.md` | {an owner ruling / another lane / an upstream fix} |
+| {…} | `evidence/{x}/BLOCKED-{row}.md` | {an owner ruling, asked on the office as {id} / another lane / an upstream fix} |
 
 ## Standing rulings touched this run
 
