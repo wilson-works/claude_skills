@@ -51,38 +51,34 @@ Pick the right tool for the job:
 
 Build videos with code. Best for repeatable, templated, or data-driven video at scale.
 
-### Hyperframes (HTML/CSS — recommended for agents)
+### Hyperframes (HTML compositions, rendered by a CLI)
 
-Open-source, Apache 2.0, from HeyGen. Uses plain HTML/CSS/JS — no framework DSL to learn. LLM-native: AI models generate better HTML than React components.
+Open-source, Apache 2.0, from HeyGen. Plain HTML/CSS/JS — no framework DSL to learn. The `hyperframes` npm package is a CLI with no importable API: it steps headless Chrome frame by frame and encodes with FFmpeg (needs Node 22+ and FFmpeg).
 
 ```bash
-npm install hyperframes
+npx hyperframes@<version> init my-video   # pin the version you tested
+cd my-video
+npx hyperframes@<version> preview         # browser preview, live reload
+npx hyperframes@<version> render          # MP4
 ```
 
-**Key concept:** Each frame is an HTML document. Compose frames into a timeline, render to MP4.
+**Key concept:** A video is one HTML file. Each clip is an element with `data-start`, `data-duration` and `data-track-index`; motion comes from a seekable runtime (GSAP, CSS, Lottie, Three.js, WAAPI).
 
-```typescript
-import { render } from "hyperframes";
-
-await render({
-  frames: [
-    { html: "<h1>Welcome to Acme</h1>", duration: 3 },
-    { html: "<h2>Here's what we built</h2>", duration: 3 },
-    { html: "<p>Try it free →</p>", duration: 2 },
-  ],
-  output: "intro.mp4",
-  width: 1080,
-  height: 1920, // 9:16 for vertical
-});
+```html
+<div id="stage" data-composition-id="intro" data-start="0" data-width="1080" data-height="1920">
+  <h1 class="clip" data-start="0" data-duration="3" data-track-index="0">Welcome to Acme</h1>
+</div>
 ```
+
+**Before you run it:** telemetry is on by default; set `HYPERFRAMES_NO_TELEMETRY=1`. Don't let an agent install HyperFrames' own skill pack: a non-interactive install takes all 21 skills, and its router claims every video request. Docs: [hyperframes.heygen.com](https://hyperframes.heygen.com/introduction).
 
 **Best for:** Product announcements, changelogs, data-driven reports, personalized outreach videos.
 
-**Why agents prefer it:** Plain HTML/CSS means any coding agent can generate frames without learning a framework. Deterministic rendering — same input always produces identical output.
+**Why agents prefer it:** Plain HTML/CSS means any coding agent can write a composition without learning a framework. Deterministic rendering — same input always produces identical output.
 
 ### Remotion (React)
 
-Mature open-source framework. More powerful than Hyperframes but requires React knowledge.
+Mature source-available framework. More powerful than Hyperframes but requires React knowledge.
 
 ```bash
 npx create-video@latest
@@ -115,10 +111,10 @@ export const ProductDemo: React.FC<{ title: string; features: string[] }> = ({
 | Factor | Hyperframes | Remotion |
 |--------|-------------|----------|
 | Agent compatibility | Better (plain HTML) | Good (React) |
-| Animation complexity | Basic (CSS transitions) | Advanced (Spring, interpolate) |
-| Batch rendering | Local | Lambda (AWS) for scale |
+| Animation complexity | Adapter-based (GSAP, CSS, Lottie, Three.js, WAAPI) | Advanced (Spring, interpolate) |
+| Batch rendering | Local or AWS Lambda | Lambda (AWS) for scale |
 | Learning curve | Minimal | Moderate (React + Remotion API) |
-| License | Apache 2.0 | Company license for commercial use |
+| License | Apache 2.0 | Remotion License — see the licence block in `create-onboarding-video` |
 
 ---
 
@@ -319,8 +315,8 @@ Output: Ready-to-publish video
 
 | Tool | Type | MCP | Guide |
 |------|------|:---:|-------|
-| **HeyGen** | AI avatars | Yes | [heygen.md](../../tools/integrations/heygen.md) |
-| **Hyperframes** | Programmatic video | - | [hyperframes.md](../../tools/integrations/hyperframes.md) |
+| **HeyGen** | AI avatars | Yes | [developers.heygen.com](https://developers.heygen.com/mcp/overview) |
+| **Hyperframes** | Programmatic video | - | [hyperframes.heygen.com](https://hyperframes.heygen.com/introduction) |
 | **Remotion** | Programmatic video | - | [remotion.dev](https://www.remotion.dev/docs) |
 | **Runway** | AI generation | - | [runwayml.com/docs](https://docs.dev.runwayml.com) |
 

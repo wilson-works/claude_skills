@@ -79,6 +79,12 @@ Reporting "no schema found" based solely on `web_fetch` or `curl` leads to false
 - Internal linking structure
 - No orphan pages
 
+**Rendering (JS-built sites)**
+- Fetch each key URL's raw HTML with no JavaScript (`curl -s <url>`; a fetch tool that converts pages to text drops `<head>`). FAIL if the title, meta description, canonical, H1 or opening paragraph is missing. Google renders JavaScript later; the major AI crawlers don't render it at all (Vercel and MERJ, Dec 2024: vercel.com/blog/the-rise-of-the-ai-crawler)
+- Each route's raw HTML carries its own title, description and canonical; one shared shell title is a FAIL
+- Request a made-up URL and expect 404; an app shell answering 200 is a soft 404 on every typo
+- Fixes, best first: server rendering or static generation; else prerender the public routes at build; at minimum, per-route head tags set by the server
+
 **Crawl Budget Issues** (for large sites)
 - Parameterized URLs under control
 - Faceted navigation handled properly
@@ -98,6 +104,8 @@ Reporting "no schema found" based solely on `web_fetch` or `curl` leads to false
 - Redirect chains/loops
 - Soft 404s
 - Duplicate content without canonicals
+
+A soft 404 is a status-code finding only. The share image, contact path, custom 404 page and consent banner are checked in the **prelaunch-check** skill's Launch basics block (L1–L4).
 
 **Canonicalization**
 - All pages have canonical tags
@@ -453,6 +461,7 @@ Same format as above
 
 - [AI Writing Detection](references/ai-writing-detection.md): Common AI writing patterns to avoid (em dashes, overused phrases, filler words)
 - [International SEO](references/international-seo.md): Evidence and sources for hreflang, canonical + i18n, sitemaps, URL structure, and content quality across locales
+- [Jev judging](references/jev-judging.md): Optional content judgments (page type, intent, helpfulness, trust, citability, competing pages) from a System One classifier such as TypeSafe Jev, with the question set, decision bands and scoring
 - For AI search optimization (AEO, GEO, LLMO, AI Overviews), see the **ai-seo** skill
 
 ---

@@ -94,155 +94,168 @@ if (localStorage.theme === 'dark' ||
 
 ## CSS Variable System
 
-shadcn/ui uses CSS variables for theming. Variables defined in `globals.css`:
+shadcn/ui themes with CSS variables in your global stylesheet (`globals.css` / `index.css`). In Tailwind v4 each variable holds a complete colour, OKLCH by default, and `@theme inline` maps it to a utility (next section). Pattern after shadcn-ui/ui (MIT): the values below are its `neutral` base, trimmed; the full set adds `--chart-1` to `--chart-5` and the `--sidebar-*` tokens.
 
 ```css
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
-  }
+@import "tailwindcss";
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
-}
-```
+@custom-variant dark (&:is(.dark *));
 
-### Color Format
-
-Values use HSL format without `hsl()` wrapper for better opacity control:
-```css
---primary: 222.2 47.4% 11.2%;  /* H S L */
-```
-
-Usage in Tailwind:
-```css
-background: hsl(var(--primary));
-background: hsl(var(--primary) / 0.5);  /* 50% opacity */
-```
-
-## Tailwind Configuration
-
-Map CSS variables to Tailwind utilities:
-
-```ts
-// tailwind.config.ts
-export default {
-  darkMode: ["class"],
-  theme: {
-    extend: {
-      colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-    },
-  },
-}
-```
-
-## Color Customization
-
-### Method 1: Update CSS Variables
-
-Change colors by modifying CSS variables in `globals.css`:
-
-```css
 :root {
-  --primary: 262.1 83.3% 57.8%;  /* Purple */
-  --primary-foreground: 210 20% 98%;
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
 }
 
 .dark {
-  --primary: 263.4 70% 50.4%;  /* Darker purple */
-  --primary-foreground: 210 20% 98%;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
 }
 ```
 
-### Method 2: Theme Generator
+`@custom-variant dark` makes `dark:` utilities follow a `.dark` class on an ancestor (the `attribute="class"` setup above). Without it, `dark:` follows the operating-system setting.
 
-Use shadcn/ui theme generator: https://ui.shadcn.com/themes
+### Color Format
 
-Select base color, generate theme, copy CSS variables.
+Each variable holds a full colour, so utilities read it directly and opacity modifiers work: `bg-primary`, `bg-primary/50`, `border-border`. OKLCH is `oklch(lightness chroma hue)`: lightness 0–1, chroma 0 for grey and up for colour, hue in degrees. Lightness steps look even to the eye, which makes a scale or a dark variant easier to tune than HSL.
+
+A Tailwind v3 project stores bare HSL channels (`--primary: 222.2 47.4% 11.2%`) and wraps them as `hsl(var(--primary))` in `tailwind.config`. Keep one model per project; the upgrade path is shadcn's Tailwind v4 guide (ui.shadcn.com/docs/tailwind-v4).
+
+## Tailwind Mapping (`@theme inline`)
+
+Tailwind v4 needs no `tailwind.config` theme (leave `tailwind.config` blank in `components.json`). Map the variables in CSS:
+
+```css
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+```
+
+`inline` puts `var(--primary)` itself into each utility, so a `.dark` or `[data-theme]` override on any element switches every utility inside it.
+
+## Color Customization
+
+### Method 1: Edit the Variables
+
+Change `:root` and `.dark` together; a dark value is designed, not inverted:
+
+```css
+:root {
+  --primary: oklch(0.45 0.11 160);   /* deep green */
+  --primary-foreground: oklch(0.985 0 0);
+}
+
+.dark {
+  --primary: oklch(0.72 0.12 160);   /* lighter on a dark background */
+  --primary-foreground: oklch(0.205 0 0);
+}
+```
+
+Then re-check each role pair's contrast in both themes.
+
+### Method 2: Generate a Theme
+
+- **shadcn Create** (ui.shadcn.com/create): pick base colour, radius, fonts and style, then `npx shadcn@latest apply --preset <code> --only theme`.
+- **tweakcn** (tweakcn.com, Apache-2.0, free editor): export the Tailwind v4 variables and paste them over yours. Its `shadcn add <url>` command installs a third-party registry item: run `npx shadcn@latest view <url>` first.
 
 ### Method 3: Multiple Themes
 
-Create theme variants with data attributes:
+Scope overrides with a data attribute:
 
 ```css
-[data-theme="violet"] {
-  --primary: 262.1 83.3% 57.8%;
-  --primary-foreground: 210 20% 98%;
+[data-theme="forest"] {
+  --primary: oklch(0.45 0.11 160);
+  --primary-foreground: oklch(0.985 0 0);
 }
 
-[data-theme="rose"] {
-  --primary: 346.8 77.2% 49.8%;
-  --primary-foreground: 355.7 100% 97.3%;
+[data-theme="ember"] {
+  --primary: oklch(0.7 0.16 50);
+  --primary-foreground: oklch(0.205 0 0);
 }
 ```
 
 Apply theme:
 ```tsx
-<div data-theme="violet">
-  <Button>Violet theme</Button>
+<div data-theme="forest">
+  <Button>Forest theme</Button>
 </div>
 ```
+
+### Adding a Color
+
+Define it in `:root` and `.dark`, then expose it in `@theme inline`:
+
+```css
+:root {
+  --warning: oklch(0.84 0.16 84);
+  --warning-foreground: oklch(0.205 0 0);
+}
+
+.dark {
+  --warning: oklch(0.41 0.11 46);
+  --warning-foreground: oklch(0.985 0 0);
+}
+
+@theme inline {
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+}
+```
+
+`bg-warning text-warning-foreground` now works.
 
 ## Component Customization
 
@@ -253,22 +266,22 @@ Components live in your codebase - modify directly.
 ```tsx
 // components/ui/button.tsx
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium",
+  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground",
-        destructive: "bg-destructive text-destructive-foreground",
-        outline: "border border-input bg-background",
-        // Add custom variant
-        gradient: "bg-gradient-to-r from-purple-500 to-pink-500 text-white",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive: "bg-destructive text-white hover:bg-destructive/90",
+        outline: "border bg-background hover:bg-accent hover:text-accent-foreground",
+        // Add a variant from a token you defined (see Adding a Color)
+        warning: "bg-warning text-warning-foreground hover:bg-warning/90",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded-md px-3",
+        lg: "h-10 rounded-md px-6",
         // Add custom size
-        xl: "h-14 rounded-md px-10 text-lg",
+        xl: "h-12 rounded-md px-8 text-base",
       },
     },
     defaultVariants: {
@@ -281,65 +294,51 @@ const buttonVariants = cva(
 
 Usage:
 ```tsx
-<Button variant="gradient" size="xl">Custom Button</Button>
+<Button variant="warning" size="xl">Review 3 items</Button>
 ```
 
 ### Customize Styles
 
-Modify base styles in component:
+Current components are plain functions (no `forwardRef`) that carry a `data-slot` attribute. Edit the class list:
 
 ```tsx
 // components/ui/card.tsx
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow-lg",  // Modified
-      className
-    )}
-    {...props}
-  />
-))
+function Card({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card"
+      className={cn("rounded-xl border bg-card text-card-foreground shadow-sm", className)}
+      {...props}
+    />
+  )
+}
 ```
 
 ### Override with className
 
-Pass additional classes to override:
+Pass classes for a one-off, using tokens rather than raw colours:
 
 ```tsx
-<Card className="border-2 border-purple-500 shadow-2xl hover:scale-105 transition-transform">
-  Custom styled card
+<Card className="bg-muted/50 shadow-none">
+  Quiet card
 </Card>
 ```
 
 ## Base Color Presets
 
-shadcn/ui provides base color presets during `init`:
+`npx shadcn@latest init` asks for a base colour: Neutral, Stone, Zinc, Mauve, Olive, Mist or Taupe (`tailwind.baseColor` in `components.json`). It can't be changed after init; edit the variables or apply a preset instead.
 
-- **Slate**: Cool gray tones
-- **Gray**: Neutral gray
-- **Zinc**: Warm gray
-- **Neutral**: Balanced gray
-- **Stone**: Earthy gray
+## Style
 
-Select during setup or change later by updating CSS variables.
-
-## Style Variants
-
-Two component styles available:
-
-- **Default**: Softer, more rounded
-- **New York**: Sharp, more contrast
-
-Select during `init` or in `components.json`:
+`new-york` is the style; the older `default` style is deprecated. Set at `init` in `components.json` (it can't be changed afterwards):
 
 ```json
 {
   "style": "new-york",
   "tailwind": {
+    "config": "",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
     "cssVariables": true
   }
 }
@@ -347,27 +346,23 @@ Select during `init` or in `components.json`:
 
 ## Radius Customization
 
-Control border radius globally:
+One variable drives the scale; `@theme inline` derives `rounded-sm` to `rounded-xl` (and up) from it:
 
 ```css
 :root {
-  --radius: 0.5rem;  /* Default */
-  --radius: 0rem;    /* Sharp corners */
-  --radius: 1rem;    /* Rounded */
+  --radius: 0.625rem;  /* default */
+  /* --radius: 0rem;   sharp corners */
+  /* --radius: 1rem;   rounded */
 }
-```
-
-Components use radius variable:
-```tsx
-className="rounded-lg"  /* Uses var(--radius) */
 ```
 
 ## Best Practices
 
 1. **Use CSS Variables**: Enables runtime theme switching
-2. **Consistent Foreground Colors**: Pair each color with appropriate foreground
-3. **Test Both Themes**: Verify components in light and dark modes
+2. **Pair Every Fill with Its Foreground**: `primary` / `primary-foreground`, and so on
+3. **Design Dark Mode**: Set `.dark` values on purpose, then test both themes
 4. **Semantic Naming**: Use `destructive` not `red`, `muted` not `gray`
-5. **Accessibility**: Maintain sufficient color contrast (WCAG AA minimum)
+5. **Accessibility**: Check contrast per role pair, in both themes (WCAG AA minimum)
 6. **Component Overrides**: Use `className` prop for one-off customization
 7. **Extract Patterns**: Create custom variants for repeated customizations
+8. **Not Default**: Change base colour, radius, fonts and shadows before shipping (Method 2)

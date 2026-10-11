@@ -139,6 +139,12 @@ Covers:
 - Component variant customization
 - Theme toggle implementation
 
+**Current model:** Tailwind v4, OKLCH CSS variables mapped to utilities with `@theme inline`. A `tailwind.config` theme with HSL channels is the v3 model.
+
+**Make it yours before shipping:** change the base colour, radius, fonts and shadows so the kit doesn't read as default. Build a preset on shadcn Create (ui.shadcn.com/create) and run `npx shadcn@latest apply --preset <code> --only theme` (or `--only font`; without `--only`, apply also reinstalls your UI components), or edit in tweakcn (tweakcn.com, Apache-2.0) and paste its Tailwind v4 variables. Then check contrast per role pair (`design-system`).
+
+**Third-party registry items** (`npx shadcn@latest add https://<site>/r/<name>`): run `npx shadcn@latest view <url>` or `add <url> --dry-run` first, read every file and dependency it would write, and keep the item's licence notice in the copied file.
+
 ## Accessibility Patterns
 
 **ARIA patterns, keyboard navigation, screen reader support, and accessible component usage.**
@@ -238,6 +244,8 @@ python scripts/tailwind_config_gen.py --colors brand:blue --fonts display:Inter
 8. **TypeScript**: Use full type safety for better DX
 9. **Visual Hierarchy**: Let composition guide attention, use spacing and color intentionally
 10. **Expert Craftsmanship**: Every detail matters - treat UI as a craft
+11. **Dependency Weight**: Before adding a package, run `npm view <name> dist.unpackedSize` (unpacked bytes of the package alone: a first look, not the bundle cost) and weigh it against the route's bundle budget
+12. **Baseline First**: Before using a newer CSS or JS feature, look up its Baseline status (web.dev/baseline) and follow the frontend lead's browser-support policy
 
 ## Reference Navigation
 

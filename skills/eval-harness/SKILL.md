@@ -202,6 +202,8 @@ Store evals in project:
 5. **Human review for security** - Never fully automate security checks
 6. **Keep evals fast** - Slow evals don't get run
 7. **Version evals with code** - Evals are first-class artifacts
+8. **Freeze the task list for a comparison** - Pin the tasks and the grader before the change and compare candidate with parent task by task; a dropped, renamed or timed-out task scores 0, and editing the list starts a new baseline
+9. **No observable change goes to a human** - When no paired task changes result (all green included), log "not observable by this eval"; never report it as an improvement. Pattern after DaizeDong/self-evolve (MIT)
 
 ## Example: Adding Authentication
 

@@ -10,6 +10,8 @@ Suggest the skills to be used, if any, by the next session.
 
 Do not duplicate content already captured in other artifacts (PRDs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
 
+Leave secrets out: no keys, passwords, tokens or personal data. Name people by role and clients by a code, not by name. Pattern after mattpocock/skills (MIT).
+
 If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.
 
 ## `--wave N`

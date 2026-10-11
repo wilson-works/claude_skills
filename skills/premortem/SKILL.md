@@ -156,7 +156,7 @@ Generate a visual HTML report and save it to the user's workspace.
 The report should be a single self-contained HTML file with inline CSS. Design principles:
 - Dark background (#0a0e1a or similar), clean typography, easy to scan
 - The synthesis section (most likely failure, most dangerous failure, hidden assumption, revised plan, checklist) should be prominently displayed at the top since that's what most people will read first
-- One visual card per failure reason showing the deep-dive analysis. Each card should display the failure reason as a header, the failure story, the underlying assumption, and the early warning signs. Use distinct accent colors for each card so they're visually scannable.
+- One visual card per failure reason showing the deep-dive analysis. Each card should display the failure reason as a header, the failure story, the underlying assumption, and the early warning signs. Tell the cards apart with a short status word beside a small colored dot (for example the failure's likelihood), or a lightly tinted background inside a full hairline border, so they're visually scannable.
 - A clear visual indicator of severity/likelihood for each failure mode
 - The round-robin visual: show the number of agents that ran and their findings as a grid or card layout, so the user can see the full scope of the premortem at a glance
 - Footer with timestamp and what was premortemed

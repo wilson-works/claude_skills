@@ -55,7 +55,7 @@ Re-evaluate only skills that have changed since the last run (5–10 min).
    } | sort -u | awk 'BEGIN { printf "[" } { printf "%s\"%s\"", sep, $0; sep = "," } END { print "]" }'
    ```
 3. If output is `[]`: report "No changes since last run." and stop
-4. Re-evaluate only those changed files using the same Phase 2 criteria
+4. Re-evaluate only those changed files using the same Phase 2 criteria; run the Phase 1 structural checks too (whole folder, seconds)
 5. Carry forward unchanged skills from previous results
 6. Output only the diff
 7. Save the merged results JSON back to the cache — either with the Write tool, or in Bash with the results in `$EVAL_RESULTS`:
@@ -85,6 +85,15 @@ Scanning:
 
 | Skill | 7d use | 30d use | Description |
 |-------|--------|---------|-------------|
+
+Then run the two structural checks on each scanned folder and paste both outputs into the report unedited; structure and description overlap are read from these tables, never judged by eye:
+
+```bash
+claude plugin validate ~/.claude/skills --strict                            # tier 1 (v2.1.233+): frontmatter parses, known fields
+py ~/.claude/skills/skill-stocktake/scripts/skill_lint.py ~/.claude/skills  # tier 2: PARSE, NAME, DUPLICATE, COLLIDE, UNFILLED, BUDGET
+```
+
+`py` is the Windows launcher; use `python3` elsewhere. Pass `--context-tokens 1000000` on a 1M-context model. A skill tier 1 reports as failing to parse loads with empty metadata: no description, flags ignored.
 
 ### Phase 2 — Quality Evaluation
 
@@ -119,7 +128,7 @@ After all skills are evaluated: set `status: "completed"`, proceed to Phase 3.
 Each skill is evaluated against this checklist:
 
 ```
-- [ ] Content overlap with other skills checked
+- [ ] Content overlap with other skills checked, starting from the lint's COLLIDE and DUPLICATE rows
 - [ ] Overlap with MEMORY.md / CLAUDE.md checked
 - [ ] Freshness of technical references verified (use WebSearch if tool names / CLI flags / APIs are present)
 - [ ] Usage frequency considered
@@ -172,6 +181,7 @@ Evaluation is **holistic AI judgment** — not a numeric rubric. Guiding dimensi
    - User decides whether to act
 3. **Update**: present updated content with sources checked
 4. Check MEMORY.md line count; propose compression if >100 lines
+5. **Listing budget**: when a BUDGET row says OVER, the least-used skills are losing their descriptions. Propose `disable-model-invocation: true` for skills only a person types (grep first: nothing may invoke them), or `"name-only"` for low-priority skills in the settings key `skillOverrides` (not for plugin skills). `/doctor` estimates the listing's cost; `/skill-doctor` shows what each skill costs and how often it is used. Source: https://code.claude.com/docs/en/skills#skill-descriptions-are-cut-short
 
 ## Results File Schema
 

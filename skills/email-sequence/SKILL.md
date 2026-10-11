@@ -37,6 +37,8 @@ Before creating a sequence, understand:
    - Segmentation goals
    - What defines success?
 
+4. **Sending Domain**: authenticated before the first send? Google Admin Toolbox Check MX and Dig should show one SPF record, a DKIM key per sending stream and a DMARC record, and a real test send's `Authentication-Results` header should read `spf=pass`, `dkim=pass`, `dmarc=pass` for the From domain. Gmail can mark unauthenticated mail as spam or reject it.
+
 ---
 
 ## Core Principles

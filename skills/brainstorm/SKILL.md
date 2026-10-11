@@ -90,6 +90,7 @@ A graduated ladder — go only as far up as the stakes warrant:
 3. **Criteria scoring** for the survivors: elicit *your* criteria first ("what matters — cost,
    speed, reversibility, joy?"), weight them, and score each candidate with one line of
    reasoning per cell (Pugh-style against a baseline where comparing beats absolute scores).
+4. **Worth building?** For a survivor that means building something, ask six forcing questions before committing: who is asking for it, and how do we know · what do they do today instead · one named person who badly needs it, not a segment · the smallest slice that still helps · which parts are observed and which assumed · does it still hold if the trend continues. Pattern after garrytan/gstack (MIT).
 
 ```
 CONVERGE — "make onboarding emails less generic" (41 ideas → 3)
