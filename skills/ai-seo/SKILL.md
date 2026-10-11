@@ -75,10 +75,12 @@ Before optimizing, assess your current AI search presence.
 
 Test 10-20 of your most important queries across platforms:
 
-| Query | Google AI Overview | ChatGPT | Perplexity | You Cited? | Competitors Cited? |
-|-------|:-----------------:|:-------:|:----------:|:----------:|:-----------------:|
-| [query 1] | Yes/No | Yes/No | Yes/No | Yes/No | [who] |
-| [query 2] | Yes/No | Yes/No | Yes/No | Yes/No | [who] |
+| Query | Google AI Overview | ChatGPT | Perplexity | You Mentioned? | You Cited? | Competitors Cited? |
+|-------|:-----------------:|:-------:|:----------:|:--------------:|:----------:|:-----------------:|
+| [query 1] | Yes/No | Yes/No | Yes/No | Yes/No | Yes/No | [who] |
+| [query 2] | Yes/No | Yes/No | Yes/No | Yes/No | Yes/No | [who] |
+
+Mentioned = your brand is named in the answer; Cited = the answer links to your domain as a source.
 
 **Query types to test:**
 - "What is [your product category]?"
@@ -95,6 +97,8 @@ When your competitors get cited and you don't, examine:
 - **Freshness** — Is their content more recently updated?
 - **Schema markup** — Do they have structured data you're missing?
 - **Third-party presence** — Are they cited via Wikipedia, Reddit, review sites?
+
+**For each gap** (a query where a competitor gets the link and you don't): plan one page titled like the query, with the answer first and your product second.
 
 ### Step 3: Content Extractability Check
 

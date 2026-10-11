@@ -46,6 +46,11 @@ For each screen, identify the **single piece of the feature that proves the feat
 
 ### 3. Build with Remotion
 
+**Licence (check before building).** Remotion is free for an individual or a for-profit entity with up to 3 employees; a bigger entity needs a Company License.
+- Count the entity that owns and renders the project: a client who only receives the MP4 does not count, and outside studios or freelancers who help run it add to the count ([licence FAQ](https://www.remotion.dev/docs/license/faq)).
+- Ask which entity that is and its headcount; never assume it is under the limit.
+- Re-read [LICENSE.md](https://github.com/remotion-dev/remotion/blob/main/LICENSE.md) at use time: Remotion 5.0 changes the wording.
+
 **If the `remotion-best-practices` skill is installed, always invoke it before writing Remotion code** (otherwise apply the guidance below directly). When you do, include this guidance in your prompt to it:
 
 > Build a short iOS-app onboarding video. **Never render the whole screen** — each beat must show a *piece of the feature in action*: an isolated/cropped/masked UI component (button, card, row, sheet, field, chart, etc.) animating through the interaction that demonstrates what the feature does. Place it on a clean tinted background; the rest of the app chrome is omitted or implied. Use **nice UI-like transitions** — springs, masked reveals, shared-element morphs, crossfades, parallax — to move between beats. Prefer `spring()` over linear interpolation, use `<Sequence>` to chain beats, and keep each beat short (90–240 frames at 30fps). Stills go in `public/` and load via `staticFile()`; crop them with CSS `clip-path` / `overflow: hidden` / absolute positioning to extract the focal element.
@@ -58,7 +63,9 @@ Project conventions:
 
 ### 4. Iterate
 
-Render a preview, show it to the user, and ask which beats need to be slower, faster, or restaged. Treat the first render as a draft.
+**Approve three frames before rendering.** Render stills of the opening beat, the beat that proves the feature, and the end card (`npx remotion still <composition-id> out/<name>.png --frame=<n>`), show them, and render the video only after they are approved.
+
+Then render a preview, show it to the user, and ask which beats need to be slower, faster, or restaged. Treat the first render as a draft.
 
 ## Operating rules
 

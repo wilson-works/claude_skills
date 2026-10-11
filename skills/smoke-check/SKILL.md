@@ -16,6 +16,7 @@ Before first use, replace the following placeholders:
 - `<project-root>` — absolute path to your project
 - `<typecheck-cmd>` — your typecheck command (e.g. `npm run typecheck`, `npx tsc --noEmit`, `pnpm typecheck`); leave blank if not applicable
 - `<secrets-scan-cmd>` — your secrets/env-leak guard command (e.g. `npm run check:secrets`, `gitleaks detect`); leave blank if not applicable
+  - Offline trufflehog (on PATH or the team's tools folder) as a second pass: `trufflehog git file://. --since-commit <base> --no-verification --no-update --trust-local-git-config --fail > <out-file>`; exit 183 means it found something. Keep `--no-verification` (without it, each found secret is sent to its provider to be tested), and report counts, paths and detector names, never the secret
 - `<build-cmd>` — your production build command (e.g. `npm run build`)
 - `<dev-server-url>` — local dev server URL (e.g. `http://localhost:5173`, `http://localhost:3000`)
 - `<smoke-pages>` — list of 3 key routes to hit (e.g. `/`, `/dashboard`, `/settings`); pick the most-traversed pages

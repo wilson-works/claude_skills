@@ -42,7 +42,10 @@ Before using this skill, set these placeholders:
 ## Pack format
 
 Grouped by volatility tier (the audit's T1–T4); every fact one line-item with source + date;
-every T1/T2 group headed by a named refresh trigger. Synthetic example (fictional
+every T1/T2 group headed by a named refresh trigger. A fact's `use:` says what may be done with
+its source's text: `cite-only` (paywalled or licensed: cite the section, never copy its words),
+`quote` (short quotes allowed), or unmarked for the default, read-and-cite (restate it in our
+words and cite it). Pattern after cbrock84/headcount (MIT). Synthetic example (fictional
 municipal-permits domain; citation format is illustrative):
 
 ```markdown
@@ -65,6 +68,7 @@ REFRESH TRIGGER: annual department report, expected February.
 
 ## T4 — structural facts
 - Application form: PB-101 (renewal: PB-102) — [source URL] — as of 2026-07-06
+- Fire-separation rule: model building code §R302 — [source URL] — use: cite-only — as of 2026-07-06
 
 ## Change log
 - v4 2026-07-06: expedited fee $290 → $310 per VQ-031 verification; readers notified
@@ -80,12 +84,14 @@ Input is either an **EXTERNALIZE finding set** from `/org-knowledge-audit` or a 
 
 1. Convert each needed fact into a research order — `/quick-research` for single facts,
    `/marathon-research` for a batch or a whole charter. The orders carry the pack's required
-   format: value, source URL, as-of date, volatility tier.
+   format: value, source URL, as-of date, volatility tier, and the source's `use:` class read
+   from its licence or terms.
 2. Assemble the pack **only from what the research returns, with its citations intact**. A fact
    the research couldn't source enters the pack as an explicit gap line ("fee amount:
    UNVERIFIED — research order VQ-044 open"), never as a remembered value. This is structural:
    build mode's only inputs are cited research files; there is no code path for the skill's own
-   knowledge to enter a pack.
+   knowledge to enter a pack. A `cite-only` source enters as its section reference and our
+   one-line restatement, never its own text; a source whose terms were not read is `cite-only`.
 3. Name the refresh trigger for each T1/T2 group — a real-world event ("annual rate revision,
    expected October") plus a fallback interval ("verify quarterly regardless").
 4. Register the pack and its readers in `/skill-graph`'s contract registry; long research

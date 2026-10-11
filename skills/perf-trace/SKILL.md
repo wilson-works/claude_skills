@@ -39,6 +39,11 @@ Records a performance trace on a running web page, then analyzes the results to 
 
 ### 2. Start Trace
 
+- Trace as the user, not the workstation: `emulate` with `viewport: "412x915x2.625,mobile,touch"`, `cpuThrottlingRate: 4` and `networkConditions: "Slow 4G"`. 4x is Lighthouse's default for bringing a fast desktop down to a mid-range phone (use less on a slow host). Network throttling here is per request, so treat the numbers as approximate
+  - A phone viewport comes only from `emulate`; `resize_page` won't go below about 500 px wide
+  - `emulate` reloads the page and resets in-app state; redo any setup interaction after it
+  - `emulate` can return a navigation-timeout error after about 10 s and still apply: check once with a screenshot (not `innerWidth`, which can disagree) and carry on. A call that never returns is different: after ONE such hang, stop calling the browser for the rest of the session and report the trace as not run
+  - Afterwards reset (`cpuThrottlingRate: 1`, no `networkConditions`). For desktop numbers, run a second, unthrottled trace and report both
 - Use `performance_start_trace` to begin recording
 - If the user specified an interaction (e.g., "after scroll", "when opening modal"):
   - Perform that interaction using input tools (click, scroll, type_text)
@@ -72,7 +77,7 @@ Thresholds:
 
 ### 4. Memory Check
 
-- Use `take_heapsnapshot` to capture current memory state
+- Use `take_memory_snapshot` (it needs a `filePath`, such as a scratch `.heapsnapshot` file) to capture current memory state
 - Note total JS heap size
 - Flag if heap seems unusually large for the page complexity
 
@@ -90,6 +95,7 @@ Thresholds:
 
 | Metric | Value | Status |
 |---|---|---|
+| Conditions | Phone 412x915, 4x CPU, Slow 4G (or unthrottled desktop) | — |
 | LCP | X.Xs | Good/Warn/Poor |
 | CLS | X.XX | Good/Warn/Poor |
 | INP | Xms | Good/Warn/Poor |

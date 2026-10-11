@@ -300,6 +300,8 @@ Each spoke links back to the hub. The hub links to all spokes. Spokes link to ea
 - [ ] Related content links exist on blog posts
 - [ ] Cross-section links connect features to case studies, blog to product pages
 
+This checklist covers links only. The share image, contact path, custom 404 page and consent banner are checked in the **prelaunch-check** skill's Launch basics block (L1–L4).
+
 ---
 
 ## Output Format

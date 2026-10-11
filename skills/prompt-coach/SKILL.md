@@ -20,7 +20,7 @@ Four modes, one goal: after a few sessions the user should need this skill less,
 
 Before using this skill, set this placeholder:
 
-- `<prompts-path>`: Absolute path to the folder holding your prompt library (e.g. `C:\Users\you\Documents\notes\prompts\` or `~/notes/prompts/`). The library file is `<prompts-path>/golden-prompts.md`. If the user runs `/notetaker`, a bucket inside their notes path is a natural home.
+- `<prompts-path>`: Absolute path to the folder holding your prompt library (e.g. `~/notes/prompts/`). The library file is `<prompts-path>/golden-prompts.md`. If the user runs `/notetaker`, a bucket inside their notes path is a natural home.
 
 ## Invocation
 
@@ -78,6 +78,10 @@ These are the drill curriculum and the critique vocabulary. Name the pattern whe
 | 6 | Format unstated | Gets prose when a table was wanted | Say the shape up front: table, bullets, 3 options, 150 words |
 | 7 | No examples for taste | Subjective ask ("punchier", "on-brand") with no reference | Paste one example you love and one you hate |
 | 8 | Buried question | Real ask hidden in paragraph four | Lead with the ask; context follows it |
+| 9 | Leading question | "Why is X the best option?" — the ask carries its own answer, so you get agreement, not analysis | Ask neutrally: compare X with its alternatives on named criteria |
+| 10 | Sensitive data in the prompt | Keys, passwords, client names or ID numbers pasted in | Use placeholders (`<client>`, `<key>`) or a code, and share only the fields the task needs |
+
+Patterns 9–10: pattern after f/prompts.chat (MIT).
 
 ## Workflow by Mode
 

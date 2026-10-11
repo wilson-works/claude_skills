@@ -82,6 +82,20 @@ Before designing a tool strategy, understand:
 
 ---
 
+## Pick It and Ship It (Search-Traffic Tools)
+
+1. **One exact search term per candidate**: the phrase a person types; long-tail beats broad
+2. **Search it and record who holds the top results.** If large, established sites hold them, narrow the term or drop the idea
+3. **State the search volume with its source, or label it "guess"**: never invent a number
+4. **Give the tool its own page on the product's site**; ask where the site's code lives if it isn't in this repo
+5. **No signup, works on load, good on a phone.** Leave the result ungated (crawlers can't see what sits behind a form); gate only an extra, such as an emailed report
+6. **One button under the result**, leading to the product
+7. **SEO title, meta description and H1**, plus 3-5 real questions answered on the page
+8. **Linked from the home page or footer, in the sitemap, indexable**, with the title, intro and FAQ in the raw HTML before any script runs: check with **programmatic-seo**'s Pre-Launch Checklist and **seo-audit**'s rendering check
+9. **Hand off**: the URL, title, meta description, and what's left to improve
+
+---
+
 ## Lead Capture Strategy
 
 ### Gating Options

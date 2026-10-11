@@ -1,6 +1,6 @@
 ---
 name: audit-page
-description: Runs a Lighthouse audit on a page via Chrome DevTools MCP, reporting scores for performance, accessibility, best practices, and SEO. Invoke with /audit-page [url].
+description: Runs a Lighthouse audit on a page via Chrome DevTools MCP, reporting scores for accessibility, best practices, and SEO (the MCP tool excludes performance; use perf-trace for that). Invoke with /audit-page [url].
 ---
 
 # Audit Page via Chrome DevTools MCP
@@ -13,7 +13,7 @@ Before using this skill, swap this placeholder for your project value:
 
 ## Purpose
 
-Runs a full Lighthouse audit on a running web page and reports actionable findings. Use this to catch performance regressions, accessibility violations, and SEO issues.
+Runs a full Lighthouse audit on a running web page and reports actionable findings. Use this to catch accessibility violations, best-practice problems, and SEO issues.
 
 ## Prerequisites
 
@@ -39,8 +39,8 @@ Runs a full Lighthouse audit on a running web page and reports actionable findin
 
 ### 2. Run Lighthouse Audit
 
-- Use the `lighthouse_audit` tool to run a full audit
-- This covers: Performance, Accessibility, Best Practices, SEO
+- Use the `lighthouse_audit` tool with `device: "mobile"` (it defaults to desktop)
+- This covers: Accessibility, Best Practices, SEO. The tool excludes Performance: for load speed and Core Web Vitals, run `/perf-trace`
 
 ### 3. Report Results
 
@@ -49,7 +49,6 @@ Provide a structured report:
 **Scores:**
 | Category | Score |
 |---|---|
-| Performance | XX/100 |
 | Accessibility | XX/100 |
 | Best Practices | XX/100 |
 | SEO | XX/100 |
@@ -78,6 +77,6 @@ If the user mentions they're checking a regression or comparing before/after:
 ## Important Notes
 
 - Lighthouse scores on localhost may differ from production (no network latency, no CDN)
-- Performance scores are most useful for relative comparison (before/after), not absolute targets
+- Lighthouse doesn't check the launch basics (share image, contact path, custom 404 page, consent banner); they are in the **prelaunch-check** skill's Launch basics block (L1–L4)
 - Do NOT auto-fix issues unless the user asks — this skill is observe-and-report only
 - If the MCP server is not connected, tell the user and suggest restarting the session

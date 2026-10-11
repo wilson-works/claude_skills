@@ -12,6 +12,12 @@ The Model Context Protocol (MCP) lets AI assistants call tools, read resources, 
 
 Use when: implementing a new MCP server, adding tools or resources, choosing stdio vs HTTP, upgrading the SDK, or debugging MCP registration and transport issues.
 
+## Before you build: connect first, start read-only
+
+- **Look for the vendor's own server.** Many tools small businesses run (QuickBooks, Square, Stripe, Gusto, Calendly, HubSpot and more) ship an official MCP server or Claude connector. Check the vendor's developer docs and connector listing, and confirm the publisher is the vendor itself. A community index, curated but not audited: github.com/VoltAgent/official-mcp-servers. If one exists, connect it instead of building one.
+- **Read it like any third-party code**: its tools and the scopes it asks for, at a pinned version, before it touches anyone's account.
+- **Start read-only.** Turn on write, send, delete or payment tools one at a time, each for a reason that is written down.
+
 ## How It Works
 
 ### Core concepts
@@ -124,6 +130,7 @@ Run with `node server.js`, or register with a client, e.g. `claude mcp add my-se
 - **Idempotency**: Prefer idempotent tools where possible so retries are safe.
 - **Rate and cost**: For tools that call external APIs, consider rate limits and cost; document in the tool description.
 - **Versioning**: Pin SDK version in package.json; check release notes when upgrading.
+- **Friction report**: give the server one tool the calling agent uses when it had to guess, found no tool for a step, or needed a person for something routine, e.g. `report_gap({ step, kind: "guessed" | "no_tool" | "needed_person", tried, expected })`. Short text only, never payloads or customer data; append-only and rate-limited; the server's owner reads it at triage. It records a gap as data. The agent never fixes or ships the server itself; a person decides what changes.
 
 ## Official SDKs and Docs
 

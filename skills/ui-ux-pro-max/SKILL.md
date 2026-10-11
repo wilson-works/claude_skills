@@ -182,13 +182,13 @@ This Skill is not needed in the following situations:
 - `transform-performance` - Use transform/opacity only; avoid animating width/height/top/left
 - `loading-states` - Show skeleton or progress indicator when loading exceeds 300ms
 - `excessive-motion` - Animate 1-2 key elements per view max
-- `easing` - Use ease-out for entering, ease-in for exiting; avoid linear for UI transitions
+- `easing` - Use ease-out for entering and exiting, ease-in-out for movement on screen; never ease-in on interactive UI, exits included (chosen over Material's accelerate-on-exit: a slow start delays the response the user is watching); linear only for constant motion (progress, spinners). Pattern after emilkowalski/skills (MIT).
 - `motion-meaning` - Every animation must express a cause-effect relationship, not just be decorative (Apple HIG)
 - `state-transition` - State changes (hover / active / expanded / collapsed / modal) should animate smoothly, not snap
 - `continuity` - Page/screen transitions should maintain spatial continuity (shared element, directional slide) (Apple HIG)
 - `parallax-subtle` - Use parallax sparingly; must respect reduced-motion and not cause disorientation (Apple HIG)
 - `spring-physics` - Prefer spring/physics-based curves over linear or cubic-bezier for natural feel (Apple HIG fluid animations)
-- `exit-faster-than-enter` - Exit animations shorter than enter (~60–70% of enter duration) to feel responsive (MD motion)
+- `exit-faster-than-enter` - Exit animations shorter than enter (~60–70% of enter duration), same ease-out curve, to feel responsive (MD motion)
 - `stagger-sequence` - Stagger list/grid item entrance by 30–50ms per item; avoid all-at-once or too-slow reveals (MD)
 - `shared-element-transition` - Use shared element / hero transitions for visual continuity between screens (MD, HIG)
 - `interruptible` - Animations must be interruptible; user tap/gesture cancels in-progress animation immediately (Apple HIG)

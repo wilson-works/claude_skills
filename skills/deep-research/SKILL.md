@@ -64,6 +64,7 @@ web_search_advanced_exa(query: "<keywords>", numResults: 5, startPublishedDate: 
 - Mix general and news-focused queries
 - Aim for 15-30 unique sources total
 - Prioritize: academic, official, reputable news > blogs > forums
+- US federal law (statute, regulation, Federal Register): fetch the text from the official sources and cite it as [references/us-law-sources.md](references/us-law-sources.md) shows, never from a snippet or an AI summary
 
 ### Step 4: Deep-Read Key Sources
 

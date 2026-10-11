@@ -83,6 +83,22 @@ node scripts/validate-tokens.cjs --dir src/
 | Border | none | none | none | muted-border |
 | Shadow | sm | md | none | none |
 
+## Role-Pair Contrast
+
+One global ratio hides failures: a palette can pass text on background and fail text on a filled button. Check every pair of roles that meet on screen, in each theme.
+
+1. **Pairs:** text on background; each fill's foreground on that fill (primary, secondary, accent); a fill used as text or an icon on the background; borders and the focus ring against what they sit on.
+2. **Bar (WCAG 2.2):** text 4.5:1 (SC 1.4.3); large text (24px, or 18.66px bold) 3:1; UI parts and focus indicators 3:1 (SC 1.4.11).
+3. **Output the matrix** for every palette; a failing pair changes the token, never one component:
+
+| Pair | Light | Dark | Bar | Pass |
+|------|-------|------|-----|------|
+| text / background | `<ratio>` | `<ratio>` | 4.5 | |
+| primary-foreground / primary | `<ratio>` | `<ratio>` | 4.5 | |
+| accent (icon) / background | `<ratio>` | `<ratio>` | 3 | |
+
+Method as realtimecolors.com demonstrates: judge a palette by its pairs, not its swatches.
+
 ## Scripts
 
 | Script | Purpose |
