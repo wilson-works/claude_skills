@@ -35,6 +35,7 @@ automatic Railway deployment. Staging is by name, never `git add -A` — see the
 
 ### 3. Push
 
+- Before a public site's first launch or a relaunch, run `/prelaunch-check` first
 - Run `git push` to push to the current branch on GitHub
 - Railway will automatically pick up the push and deploy
 
